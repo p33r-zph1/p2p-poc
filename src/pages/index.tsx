@@ -3,7 +3,7 @@ import { Navigation } from '@/components/layout';
 function Home() {
   return (
     <div className="mx-auto flex min-h-screen max-w-7xl flex-col">
-      <Navigation />
+      <Navigation connected />
 
       <main className="flex flex-1 items-center justify-center p-4 sm:px-6 lg:px-8">
         <article className="text-2xl">
