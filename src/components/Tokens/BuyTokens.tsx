@@ -13,7 +13,12 @@ const fiat = [
   { name: 'PHP', icon: '/images/polygon.svg' },
 ];
 
-function BuyTokens() {
+interface Props {
+  connected: boolean;
+  connectWallet(): void;
+}
+
+function BuyTokens({ connected, connectWallet }: Props) {
   return (
     <form className="space-y-8">
       <div>
@@ -81,12 +86,22 @@ function BuyTokens() {
         </div>
       </div>
 
-      <button
-        type="button"
-        className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80"
-      >
-        Connect Wallet
-      </button>
+      {connected ? (
+        <button
+          type="button"
+          className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80"
+        >
+          Confirm
+        </button>
+      ) : (
+        <button
+          type="button"
+          className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80"
+          onClick={connectWallet}
+        >
+          Connect Wallet
+        </button>
+      )}
     </form>
   );
 }

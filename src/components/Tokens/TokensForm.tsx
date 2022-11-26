@@ -6,7 +6,12 @@ import SellTokens from './SellTokens';
 
 const tabs = ['Buy', 'Sell'];
 
-function TokensForm() {
+interface Props {
+  connected: boolean;
+  connectWallet(): void;
+}
+
+function TokensForm({ connected, connectWallet }: Props) {
   return (
     <Tab.Group
       as="div"
@@ -38,10 +43,10 @@ function TokensForm() {
         )}
       >
         <Tab.Panel>
-          <BuyTokens />
+          <BuyTokens connected={connected} connectWallet={connectWallet} />
         </Tab.Panel>
         <Tab.Panel>
-          <SellTokens />
+          <SellTokens connected={connected} connectWallet={connectWallet} />
         </Tab.Panel>
       </Tab.Panels>
     </Tab.Group>
