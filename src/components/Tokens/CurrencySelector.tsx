@@ -1,35 +1,51 @@
 import Image from 'next/image';
-import { Fragment, useState } from 'react';
+import { Fragment, ReactNode, useState } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon } from '@heroicons/react/20/solid';
 
 import { classNames } from '@/utils';
 
-const networks = [
-  { name: 'Ethereum', icon: '/images/ethereum.svg' },
-  { name: 'Polygon', icon: '/images/polygon.svg' },
-  { name: 'BNB Smart Chain', icon: '/images/bnb.svg' },
-];
+interface Currency {
+  name: string;
+  icon?: string;
+}
 
-function NetworkSwitcher() {
-  const [selected, setSelected] = useState(networks[0]);
+interface Props {
+  currencies: Currency[];
+  defaultSelected?: Currency;
+  onChange?: (currency: Currency) => void;
+}
+
+function CurrencySelector({ currencies, defaultSelected, onChange }: Props) {
+  const [selected, setSelected] = useState(defaultSelected || currencies[0]);
 
   return (
-    <Listbox value={selected} onChange={setSelected}>
-      <div className="relative mt-1">
+    <Listbox
+      value={selected}
+      onChange={value => {
+        setSelected(value);
+
+        if (onChange) {
+          onChange(value);
+        }
+      }}
+    >
+      <div className="relative">
         <Listbox.Button
           className="
-        inline-flex items-center justify-center rounded-4xl border border-[#E7E9EB] px-4 py-2 font-bold text-sleep-100
+        inline-flex items-center justify-center rounded-4xl px-4 py-2 font-bold text-sleep-100
         hover:border-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-opacity-75"
         >
-          <Image
-            src={selected.icon}
-            width={24}
-            height={24}
-            alt={`${selected.name} network`}
-            className="sm:mr-2"
-          />
-          <span className="hidden sm:block sm:text-sm">{selected.name}</span>
+          {selected.icon && (
+            <Image
+              src={selected.icon}
+              width={24}
+              height={24}
+              alt={`${selected.name} network`}
+              className="mr-2"
+            />
+          )}
+          <span className="sm:text-sm">{selected.name}</span>
           <ChevronDownIcon className="ml-2 -mr-1 h-5 w-5 text-sleep-100 hover:text-sleep-200" />
         </Listbox.Button>
 
@@ -40,16 +56,16 @@ function NetworkSwitcher() {
           leaveTo="opacity-0"
         >
           <Listbox.Options className="absolute z-10 mt-1 max-h-60 min-w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-            {networks.map((network, networkIdx) => (
+            {currencies.map((currency, idx) => (
               <Listbox.Option
-                key={networkIdx}
+                key={idx}
                 className={({ active }) =>
                   classNames(
                     active ? ' text-brand' : '',
                     'relative cursor-default select-none py-2 pl-10 pr-4'
                   )
                 }
-                value={network}
+                value={currency}
               >
                 {({ selected }) => (
                   <>
@@ -59,7 +75,7 @@ function NetworkSwitcher() {
                         'block truncate'
                       )}
                     >
-                      {network.name}
+                      {currency.name}
                     </span>
                     {selected && (
                       <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-brand">
@@ -77,4 +93,4 @@ function NetworkSwitcher() {
   );
 }
 
-export default NetworkSwitcher;
+export default CurrencySelector;
