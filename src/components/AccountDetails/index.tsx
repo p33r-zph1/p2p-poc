@@ -5,7 +5,11 @@ import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { WalletIcon } from '../icons';
 import { classNames, shortenAddress } from '@/utils';
 
-function AccountDetails() {
+interface Props {
+  disconnectWallet(): void;
+}
+
+function AccountDetails({ disconnectWallet }: Props) {
   return (
     <Menu as="div" className="relative text-left">
       <Menu.Button
@@ -28,28 +32,43 @@ function AccountDetails() {
         leaveFrom="transform scale-100 opacity-100"
         leaveTo="transform scale-95 opacity-0"
       >
-        <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-          <div className="space-y-2 px-3 py-2 text-sm">
-            <Menu.Item>
-              {({ active }) => (
-                <Link
-                  className={classNames(active ? 'text-brand' : '', 'block')}
-                  href="/transactions"
-                >
-                  Transactions
-                </Link>
-              )}
-            </Menu.Item>
-            <Menu.Item>
-              {({ active }) => (
-                <Link
-                  className={classNames(active ? 'text-brand' : '', 'block')}
-                  href="/account-settings"
-                >
-                  Account Settings
-                </Link>
-              )}
-            </Menu.Item>
+        <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+          <div className="space-y-2 divide-y divide-gray-100 text-sm">
+            <div className="space-y-2 px-3 pt-2">
+              <Menu.Item>
+                {({ active }) => (
+                  <Link
+                    className={classNames(active ? 'text-brand' : '', 'block')}
+                    href="/transactions"
+                  >
+                    Transactions
+                  </Link>
+                )}
+              </Menu.Item>
+              <Menu.Item>
+                {({ active }) => (
+                  <Link
+                    className={classNames(active ? 'text-brand' : '', 'block')}
+                    href="/account-settings"
+                  >
+                    Account Settings
+                  </Link>
+                )}
+              </Menu.Item>
+            </div>
+
+            <div className="space-y-2 px-3 py-2">
+              <Menu.Item>
+                {({ active }) => (
+                  <button
+                    className={classNames(active ? 'text-brand' : '', 'block')}
+                    onClick={disconnectWallet}
+                  >
+                    Disconnect Wallet
+                  </button>
+                )}
+              </Menu.Item>
+            </div>
           </div>
         </Menu.Items>
       </Transition>
