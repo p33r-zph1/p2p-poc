@@ -19,6 +19,9 @@ module.exports = {
       fontFamily: {
         sans: ['var(--font-inter)', ...fontFamily.sans],
       },
+      borderRadius: {
+        '4xl': '2rem',
+      },
     },
   },
   plugins: [require('@tailwindcss/forms')],
