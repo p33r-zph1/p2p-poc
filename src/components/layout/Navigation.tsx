@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 import AccountDetails from '../AccountDetails';
 import { Logo, LogoIcon } from '../icons';
+import { NetworkSwitcher } from '../Network';
 
 interface Props {
   connected?: boolean;
@@ -24,7 +25,10 @@ function Navigation({ connected = false }: Props) {
           Connect Wallet
         </button>
       ) : (
-        <AccountDetails />
+        <div className="flex items-center justify-center space-x-2">
+          <NetworkSwitcher />
+          <AccountDetails />
+        </div>
       )}
     </nav>
   );
