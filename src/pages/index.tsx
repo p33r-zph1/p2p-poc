@@ -1,8 +1,11 @@
 import { useState } from 'react';
 
 import { Navigation } from '@/components/layout';
-import { TokensForm } from '@/components/Tokens';
-import AddBankAccountForm from '@/components/Tokens/AddBankAccountForm';
+import {
+  AddBankAccountForm,
+  TokensForm,
+  RecentTransactions,
+} from '@/components/Tokens';
 import { classNames } from '@/utils';
 
 export interface BankAccount {
@@ -36,6 +39,8 @@ function Home() {
             connected={connected}
             connectWallet={() => setConnected(true)}
           />
+
+          {connected && bankAccount && <RecentTransactions />}
 
           {!bankAccount && connected && (
             <AddBankAccountForm addBankAccount={setBankAccount} />
