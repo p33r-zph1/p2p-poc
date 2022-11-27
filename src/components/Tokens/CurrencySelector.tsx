@@ -45,7 +45,7 @@ function CurrencySelector({ currencies, defaultSelected, onChange }: Props) {
               className="mr-2"
             />
           )}
-          <span className="sm:text-sm">{selected.name}</span>
+          <span className="text-xs lg:text-sm">{selected.name}</span>
           <ChevronDownIcon className="ml-2 -mr-1 h-5 w-5 text-sleep-100 hover:text-sleep-200" />
         </Listbox.Button>
 

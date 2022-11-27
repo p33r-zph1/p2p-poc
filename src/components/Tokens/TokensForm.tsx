@@ -1,21 +1,23 @@
-import { classNames } from '@/utils';
 import { Tab } from '@headlessui/react';
 
+import { classNames } from '@/utils';
+import { BankAccount } from '@/pages';
 import BuyTokens from './BuyTokens';
 import SellTokens from './SellTokens';
 
 const tabs = ['Buy', 'Sell'];
 
 interface Props {
+  bankAccount?: BankAccount;
   connected: boolean;
   connectWallet(): void;
 }
 
-function TokensForm({ connected, connectWallet }: Props) {
+function TokensForm({ bankAccount, connected, connectWallet }: Props) {
   return (
     <Tab.Group
       as="div"
-      className="flex w-full flex-col overflow-hidden rounded-xl bg-white sm:w-[400px]"
+      className="flex w-full flex-col overflow-hidden rounded-xl md:max-w-md"
     >
       <Tab.List className="flex space-x-1 bg-[#E7E9EB]">
         {tabs.map(tabName => (
@@ -38,15 +40,23 @@ function TokensForm({ connected, connectWallet }: Props) {
 
       <Tab.Panels
         className={classNames(
-          'bg-white p-5 sm:p-10',
-          'rounded-xl ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2'
+          'bg-white px-5 py-10 lg:px-10',
+          'rounded-b-xl ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2'
         )}
       >
         <Tab.Panel>
-          <BuyTokens connected={connected} connectWallet={connectWallet} />
+          <BuyTokens
+            bankAccount={bankAccount}
+            connected={connected}
+            connectWallet={connectWallet}
+          />
         </Tab.Panel>
         <Tab.Panel>
-          <SellTokens connected={connected} connectWallet={connectWallet} />
+          <SellTokens
+            bankAccount={bankAccount}
+            connected={connected}
+            connectWallet={connectWallet}
+          />
         </Tab.Panel>
       </Tab.Panels>
     </Tab.Group>

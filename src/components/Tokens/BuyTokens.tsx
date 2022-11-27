@@ -1,5 +1,6 @@
 import { MinusIcon, XMarkIcon } from '@heroicons/react/20/solid';
 
+import { BankAccount } from '@/pages';
 import CurrencySelector from './CurrencySelector';
 
 const tokens = [
@@ -14,11 +15,12 @@ const fiat = [
 ];
 
 interface Props {
+  bankAccount?: BankAccount;
   connected: boolean;
   connectWallet(): void;
 }
 
-function BuyTokens({ connected, connectWallet }: Props) {
+function BuyTokens({ bankAccount, connected, connectWallet }: Props) {
   return (
     <form className="space-y-8">
       <div>
@@ -39,7 +41,7 @@ function BuyTokens({ connected, connectWallet }: Props) {
           <div className="absolute inset-y-0 left-8 w-0.5 bg-[#E7E9EB]" />
 
           <div className="space-y-6 py-6">
-            <div className="flex items-center justify-between pl-14 pr-10">
+            <div className="flex items-center justify-between pl-14 pr-4 lg:pr-10">
               <div className="absolute left-6 -ml-px h-5 w-5 rounded-full bg-[#E7E9EB] p-1">
                 <MinusIcon
                   className="h-full w-full text-sleep-200"
@@ -54,7 +56,7 @@ function BuyTokens({ connected, connectWallet }: Props) {
               </span>
             </div>
 
-            <div className="flex items-center justify-between pl-14 pr-10">
+            <div className="flex items-center justify-between pl-14 pr-4 lg:pr-10">
               <div className="absolute left-6 -ml-px h-5 w-5 rounded-full bg-[#E7E9EB] p-1">
                 <XMarkIcon
                   className="h-full w-full text-sleep-200"
@@ -89,7 +91,8 @@ function BuyTokens({ connected, connectWallet }: Props) {
       {connected ? (
         <button
           type="button"
-          className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80"
+          disabled={!Boolean(bankAccount)}
+          className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
         >
           Confirm
         </button>
