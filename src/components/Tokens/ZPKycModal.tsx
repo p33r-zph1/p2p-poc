@@ -7,7 +7,7 @@ interface Props {
   close(): void;
   onSuccess(): void;
   paymentDetails?: PaymentDetails;
-  walletAddress: string;
+  walletAddress?: string;
 }
 
 function ZPKycModal({
@@ -26,7 +26,7 @@ function ZPKycModal({
         <Dialog.Panel className="w-full max-w-sm rounded-xl bg-white p-10">
           <Dialog.Title className="text-center">ZPKyc</Dialog.Title>
           <Dialog.Description className="text-center">
-            Validating bank account details...
+            Validating your wallet address...
           </Dialog.Description>
         </Dialog.Panel>
       </div>

@@ -7,7 +7,7 @@ import ZPKycModal from './ZPKycModal';
 
 interface Props {
   addPaymentDetails(paymentDetails: PaymentDetails): void;
-  walletAddress: string;
+  walletAddress?: string;
 }
 
 function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {

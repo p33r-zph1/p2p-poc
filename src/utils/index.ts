@@ -24,3 +24,7 @@ export function shortenAddress(address: string, chars = 4): string {
 export function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
 }
+
+export function onlyNumbers(value: string): string {
+  return value.replace(/[^0-9.]/g, '');
+}

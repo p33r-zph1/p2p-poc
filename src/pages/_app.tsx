@@ -1,8 +1,30 @@
 import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
 import { Inter } from '@next/font/google';
+import { WagmiConfig, createClient, configureChains } from 'wagmi';
+import { publicProvider } from 'wagmi/providers/public';
+import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 
 import { classNames } from '@/utils';
+import chainList from '@/constants/chains';
+
+/** @see https://wagmi.sh/examples/connect-wallet#step-1-configuring-connectors */
+const { chains, provider, webSocketProvider } = configureChains(chainList, [
+  publicProvider(),
+]);
+
+// Set up client
+const client = createClient({
+  autoConnect: true,
+  /** @see https://wagmi.sh/react/connectors/metaMask */
+  connectors: [
+    new MetaMaskConnector({
+      chains,
+    }),
+  ],
+  provider,
+  webSocketProvider,
+});
 
 const inter = Inter({
   subsets: ['latin'],
@@ -12,10 +34,12 @@ const inter = Inter({
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <div
-      className={classNames(inter.variable, ' bg-paper font-sans text-body')}
-    >
-      <Component {...pageProps} />;
-    </div>
+    <WagmiConfig client={client}>
+      <div
+        className={classNames(inter.variable, ' bg-paper font-sans text-body')}
+      >
+        <Component {...pageProps} />;
+      </div>
+    </WagmiConfig>
   );
 }
