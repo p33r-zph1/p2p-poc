@@ -41,7 +41,10 @@ function Home() {
           {connected && paymentDetails && <RecentTransactions />}
 
           {!paymentDetails && connected && (
-            <AddPaymentDetails addPaymentDetails={setPaymentDetails} />
+            <AddPaymentDetails
+              addPaymentDetails={setPaymentDetails}
+              walletAddress="0x9Ceb110B007E4189ea2C01118742F069F2cfFb4d"
+            />
           )}
         </div>
       </main>

@@ -3,39 +3,36 @@ import { ArrowDownTrayIcon } from '@heroicons/react/20/solid';
 
 import { PaymentDetails } from '@/pages';
 import { InlineErrorDisplay } from '../shared';
+import ZPKycModal from './ZPKycModal';
 
 interface Props {
   addPaymentDetails(paymentDetails: PaymentDetails): void;
+  walletAddress: string;
 }
 
-function AddPaymentDetails({ addPaymentDetails }: Props) {
+function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
+  const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState('');
+  const [paymentDetails, setPaymentDetails] = useState({
+    country: '',
+    mobileNumber: '',
+  });
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
 
-    const { elements } = e.currentTarget;
-
-    const country = elements.namedItem('country') as HTMLSelectElement | null;
-    const mobileNumber = elements.namedItem(
-      'mobileNumber'
-    ) as HTMLInputElement | null;
-
-    if (!country?.value.trim()) {
+    if (!paymentDetails.country.trim()) {
       setError('Country is required.');
       return;
     }
 
-    if (!mobileNumber?.value.trim()) {
+    if (!paymentDetails.mobileNumber.trim()) {
       setError('Mobile number is required.');
       return;
     }
 
-    addPaymentDetails({
-      country: country.value,
-      mobileNumber: mobileNumber.value,
-    });
+    setIsOpen(true);
   };
 
   return (
@@ -44,6 +41,14 @@ function AddPaymentDetails({ addPaymentDetails }: Props) {
       <p className="text-sm text-sleep-100">
         Select your country and provide PayNow (SG) or InstaPay (PH) details
       </p>
+
+      <ZPKycModal
+        isOpen={isOpen}
+        close={() => setIsOpen(false)}
+        paymentDetails={paymentDetails}
+        walletAddress={walletAddress}
+        onSuccess={() => addPaymentDetails(paymentDetails)}
+      />
 
       <form onSubmit={onSubmit}>
         <div className="bg-white py-5">
@@ -62,6 +67,12 @@ function AddPaymentDetails({ addPaymentDetails }: Props) {
                 name="country"
                 autoComplete="country"
                 className="mt-1 block w-full rounded-md border border-[#E7E9EB] bg-white  py-2 px-3 text-sleep-100 shadow-sm focus:border-brand focus:outline-none focus:ring-brand sm:text-sm"
+                onChange={e =>
+                  setPaymentDetails(state => ({
+                    ...state,
+                    country: e.target.value,
+                  }))
+                }
               >
                 <option>Philippines</option>
                 <option>Singapore</option>
@@ -81,6 +92,12 @@ function AddPaymentDetails({ addPaymentDetails }: Props) {
                 id="mobileNumber"
                 autoComplete="mobileNumber"
                 className="mt-1 block w-full rounded-md border-[#E7E9EB] text-sleep-100 shadow-sm focus:border-brand focus:ring-brand sm:text-sm"
+                onChange={e =>
+                  setPaymentDetails(state => ({
+                    ...state,
+                    mobileNumber: e.target.value,
+                  }))
+                }
               />
             </div>
           </div>
