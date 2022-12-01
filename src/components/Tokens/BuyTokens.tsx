@@ -1,7 +1,9 @@
+import { FormEvent, useState } from 'react';
 import { MinusIcon, XMarkIcon } from '@heroicons/react/20/solid';
 
 import { PaymentDetails } from '@/pages';
 import CurrencySelector from './CurrencySelector';
+import { InlineErrorDisplay } from '../shared';
 
 const tokens = [
   { name: 'ETH', icon: '/images/ethereum.svg' },
@@ -21,8 +23,20 @@ interface Props {
 }
 
 function BuyTokens({ paymentDetails, connected, connectWallet }: Props) {
+  const [error, setError] = useState('');
+
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError('');
+
+    if (!paymentDetails) {
+      setError('Provide your payment details to transact.');
+      return;
+    }
+  };
+
   return (
-    <form className="space-y-8">
+    <form className="space-y-8" onSubmit={onSubmit}>
       <div>
         <div className="relative">
           <label className="absolute top-3 left-8 text-sm text-sleep-200">
@@ -88,15 +102,19 @@ function BuyTokens({ paymentDetails, connected, connectWallet }: Props) {
         </div>
       </div>
 
-      {connected ? (
+      <InlineErrorDisplay show={Boolean(error)} error={error} />
+
+      {connected && (
         <button
-          type="button"
+          type="submit"
           disabled={!Boolean(paymentDetails)}
           className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
         >
           Confirm
         </button>
-      ) : (
+      )}
+
+      {!connected && (
         <button
           type="button"
           className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80"
