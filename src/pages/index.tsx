@@ -4,11 +4,8 @@ import { Navigation } from '@/components/layout';
 import { useConnect, useDisconnect } from 'wagmi';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 
-import {
-  AddPaymentDetails,
-  TokensForm,
-  RecentTransactions,
-} from '@/components/Tokens';
+import { AddPaymentDetails, TokensForm } from '@/components/Tokens';
+import { MarketChart } from '@/components/MarketChart';
 import { classNames } from '@/utils';
 import useMountedAccount from '@/hooks/useMountedAccount';
 
@@ -39,7 +36,7 @@ function Home() {
         <div
           className={classNames(
             isConnected ? 'md:grid-cols-2' : '',
-            'mt-16 md:mt-0 md:grid md:justify-center md:gap-4 lg:mx-auto lg:max-w-5xl'
+            'mt-16 md:mt-0 md:grid md:justify-center md:gap-10 lg:mx-auto lg:max-w-5xl'
           )}
         >
           <TokensForm
@@ -48,7 +45,7 @@ function Home() {
             connectWallet={connect}
           />
 
-          {isConnected && paymentDetails && <RecentTransactions />}
+          {isConnected && paymentDetails && <MarketChart />}
 
           {!paymentDetails && isConnected && (
             <AddPaymentDetails
