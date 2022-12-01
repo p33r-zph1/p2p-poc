@@ -1,35 +1,45 @@
 import Image from 'next/image';
-import { Fragment, useState } from 'react';
+import { Fragment, useCallback, useMemo, useState } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon } from '@heroicons/react/20/solid';
 
 import { classNames } from '@/utils';
+import { useNetwork, useSwitchNetwork } from 'wagmi';
 
-const networks = [
-  { name: 'Ethereum', icon: '/images/ethereum.svg' },
-  { name: 'Polygon', icon: '/images/polygon.svg' },
-  { name: 'BNB Smart Chain', icon: '/images/bnb.svg' },
+const networksImages = [
+  { ids: [1, 5], icon: '/images/ethereum.svg' },
+  { ids: [137, 80001], icon: '/images/polygon.svg' },
+  { ids: [56, 97], icon: '/images/bnb.svg' },
 ];
 
 function NetworkSwitcher() {
-  const [selected, setSelected] = useState(networks[0]);
+  const { chain } = useNetwork();
+  const { chains, switchNetwork } = useSwitchNetwork();
+
+  const chainImg = useMemo(
+    () => networksImages.find(n => n.ids.find(id => id === chain?.id)),
+    [chain?.id]
+  );
 
   return (
-    <Listbox value={selected} onChange={setSelected}>
+    <Listbox value={chain?.id} onChange={switchNetwork}>
       <div className="relative mt-1">
         <Listbox.Button
           className="
         inline-flex items-center justify-center rounded-4xl border border-[#E7E9EB] px-4 py-2 font-bold text-sleep-100
         hover:border-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-opacity-75"
         >
-          <Image
-            src={selected.icon}
-            width={24}
-            height={24}
-            alt={`${selected.name} network`}
-            className="sm:mr-2"
-          />
-          <span className="hidden sm:block sm:text-sm">{selected.name}</span>
+          {chainImg && (
+            <Image
+              src={chainImg.icon}
+              width={24}
+              height={24}
+              alt={`${chain?.name} network`}
+              className="sm:mr-2"
+            />
+          )}
+
+          <span className="hidden sm:block sm:text-sm">{chain?.name}</span>
           <ChevronDownIcon className="ml-2 -mr-1 h-5 w-5 text-sleep-100 hover:text-sleep-200" />
         </Listbox.Button>
 
@@ -40,7 +50,7 @@ function NetworkSwitcher() {
           leaveTo="opacity-0"
         >
           <Listbox.Options className="absolute z-10 mt-1 max-h-60 min-w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-            {networks.map((network, networkIdx) => (
+            {chains.map((network, networkIdx) => (
               <Listbox.Option
                 key={networkIdx}
                 className={({ active }) =>
@@ -49,7 +59,7 @@ function NetworkSwitcher() {
                     'relative cursor-default select-none py-2 pl-10 pr-4'
                   )
                 }
-                value={network}
+                value={network.id}
               >
                 {({ selected }) => (
                   <>

@@ -6,10 +6,11 @@ import { WalletIcon } from '../icons';
 import { classNames, shortenAddress } from '@/utils';
 
 interface Props {
+  walletAddress: string;
   disconnectWallet(): void;
 }
 
-function AccountDetails({ disconnectWallet }: Props) {
+function AccountDetails({ walletAddress, disconnectWallet }: Props) {
   return (
     <Menu as="div" className="relative text-left">
       <Menu.Button
@@ -19,7 +20,7 @@ function AccountDetails({ disconnectWallet }: Props) {
       >
         <WalletIcon className="mr-2 text-white" />
         <span className="text-xs sm:text-sm">
-          {shortenAddress('0x9Ceb110B007E4189ea2C01118742F069F2cfFb4d')}
+          {shortenAddress(walletAddress)}
         </span>
         <ChevronDownIcon className="ml-2 -mr-1 h-5 w-5 text-sleep-100 hover:text-sleep-200" />
       </Menu.Button>
