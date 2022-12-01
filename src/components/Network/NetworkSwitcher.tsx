@@ -4,7 +4,7 @@ import { Listbox, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon } from '@heroicons/react/20/solid';
 
 import { classNames } from '@/utils';
-import { Chain } from 'wagmi';
+import { useNetwork, useSwitchNetwork } from 'wagmi';
 
 const networksImages = [
   { ids: [1, 5], icon: '/images/ethereum.svg' },
@@ -12,20 +12,17 @@ const networksImages = [
   { ids: [56, 97], icon: '/images/bnb.svg' },
 ];
 
-interface Props {
-  chain: Chain;
-  chainList: Chain[];
-  switchNetwork: (chainId: number) => void;
-}
+function NetworkSwitcher() {
+  const { chain } = useNetwork();
+  const { chains, switchNetwork } = useSwitchNetwork();
 
-function NetworkSwitcher({ chain, chainList, switchNetwork }: Props) {
   const chainImg = useMemo(
-    () => networksImages.find(n => n.ids.find(id => id === chain.id)),
-    [chain.id]
+    () => networksImages.find(n => n.ids.find(id => id === chain?.id)),
+    [chain?.id]
   );
 
   return (
-    <Listbox value={chain.id} onChange={switchNetwork}>
+    <Listbox value={chain?.id} onChange={switchNetwork}>
       <div className="relative mt-1">
         <Listbox.Button
           className="
@@ -37,12 +34,12 @@ function NetworkSwitcher({ chain, chainList, switchNetwork }: Props) {
               src={chainImg.icon}
               width={24}
               height={24}
-              alt={`${chain.name} network`}
+              alt={`${chain?.name} network`}
               className="sm:mr-2"
             />
           )}
 
-          <span className="hidden sm:block sm:text-sm">{chain.name}</span>
+          <span className="hidden sm:block sm:text-sm">{chain?.name}</span>
           <ChevronDownIcon className="ml-2 -mr-1 h-5 w-5 text-sleep-100 hover:text-sleep-200" />
         </Listbox.Button>
 
@@ -53,7 +50,7 @@ function NetworkSwitcher({ chain, chainList, switchNetwork }: Props) {
           leaveTo="opacity-0"
         >
           <Listbox.Options className="absolute z-10 mt-1 max-h-60 min-w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-            {chainList.map((network, networkIdx) => (
+            {chains.map((network, networkIdx) => (
               <Listbox.Option
                 key={networkIdx}
                 className={({ active }) =>

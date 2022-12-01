@@ -9,9 +9,6 @@ import { NetworkSwitcher } from '../Network';
 interface Props {
   connected: boolean;
   walletAddress?: string;
-  chain?: Chain;
-  chainList: Chain[];
-  switchNetwork: (chainId: number) => void;
   connectWallet(): void;
   disconnectWallet(): void;
 }
@@ -19,9 +16,6 @@ interface Props {
 function Navigation({
   connected,
   walletAddress,
-  chain,
-  chainList,
-  switchNetwork,
   connectWallet,
   disconnectWallet,
 }: Props) {
@@ -45,13 +39,7 @@ function Navigation({
         </button>
       ) : (
         <div className="flex items-center justify-center space-x-2">
-          {chain && (
-            <NetworkSwitcher
-              chain={chain}
-              chainList={chainList}
-              switchNetwork={switchNetwork}
-            />
-          )}
+          <NetworkSwitcher />
 
           <AccountDetails
             walletAddress={walletAddress}

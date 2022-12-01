@@ -1,6 +1,11 @@
+import { useCallback, useState } from 'react';
 import { XMarkIcon, MinusIcon } from '@heroicons/react/20/solid';
+import { useDebounce } from 'use-debounce';
 
 import { BankAccount } from '@/pages';
+import { onlyNumbers } from '@/utils';
+import useTokenTransfer from '@/hooks/useTokenTransfer';
+
 import CurrencySelector from './CurrencySelector';
 
 const tokens = [
@@ -21,6 +26,36 @@ interface Props {
 }
 
 function SellTokens({ bankAccount, connected, connectWallet }: Props) {
+  const [tokenAmount, setTokenAmount] = useState('');
+  const [debouncedTokenAmount] = useDebounce(tokenAmount, 100);
+
+  const [fiatAmount, setFiatAmount] = useState('');
+  const [debouncedFiatAmount] = useDebounce(fiatAmount, 100);
+
+  const { transfer } = useTokenTransfer({
+    amount: tokenAmount ? tokenAmount : '0',
+    contractAddress: '0xa2Fe6F40289ab5f017e8224fF7abD85C75E6DD34', // TODO(dennis): make dynamic
+    recipient: '0x89B82794DbEDfc0DA33B5A824f07f39eC6aCCe34', // TODO(dennis): make dynamic
+  });
+
+  const tokenAmountHandler = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { value } = e.target;
+      const onlyNums = onlyNumbers(value);
+      setTokenAmount(onlyNums);
+    },
+    []
+  );
+
+  const fiatAmountHandler = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { value } = e.target;
+      const onlyNums = onlyNumbers(value);
+      setFiatAmount(onlyNums);
+    },
+    []
+  );
+
   return (
     <form className="space-y-8">
       <div>
@@ -32,6 +67,8 @@ function SellTokens({ bankAccount, connected, connectWallet }: Props) {
             type="text"
             className="w-full rounded-full border-brand pl-8 pt-7 pb-3 pr-36 text-lg"
             placeholder="0.00"
+            value={debouncedTokenAmount}
+            onChange={tokenAmountHandler}
           />
           <div className="absolute inset-y-0 right-0 flex items-center border-l">
             <CurrencySelector currencies={tokens} />
@@ -82,6 +119,8 @@ function SellTokens({ bankAccount, connected, connectWallet }: Props) {
             type="text"
             className="w-full rounded-full border-brand pl-8 pt-7 pb-3 pr-36 text-lg"
             placeholder="0.00"
+            value={debouncedFiatAmount}
+            onChange={fiatAmountHandler}
           />
           <div className="absolute inset-y-0 right-0 flex items-center border-l">
             <CurrencySelector currencies={fiat} />
@@ -94,6 +133,7 @@ function SellTokens({ bankAccount, connected, connectWallet }: Props) {
           type="button"
           disabled={!Boolean(bankAccount)}
           className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
+          onClick={() => transfer?.()}
         >
           Confirm
         </button>
@@ -106,6 +146,8 @@ function SellTokens({ bankAccount, connected, connectWallet }: Props) {
           Connect Wallet
         </button>
       )}
+
+      {/* TODO(dennis): display insufficient funds if token balance is not enough */}
     </form>
   );
 }

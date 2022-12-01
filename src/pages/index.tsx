@@ -1,21 +1,16 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { Navigation } from '@/components/layout';
-import {
-  useAccount,
-  useConnect,
-  useDisconnect,
-  useNetwork,
-  useSwitchNetwork,
-} from 'wagmi';
+import { useConnect, useDisconnect } from 'wagmi';
 import { InjectedConnector } from 'wagmi/connectors/injected';
+
 import {
   AddBankAccountForm,
   TokensForm,
   RecentTransactions,
 } from '@/components/Tokens';
 import { classNames } from '@/utils';
-import useIsMounted from '@/hooks/useIsMounted';
+import useMountedAccount from '@/hooks/useMountedAccount';
 
 export interface BankAccount {
   country: string;
@@ -29,56 +24,35 @@ function Home() {
     connector: new InjectedConnector(),
   });
   const { disconnect } = useDisconnect();
-  const { address, isConnected } = useAccount();
-  const { chain } = useNetwork();
-  const { chains, error, pendingChainId, switchNetwork, status } =
-    useSwitchNetwork();
+  const { isConnected, address } = useMountedAccount();
 
   const [bankAccount, setBankAccount] = useState<BankAccount>();
-
-  const isMounted = useIsMounted();
-
-  const connectWalletHandler = useCallback(() => {
-    try {
-      connect();
-    } catch (error) {
-      console.error({ error });
-    }
-  }, [connect]);
-
-  const walletConnected = useMemo(
-    () => isConnected && isMounted,
-    [isConnected, isMounted]
-  );
 
   return (
     <div className="mx-auto flex min-h-screen max-w-7xl flex-col">
       <Navigation
-        connected={walletConnected}
+        connected={isConnected}
         walletAddress={address}
-        chain={chain}
-        chainList={chains}
-        switchNetwork={chainId => switchNetwork?.(chainId)}
-        connectWallet={connectWalletHandler}
+        connectWallet={connect}
         disconnectWallet={disconnect}
       />
 
       <main className="flex-1 p-4 md:flex md:items-center md:justify-center md:p-8 lg:px-10">
         <div
           className={classNames(
-            walletConnected ? 'md:grid-cols-2' : '',
+            isConnected ? 'md:grid-cols-2' : '',
             'mt-16 md:mt-0 md:grid md:justify-center md:gap-4 lg:mx-auto lg:max-w-5xl'
           )}
         >
           <TokensForm
             bankAccount={bankAccount}
-            connected={walletConnected}
-            connectWallet={connectWalletHandler}
+            connected={isConnected}
+            connectWallet={connect}
           />
 
-          {walletConnected && bankAccount && <RecentTransactions />}
+          {isConnected && bankAccount && <RecentTransactions />}
 
-          {!bankAccount && walletConnected && (
+          {!bankAccount && isConnected && (
             <AddBankAccountForm addBankAccount={setBankAccount} />
           )}
         </div>
