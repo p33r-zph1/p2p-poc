@@ -133,7 +133,8 @@ function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
         <div className="mt-3 text-right">
           <button
             type="submit"
-            className="inline-flex justify-center rounded-2xl border border-transparent bg-brand py-2 px-5 text-sm font-bold text-white shadow-sm hover:bg-brand/90 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            disabled={isOpen}
+            className="inline-flex justify-center rounded-2xl border border-transparent bg-brand py-2 px-5 text-sm font-bold text-white shadow-sm hover:bg-brand/90 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:bg-sleep disabled:text-sleep-300"
           >
             Submit
           </button>
