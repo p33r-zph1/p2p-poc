@@ -1,6 +1,6 @@
 import { MinusIcon, XMarkIcon } from '@heroicons/react/20/solid';
 
-import { BankAccount } from '@/pages';
+import { PaymentDetails } from '@/pages';
 import CurrencySelector from './CurrencySelector';
 
 const tokens = [
@@ -15,12 +15,12 @@ const fiat = [
 ];
 
 interface Props {
-  bankAccount?: BankAccount;
+  paymentDetails?: PaymentDetails;
   connected: boolean;
   connectWallet(): void;
 }
 
-function BuyTokens({ bankAccount, connected, connectWallet }: Props) {
+function BuyTokens({ paymentDetails, connected, connectWallet }: Props) {
   return (
     <form className="space-y-8">
       <div>
@@ -91,7 +91,7 @@ function BuyTokens({ bankAccount, connected, connectWallet }: Props) {
       {connected ? (
         <button
           type="button"
-          disabled={!Boolean(bankAccount)}
+          disabled={!Boolean(paymentDetails)}
           className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
         >
           Confirm

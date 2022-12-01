@@ -1,5 +1,11 @@
-import { BankAccount } from '@/pages';
 import { FormEvent } from 'react';
+
+interface BankAccount {
+  country: string;
+  bank: string;
+  accountNumber: string;
+  accountName: string;
+}
 
 interface Props {
   addBankAccount(bankAccount: BankAccount): void;

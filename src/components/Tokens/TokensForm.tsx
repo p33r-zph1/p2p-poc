@@ -1,19 +1,19 @@
 import { Tab } from '@headlessui/react';
 
 import { classNames } from '@/utils';
-import { BankAccount } from '@/pages';
+import { PaymentDetails } from '@/pages';
 import BuyTokens from './BuyTokens';
 import SellTokens from './SellTokens';
 
 const tabs = ['Buy', 'Sell'];
 
 interface Props {
-  bankAccount?: BankAccount;
+  paymentDetails?: PaymentDetails;
   connected: boolean;
   connectWallet(): void;
 }
 
-function TokensForm({ bankAccount, connected, connectWallet }: Props) {
+function TokensForm({ paymentDetails, connected, connectWallet }: Props) {
   return (
     <Tab.Group
       as="div"
@@ -46,14 +46,14 @@ function TokensForm({ bankAccount, connected, connectWallet }: Props) {
       >
         <Tab.Panel>
           <BuyTokens
-            bankAccount={bankAccount}
+            paymentDetails={paymentDetails}
             connected={connected}
             connectWallet={connectWallet}
           />
         </Tab.Panel>
         <Tab.Panel>
           <SellTokens
-            bankAccount={bankAccount}
+            paymentDetails={paymentDetails}
             connected={connected}
             connectWallet={connectWallet}
           />

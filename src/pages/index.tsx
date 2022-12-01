@@ -2,22 +2,20 @@ import { useState } from 'react';
 
 import { Navigation } from '@/components/layout';
 import {
-  AddBankAccountForm,
+  AddPaymentDetails,
   TokensForm,
   RecentTransactions,
 } from '@/components/Tokens';
 import { classNames } from '@/utils';
 
-export interface BankAccount {
+export interface PaymentDetails {
   country: string;
-  bank: string;
-  accountNumber: string;
-  accountName: string;
+  mobileNumber: string;
 }
 
 function Home() {
   const [connected, setConnected] = useState(false);
-  const [bankAccount, setBankAccount] = useState<BankAccount>();
+  const [paymentDetails, setPaymentDetails] = useState<PaymentDetails>();
 
   return (
     <div className="mx-auto flex min-h-screen max-w-7xl flex-col">
@@ -35,15 +33,15 @@ function Home() {
           )}
         >
           <TokensForm
-            bankAccount={bankAccount}
+            paymentDetails={paymentDetails}
             connected={connected}
             connectWallet={() => setConnected(true)}
           />
 
-          {connected && bankAccount && <RecentTransactions />}
+          {connected && paymentDetails && <RecentTransactions />}
 
-          {!bankAccount && connected && (
-            <AddBankAccountForm addBankAccount={setBankAccount} />
+          {!paymentDetails && connected && (
+            <AddPaymentDetails addPaymentDetails={setPaymentDetails} />
           )}
         </div>
       </main>
