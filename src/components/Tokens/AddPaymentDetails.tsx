@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useCallback, useState } from 'react';
 import { ArrowDownTrayIcon } from '@heroicons/react/20/solid';
 
 import { PaymentDetails } from '@/pages';
@@ -35,6 +35,13 @@ function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
     setIsOpen(true);
   };
 
+  const onValidated = useCallback(
+    (details: PaymentDetails) => {
+      addPaymentDetails(details);
+    },
+    [addPaymentDetails]
+  );
+
   return (
     <div className="mt-5 overflow-hidden rounded-xl bg-white p-5 md:mt-0 lg:p-10">
       <p className="font-semibold md:text-2xl">Provide your payment details</p>
@@ -47,7 +54,7 @@ function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
         close={() => setIsOpen(false)}
         paymentDetails={paymentDetails}
         walletAddress={walletAddress}
-        onSuccess={() => addPaymentDetails(paymentDetails)}
+        onValidated={onValidated}
       />
 
       <form onSubmit={onSubmit}>

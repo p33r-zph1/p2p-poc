@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, useEffect } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 
 import { PaymentDetails } from '@/pages';
@@ -6,7 +6,7 @@ import { PaymentDetails } from '@/pages';
 interface Props {
   isOpen: boolean;
   close(): void;
-  onSuccess(): void;
+  onValidated(paymentDetails: PaymentDetails): void;
   paymentDetails?: PaymentDetails;
   walletAddress?: string;
 }
@@ -14,10 +14,28 @@ interface Props {
 function ZPKycModal({
   close,
   isOpen,
-  onSuccess,
+  onValidated,
   walletAddress,
   paymentDetails,
 }: Props) {
+  // Mock validating payment details
+  useEffect(() => {
+    if (isOpen) {
+      let ignore = false;
+
+      const id = setTimeout(() => {
+        if (!ignore && paymentDetails) {
+          onValidated(paymentDetails);
+        }
+      }, 2000);
+
+      return () => {
+        ignore = true;
+        clearTimeout(id);
+      };
+    }
+  }, [isOpen, onValidated, paymentDetails]);
+
   return (
     <Transition show={isOpen} as={Fragment}>
       <Dialog onClose={close}>
