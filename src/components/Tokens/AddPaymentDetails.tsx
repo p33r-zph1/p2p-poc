@@ -14,7 +14,7 @@ function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState('');
   const [paymentDetails, setPaymentDetails] = useState({
-    country: '',
+    country: 'Philippines',
     mobileNumber: '',
   });
 
