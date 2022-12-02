@@ -18,10 +18,12 @@ const paymentCountries: PaymentDetails[] = [
     name: 'Philippines',
     fields: [
       {
+        id: 'accountName',
         label: 'Account Name',
         value: '',
       },
       {
+        id: 'account-mobileNumber',
         label: 'Account/Mobile Number (InstaPay)',
         value: '',
       },
@@ -31,6 +33,7 @@ const paymentCountries: PaymentDetails[] = [
     name: 'Singapore',
     fields: [
       {
+        id: 'mobileNumber',
         label: 'Mobile Number (PayNow)',
         value: '',
       },
@@ -128,7 +131,7 @@ function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
       return isValid;
     });
 
-    if (!valid || Boolean(error)) return;
+    if (!valid) return;
 
     setIsOpen(true);
   };
@@ -192,7 +195,7 @@ function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
             {paymentDetails.fields.map(field => (
               <div className="col-span-6" key={field.label}>
                 <label
-                  htmlFor="mobileNumber"
+                  htmlFor={field.id}
                   className="block text-sm font-semibold text-sleep-100"
                 >
                   {field.label}
@@ -200,8 +203,8 @@ function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
                 <input
                   type="text"
                   name="mobileNumber"
-                  id="mobileNumber"
-                  autoComplete="mobileNumber"
+                  id={field.id}
+                  autoComplete={field.id}
                   className="mt-1 block w-full rounded-md border-[#E7E9EB] text-sleep-100 shadow-sm focus:border-brand focus:ring-brand sm:text-sm"
                   onChange={e => {
                     const fieldValue = e.target.value;

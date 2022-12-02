@@ -11,6 +11,7 @@ import useMountedAccount from '@/hooks/useMountedAccount';
 
 export type PaymentField = {
   label: string;
+  id: string;
   value: string;
 };
 
