@@ -3,34 +3,64 @@ import Image from 'next/image';
 import { ArrowDownTrayIcon } from '@heroicons/react/20/solid';
 import QrScanner from 'qr-scanner';
 
-import { PaymentDetails } from '@/pages';
+import { PaymentDetails, PaymentField } from '@/pages';
 import { extractQrData, getErrors, parseQrData } from '@/lib/instapay';
 import { InlineErrorDisplay } from '../shared';
 import ZPKycModal from './ZPKycModal';
-
-const defaultPaymentDetailsState = {
-  country: 'Philippines',
-  mobileNumber: '',
-};
 
 interface Props {
   addPaymentDetails(paymentDetails: PaymentDetails): void;
   walletAddress?: string;
 }
 
+const paymentCountries: PaymentDetails[] = [
+  {
+    name: 'Philippines',
+    fields: [
+      {
+        label: 'Account Name',
+        value: '',
+      },
+      {
+        label: 'Account/Mobile Number (InstaPay)',
+        value: '',
+      },
+    ],
+  },
+  {
+    name: 'Singapore',
+    fields: [
+      {
+        label: 'Mobile Number (PayNow)',
+        value: '',
+      },
+    ],
+  },
+];
+
 function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState('');
-  const [paymentDetails, setPaymentDetails] = useState(
-    defaultPaymentDetailsState
-  );
+  const [paymentDetails, setPaymentDetails] = useState(paymentCountries[0]);
   const [imageFile, setImageFile] = useState<File>();
   const [qrPreview, setQrPreview] = useState<string>();
+
+  const fieldsHandler = useCallback(
+    (updatedField: PaymentField, fields: PaymentField[]) => {
+      return fields.map(field => {
+        if (field.label === updatedField.label) {
+          field.value = updatedField.value;
+        }
+        return field;
+      });
+    },
+    []
+  );
 
   useEffect(() => {
     if (!imageFile) {
       setQrPreview(undefined);
-      setPaymentDetails(defaultPaymentDetailsState);
+      setPaymentDetails(paymentCountries[0]);
       return;
     }
 
@@ -50,38 +80,55 @@ function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
 
         // TODO(dennis): display errors
 
-        if (qrData?.accountNumber) {
-          setPaymentDetails(state => ({
-            ...state,
-            mobileNumber: qrData.accountNumber,
-          }));
+        if (qrData?.countryCode === 'PH') {
+          if (qrData?.name) {
+            const field = paymentCountries[0].fields[0];
+            field.value = qrData.name;
+
+            setPaymentDetails(state => ({
+              ...state,
+              fields: fieldsHandler(field, state.fields),
+            }));
+          }
+
+          if (qrData?.accountNumber) {
+            const field = paymentCountries[0].fields[1];
+            field.value = qrData.accountNumber;
+
+            setPaymentDetails(state => ({
+              ...state,
+              fields: fieldsHandler(field, state.fields),
+            }));
+          }
         }
 
         setQrPreview(result);
       } catch (error) {
         setError('Failed to read the Qr Code');
         setQrPreview(undefined);
-        setPaymentDetails(defaultPaymentDetailsState);
+        setPaymentDetails(paymentCountries[0]);
         console.error({ error });
       }
     };
 
     reader.readAsDataURL(imageFile);
-  }, [imageFile]);
+  }, [fieldsHandler, imageFile]);
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
 
-    if (!paymentDetails.country.trim()) {
-      setError('Country is required.');
-      return;
-    }
+    const valid = paymentDetails.fields.every(field => {
+      const isValid = Boolean(field.value.trim());
+      if (!isValid) {
+        setError(`${field.label} is required`);
+        return;
+      }
 
-    if (!paymentDetails.mobileNumber.trim()) {
-      setError('Mobile number is required.');
-      return;
-    }
+      return isValid;
+    });
+
+    if (!valid || Boolean(error)) return;
 
     setIsOpen(true);
   };
@@ -97,7 +144,7 @@ function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
     <div className="mt-5 overflow-hidden rounded-xl bg-white p-5 md:mt-0 lg:p-10">
       <p className="font-semibold md:text-2xl">Provide your payment details</p>
       <p className="text-sm text-sleep-100">
-        Select your country and provide PayNow (SG) or InstaPay (PH) details
+        Provide your bank account details or upload a QR code below.
       </p>
 
       <ZPKycModal
@@ -125,41 +172,50 @@ function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
                 name="country"
                 autoComplete="country"
                 className="mt-1 block w-full rounded-md border border-[#E7E9EB] bg-white  py-2 px-3 text-sleep-100 shadow-sm focus:border-brand focus:outline-none focus:ring-brand sm:text-sm"
-                onChange={e =>
-                  setPaymentDetails(state => ({
-                    ...state,
-                    country: e.target.value,
-                  }))
-                }
-                value={paymentDetails.country}
+                onChange={e => {
+                  const country = e.target.value;
+                  const paymentDetails = paymentCountries.find(
+                    ctrs => ctrs.name === country
+                  );
+
+                  if (!paymentDetails) return;
+                  setPaymentDetails(paymentDetails);
+                }}
+                value={paymentDetails.name}
               >
-                <option>Philippines</option>
-                <option>Singapore</option>
+                {paymentCountries.map(ctrs => (
+                  <option key={ctrs.name}>{ctrs.name}</option>
+                ))}
               </select>
             </div>
 
-            <div className="col-span-6">
-              <label
-                htmlFor="mobileNumber"
-                className="block text-sm font-semibold text-sleep-100"
-              >
-                Mobile number for your PayNow or InstaPay
-              </label>
-              <input
-                type="text"
-                name="mobileNumber"
-                id="mobileNumber"
-                autoComplete="mobileNumber"
-                className="mt-1 block w-full rounded-md border-[#E7E9EB] text-sleep-100 shadow-sm focus:border-brand focus:ring-brand sm:text-sm"
-                onChange={e =>
-                  setPaymentDetails(state => ({
-                    ...state,
-                    mobileNumber: e.target.value,
-                  }))
-                }
-                value={paymentDetails.mobileNumber}
-              />
-            </div>
+            {paymentDetails.fields.map(field => (
+              <div className="col-span-6" key={field.label}>
+                <label
+                  htmlFor="mobileNumber"
+                  className="block text-sm font-semibold text-sleep-100"
+                >
+                  {field.label}
+                </label>
+                <input
+                  type="text"
+                  name="mobileNumber"
+                  id="mobileNumber"
+                  autoComplete="mobileNumber"
+                  className="mt-1 block w-full rounded-md border-[#E7E9EB] text-sleep-100 shadow-sm focus:border-brand focus:ring-brand sm:text-sm"
+                  onChange={e => {
+                    const fieldValue = e.target.value;
+                    field.value = fieldValue;
+
+                    setPaymentDetails(state => ({
+                      ...state,
+                      fields: fieldsHandler(field, state.fields),
+                    }));
+                  }}
+                  value={field.value}
+                />
+              </div>
+            ))}
           </div>
 
           <div className="my-5 flex items-center">

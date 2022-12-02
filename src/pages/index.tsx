@@ -9,10 +9,15 @@ import { MarketChart } from '@/components/MarketChart';
 import { classNames } from '@/utils';
 import useMountedAccount from '@/hooks/useMountedAccount';
 
-export interface PaymentDetails {
-  country: string;
-  mobileNumber: string;
-}
+export type PaymentField = {
+  label: string;
+  value: string;
+};
+
+export type PaymentDetails = {
+  name: string;
+  fields: PaymentField[];
+};
 
 function Home() {
   const { connect } = useConnect({
