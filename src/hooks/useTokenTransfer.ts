@@ -1,4 +1,4 @@
-import { BigNumber, utils } from 'ethers';
+import { utils } from 'ethers';
 import {
   usePrepareContractWrite,
   erc20ABI,
@@ -27,9 +27,10 @@ export default function useTokenTransfer({
     chainId: chain?.id || -1,
   });
 
-  const { write } = useContractWrite(config);
+  const { write, ...rest } = useContractWrite(config);
 
   return {
     transfer: write,
+    ...rest,
   };
 }

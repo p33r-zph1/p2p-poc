@@ -4,6 +4,7 @@ import { Inter } from '@next/font/google';
 import { WagmiConfig, createClient, configureChains } from 'wagmi';
 import { publicProvider } from 'wagmi/providers/public';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { classNames } from '@/utils';
 import chainList from '@/constants/chains';
@@ -14,7 +15,7 @@ const { chains, provider, webSocketProvider } = configureChains(chainList, [
 ]);
 
 // Set up client
-const client = createClient({
+const wagmiClient = createClient({
   autoConnect: true,
   /** @see https://wagmi.sh/react/connectors/metaMask */
   connectors: [
@@ -26,6 +27,8 @@ const client = createClient({
   webSocketProvider,
 });
 
+const queryClient = new QueryClient();
+
 const inter = Inter({
   subsets: ['latin'],
   weight: ['400', '600', '700'],
@@ -34,12 +37,12 @@ const inter = Inter({
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <WagmiConfig client={client}>
-      <div
-        className={classNames(inter.variable, ' bg-paper font-sans text-body')}
-      >
-        <Component {...pageProps} />;
-      </div>
-    </WagmiConfig>
+    <div className={classNames(inter.variable, 'bg-paper font-sans text-body')}>
+      <QueryClientProvider client={queryClient}>
+        <WagmiConfig client={wagmiClient}>
+          <Component {...pageProps} />;
+        </WagmiConfig>
+      </QueryClientProvider>
+    </div>
   );
 }
