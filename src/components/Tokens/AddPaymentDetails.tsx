@@ -1,9 +1,17 @@
-import { FormEvent, useCallback, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useState } from 'react';
+import Image from 'next/image';
 import { ArrowDownTrayIcon } from '@heroicons/react/20/solid';
+import QrScanner from 'qr-scanner';
 
 import { PaymentDetails } from '@/pages';
+import { extractQrData, getErrors, parseQrData } from '@/lib/instapay';
 import { InlineErrorDisplay } from '../shared';
 import ZPKycModal from './ZPKycModal';
+
+const defaultPaymentDetailsState = {
+  country: 'Philippines',
+  mobileNumber: '',
+};
 
 interface Props {
   addPaymentDetails(paymentDetails: PaymentDetails): void;
@@ -13,10 +21,53 @@ interface Props {
 function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState('');
-  const [paymentDetails, setPaymentDetails] = useState({
-    country: 'Philippines',
-    mobileNumber: '',
-  });
+  const [paymentDetails, setPaymentDetails] = useState(
+    defaultPaymentDetailsState
+  );
+  const [imageFile, setImageFile] = useState<File>();
+  const [qrPreview, setQrPreview] = useState<string>();
+
+  useEffect(() => {
+    if (!imageFile) {
+      setQrPreview(undefined);
+      setPaymentDetails(defaultPaymentDetailsState);
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onloadend = async () => {
+      try {
+        setError('');
+
+        const result = reader.result;
+        if (typeof result !== 'string') throw {};
+
+        const data = await QrScanner.scanImage(result, {});
+        const parsedData = parseQrData(data);
+        const qrData = extractQrData(parsedData);
+        const recoverableErrors = getErrors(qrData);
+
+        // TODO(dennis): display errors
+
+        if (qrData?.accountNumber) {
+          setPaymentDetails(state => ({
+            ...state,
+            mobileNumber: qrData.accountNumber,
+          }));
+        }
+
+        setQrPreview(result);
+      } catch (error) {
+        setError('Failed to read the Qr Code');
+        setQrPreview(undefined);
+        setPaymentDetails(defaultPaymentDetailsState);
+        console.error({ error });
+      }
+    };
+
+    reader.readAsDataURL(imageFile);
+  }, [imageFile]);
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -80,6 +131,7 @@ function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
                     country: e.target.value,
                   }))
                 }
+                value={paymentDetails.country}
               >
                 <option>Philippines</option>
                 <option>Singapore</option>
@@ -105,6 +157,7 @@ function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
                     mobileNumber: e.target.value,
                   }))
                 }
+                value={paymentDetails.mobileNumber}
               />
             </div>
           </div>
@@ -120,19 +173,44 @@ function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
               htmlFor="dropzone-file"
               className="flex h-28 w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-gray-300 bg-gray-50 hover:bg-gray-100"
             >
-              <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                <ArrowDownTrayIcon
-                  aria-hidden="true"
-                  className="mb-3 h-10 w-10 text-gray-400"
+              {qrPreview ? (
+                <Image
+                  src={qrPreview}
+                  width={100}
+                  height={100}
+                  alt="qr image preview"
+                  className="object-contain"
                 />
+              ) : (
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <ArrowDownTrayIcon
+                    aria-hidden="true"
+                    className="mb-3 h-10 w-10 text-gray-400"
+                  />
 
-                <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                  <span className="font-semibold">
-                    Click here to upload your QR
-                  </span>
-                </p>
-              </div>
-              <input id="dropzone-file" type="file" className="hidden" />
+                  <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                    <span className="font-semibold">
+                      Click here to upload your QR
+                    </span>
+                  </p>
+                </div>
+              )}
+              <input
+                id="dropzone-file"
+                type="file"
+                className="hidden"
+                accept="image/*"
+                onChange={event => {
+                  const file = event.target.files?.[0];
+                  if (file && file.type.substring(0, 5) === 'image')
+                    setImageFile(file);
+                  else setImageFile(undefined);
+
+                  // this line right below will reset the
+                  // input field so if you removed it you can re-add the same file
+                  event.target.value = '';
+                }}
+              />
             </label>
           </div>
         </div>
