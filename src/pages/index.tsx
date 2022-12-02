@@ -5,7 +5,7 @@ import { useConnect, useDisconnect } from 'wagmi';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 
 import { AddPaymentDetails, TokensForm } from '@/components/Tokens';
-import { MarketChart } from '@/components/MarketChart';
+import { PairPriceMatrix } from '@/components/PairPriceMatrix';
 import { classNames } from '@/utils';
 import useMountedAccount from '@/hooks/useMountedAccount';
 
@@ -41,24 +41,28 @@ function Home() {
       <main className="flex-1 p-4 md:flex md:items-center md:justify-center md:p-8 lg:px-10">
         <div
           className={classNames(
-            isConnected ? 'md:grid-cols-2' : '',
-            'mt-16 md:mt-0 md:grid md:justify-center md:gap-10 lg:mx-auto lg:max-w-5xl'
+            isConnected ? 'md:grid-cols-5' : '',
+            'mt-16 w-full md:mt-0 md:grid md:justify-center md:gap-8'
           )}
         >
-          <TokensForm
-            paymentDetails={paymentDetails}
-            connected={isConnected}
-            connectWallet={connect}
-          />
-
-          {isConnected && paymentDetails && <MarketChart />}
-
-          {!paymentDetails && isConnected && (
-            <AddPaymentDetails
-              addPaymentDetails={setPaymentDetails}
-              walletAddress={address}
+          <div className="col-span-2">
+            <TokensForm
+              paymentDetails={paymentDetails}
+              connected={isConnected}
+              connectWallet={connect}
             />
-          )}
+          </div>
+
+          <div className="col-span-3">
+            {isConnected && paymentDetails && <PairPriceMatrix />}
+
+            {!paymentDetails && isConnected && (
+              <AddPaymentDetails
+                addPaymentDetails={setPaymentDetails}
+                walletAddress={address}
+              />
+            )}
+          </div>
         </div>
       </main>
     </div>
