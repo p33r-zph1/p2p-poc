@@ -1,8 +1,11 @@
 import { Fragment, useEffect, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
+import { UserIcon } from '@heroicons/react/20/solid';
 
 import { PaymentDetails } from '@/pages';
 import { InlineErrorDisplay } from '../shared';
+import { BankIcon, WalletIcon } from '../icons';
+import { classNames } from '@/utils';
 
 interface Props {
   isOpen: boolean;
@@ -18,6 +21,69 @@ type Status =
   | 'validatingBank'
   | 'validated'
   | 'rejected';
+
+interface StatusIndicatorProps {
+  status: Status;
+}
+
+function StatusIndicator({ status }: StatusIndicatorProps) {
+  return (
+    <div className="relative mx-auto h-40 w-40 rounded-full bg-[#EBF5FF]">
+      <div
+        className={classNames(
+          status === 'validatingBank' ? 'bg-brand' : '',
+          status === 'validated' ? 'bg-[#25D3B0]' : 'animate-pulse',
+          'absolute top-1/2 left-1/2 h-1 w-1/2 origin-bottom-left -translate-y-1/2 -rotate-45 bg-white transition-colors'
+        )}
+      />
+
+      <div
+        className={classNames(
+          status === 'validatingWallet' ? 'scale-75 bg-blue-400' : '',
+          status === 'validatingBank' ? 'scale-110 bg-brand' : '',
+          status === 'validated' ? 'bg-[#25D3B0]' : '',
+          'absolute top-0 right-0 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-brand text-white transition-all'
+        )}
+      >
+        <BankIcon className="text-white" />
+      </div>
+
+      <div
+        className={classNames(
+          status === 'validatingBank'
+            ? 'bg-gradient-to-tr from-[#319BFF] via-[#25D3B0] to-[#25D3B0]'
+            : '',
+          status === 'validated'
+            ? 'scale-100 bg-[#25D3B0]'
+            : 'scale-75 bg-brand',
+          'absolute top-1/2 left-1/2 z-10 flex h-10 w-10 -translate-y-1/2 -translate-x-1/2 items-center justify-center rounded-full p-2 text-white transition-colors'
+        )}
+      >
+        <UserIcon className="h-full w-full" />
+      </div>
+
+      <div
+        className={classNames(
+          status === 'validatingWallet' ? 'scale-110 bg-brand' : '',
+          status === 'validatingBank' ? 'scale-75 bg-[#25D3B0]' : '',
+          status === 'validated' ? 'bg-[#25D3B0]' : '',
+          'absolute bottom-0 left-0 z-10 flex h-10 w-10 items-center justify-center rounded-full transition-all'
+        )}
+      >
+        <WalletIcon className="text-white" />
+      </div>
+
+      <div
+        className={classNames(
+          status === 'validatingWallet' ? 'animate-pulse bg-brand' : '',
+          status === 'validatingBank' ? 'bg-[#25D3B0]' : '',
+          status === 'validated' ? 'bg-[#25D3B0]' : '',
+          'absolute bottom-1/2 right-1/2 h-1 w-1/2 origin-bottom-right translate-y-1/2 -rotate-45 transition-colors'
+        )}
+      />
+    </div>
+  );
+}
 
 function ZPKycModal({
   close,
@@ -62,7 +128,7 @@ function ZPKycModal({
 
       const id = setTimeout(() => {
         if (!ignore) {
-          console.log({ walletAddress });
+          // console.log({ walletAddress });
           setStatus('validatingBank');
         }
       }, 2000);
@@ -81,7 +147,7 @@ function ZPKycModal({
 
       const id = setTimeout(() => {
         if (!ignore) {
-          console.log({ paymentDetails });
+          // console.log({ paymentDetails });
           setStatus('validated');
         }
       }, 2000);
@@ -128,8 +194,17 @@ function ZPKycModal({
           className="fixed inset-0 flex items-center justify-center p-4"
         >
           <Dialog.Panel className="w-full max-w-sm rounded-xl bg-white p-10">
-            <Dialog.Title className="text-center">ZPKyc</Dialog.Title>
-            <Dialog.Description className="text-center">
+            <StatusIndicator status={status} />
+
+            <Dialog.Title className="mt-10 text-center font-sans text-xl font-semibold md:text-2xl">
+              ZPKyc
+            </Dialog.Title>
+            <Dialog.Description
+              className={classNames(
+                status !== 'validated' ? 'animate-pulse' : '',
+                'text-center text-sm text-sleep-100'
+              )}
+            >
               {status === 'idle' && 'Idle'}
 
               {status === 'validatingWallet' &&
