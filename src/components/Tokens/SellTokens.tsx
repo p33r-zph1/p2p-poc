@@ -19,6 +19,7 @@ import useTokenTransfer from '@/hooks/useTokenTransfer';
 import useMountedAccount from '@/hooks/useMountedAccount';
 import { fromChain, Token } from '@/constants/tokens';
 import fiatCurrencies, { Currency } from '@/constants/currency';
+import { platformFee } from '@/constants/dapp';
 import { getPairPrice } from '@/lib/coingecko';
 
 import CurrencySelector from './CurrencySelector';
@@ -136,6 +137,10 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
     [pairPrice]
   );
 
+  if (!selectedToken) {
+    return <InlineErrorDisplay show error="Service currently not available" />;
+  }
+
   return (
     <>
       <form className="space-y-8" onSubmit={onSubmit}>
@@ -164,7 +169,7 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
             <div className="absolute inset-y-0 left-8 w-0.5 bg-[#E7E9EB]" />
 
             <div className="space-y-6 py-6">
-              {tokenBalance && selectedToken && (
+              {tokenBalance && (
                 <div className="flex items-center justify-between pl-14 pr-4 lg:pr-10">
                   <div className="absolute left-6 -ml-px h-5 w-5 rounded-full bg-[#E7E9EB] p-1">
                     <CurrencyDollarIcon
@@ -187,27 +192,25 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
                 </div>
               )}
 
-              {selectedToken && (
-                <div className="flex items-center justify-between pl-14 pr-4 lg:pr-10">
-                  <div className="absolute left-6 -ml-px h-5 w-5 rounded-full bg-[#E7E9EB] p-1">
-                    <XMarkIcon
-                      className="h-full w-full text-sleep-200"
-                      strokeWidth={2}
-                    />
-                  </div>
-                  <span className="text-sm font-semibold text-sleep-100">
-                    {pairPrice
-                      ? truncateText(`${pairPrice}`, {
-                          startPos: 12,
-                          endingText: selectedFiat.symbol,
-                        })
-                      : 'calculating...'}
-                  </span>
-                  <span className="text-sm font-semibold text-sleep-200">
-                    Conversion rate
-                  </span>
+              <div className="flex items-center justify-between pl-14 pr-4 lg:pr-10">
+                <div className="absolute left-6 -ml-px h-5 w-5 rounded-full bg-[#E7E9EB] p-1">
+                  <XMarkIcon
+                    className="h-full w-full text-sleep-200"
+                    strokeWidth={2}
+                  />
                 </div>
-              )}
+                <span className="text-sm font-semibold text-sleep-100">
+                  {pairPrice
+                    ? truncateText(`${pairPrice}`, {
+                        startPos: 12,
+                        endingText: selectedFiat.symbol,
+                      })
+                    : 'calculating...'}
+                </span>
+                <span className="text-sm font-semibold text-sleep-200">
+                  Conversion rate
+                </span>
+              </div>
 
               <div className="flex items-center justify-between pl-14 pr-4 lg:pr-10">
                 <div className="absolute left-6 -ml-px h-5 w-5 rounded-full bg-[#E7E9EB] p-1">
@@ -216,7 +219,14 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
                     strokeWidth={2}
                   />
                 </div>
-                <span className="text-sm font-semibold text-sleep-100">5%</span>
+                <span className="text-sm font-semibold text-sleep-100">
+                  {platformFee.amount}%{' '}
+                  {tokenAmount
+                    ? `(${(
+                        Number(tokenAmount) * platformFee.percentage
+                      ).toFixed(2)} ${selectedToken.symbol})`
+                    : ''}
+                </span>
                 <span className="text-sm font-semibold text-sleep-200">
                   Platform fee
                 </span>
