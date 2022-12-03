@@ -350,6 +350,12 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
             setIsConfirmModalOpen(false);
           }
         }}
+        transferDetails={{
+          payAmount: debouncedTokenAmount,
+          payCurrency: selectedToken.symbol,
+          receiveAmount: debouncedFiatAmount,
+          receiveCurrency: selectedFiat.symbol,
+        }}
         showError={isError}
         transfering={isLoading}
         // TODO(Dennis, Karim): improve error handling

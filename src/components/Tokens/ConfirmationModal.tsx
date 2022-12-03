@@ -11,6 +11,12 @@ interface Props {
   transfering: boolean;
   showError: boolean;
   error: string;
+  transferDetails: {
+    payCurrency: string;
+    payAmount: string;
+    receiveCurrency: string;
+    receiveAmount: string;
+  };
 }
 
 function ConfirmationModal({
@@ -19,7 +25,11 @@ function ConfirmationModal({
   transfering,
   error,
   showError,
+  transferDetails,
 }: Props) {
+  const { payAmount, payCurrency, receiveAmount, receiveCurrency } =
+    transferDetails;
+
   return (
     <Transition show={isOpen} as={Fragment}>
       <Dialog onClose={close}>
@@ -60,8 +70,8 @@ function ConfirmationModal({
                 'mt-2 text-center text-sm text-sleep-100'
               )}
             >
-              Paying 50 ETH for $60,876 USD <br /> Confirm this transaction in
-              your wallet
+              Paying {payAmount} {payCurrency} for {receiveAmount}{' '}
+              {receiveCurrency} <br /> Confirm this transaction in your wallet
             </Dialog.Description>
 
             <InlineErrorDisplay show={showError} error={error} />
