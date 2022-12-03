@@ -5,6 +5,7 @@ import {
   useContractWrite,
   useNetwork,
 } from 'wagmi';
+import { mainnet } from 'wagmi/chains';
 
 interface Props {
   contractAddress?: `0x${string}`;
@@ -24,7 +25,7 @@ export default function useTokenTransfer({
     abi: erc20ABI,
     functionName: 'transfer',
     args: [recipient, utils.parseEther(amount)],
-    chainId: chain?.id || -1,
+    chainId: chain?.id || mainnet.id, // fallback to mainnet
   });
 
   const { write, ...rest } = useContractWrite(config);

@@ -130,8 +130,11 @@ export const mumbaiTokens: Tokens = {
   tokens: [],
 };
 
+// default/fallback to ethereum mainnet
+const fallbackTokens = ethereumTokens.tokens;
+
 export function fromChain(chain?: Chain): Token[] {
-  if (!chain) return [];
+  if (!chain) return fallbackTokens;
 
   if (chain.id === ethereumTokens.chainId) return ethereumTokens.tokens;
   if (chain.id === goerliTokens.chainId) return goerliTokens.tokens;
@@ -140,5 +143,5 @@ export function fromChain(chain?: Chain): Token[] {
   if (chain.id === polygonTokens.chainId) return polygonTokens.tokens;
   if (chain.id === mumbaiTokens.chainId) return mumbaiTokens.tokens;
 
-  return [];
+  return fallbackTokens;
 }
