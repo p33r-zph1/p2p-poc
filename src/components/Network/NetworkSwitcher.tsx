@@ -21,6 +21,11 @@ function NetworkSwitcher() {
     [chain?.id]
   );
 
+  const supportedNetwork = useMemo(
+    () => chains.some(c => c.id === chain?.id),
+    [chain?.id, chains]
+  );
+
   return (
     <Listbox value={chain?.id} onChange={switchNetwork}>
       <div className="relative mt-1">
@@ -29,7 +34,7 @@ function NetworkSwitcher() {
         inline-flex items-center justify-center rounded-4xl border border-[#E7E9EB] px-4 py-2 font-bold text-sleep-100
         hover:border-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-opacity-75"
         >
-          {chainImg && (
+          {supportedNetwork && chainImg && (
             <Image
               src={chainImg.icon}
               width={24}
@@ -39,7 +44,9 @@ function NetworkSwitcher() {
             />
           )}
 
-          <span className="hidden sm:block sm:text-sm">{chain?.name}</span>
+          <span className="hidden sm:block sm:text-sm">
+            {supportedNetwork ? chain?.name : 'Unsupported Network'}
+          </span>
           <ChevronDownIcon className="ml-2 -mr-1 h-5 w-5 text-sleep-100 hover:text-sleep-200" />
         </Listbox.Button>
 

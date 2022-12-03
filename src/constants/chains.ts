@@ -1,6 +1,8 @@
 import { mainnet, goerli, polygon, polygonMumbai } from 'wagmi/chains';
 import type { Chain } from 'wagmi';
 
+import { buildConfig } from './build';
+
 const bsc: Chain = {
   id: 56,
   name: 'BNB Smart Chain',
@@ -47,7 +49,9 @@ const bscTest: Chain = {
   testnet: true,
 };
 
-// TODO: smart export using build config to return mainnets only or testnets only
-const chainList = [mainnet, goerli, bsc, bscTest, polygon, polygonMumbai];
+export { mainnet, goerli, bsc, bscTest, polygon, polygonMumbai };
 
-export default chainList;
+const mainnetChains = [mainnet, bsc, polygon];
+const testnetChains = [goerli, bscTest, polygonMumbai];
+
+export default buildConfig.isProdOrStaging ? mainnetChains : testnetChains;
