@@ -8,6 +8,7 @@ import { NetworkSwitcher } from '../Network';
 
 interface Props {
   connected: boolean;
+  isConnecting: boolean;
   walletAddress?: string;
   connectWallet(): void;
   disconnectWallet(): void;
@@ -15,6 +16,7 @@ interface Props {
 
 function Navigation({
   connected,
+  isConnecting,
   walletAddress,
   connectWallet,
   disconnectWallet,
@@ -35,7 +37,7 @@ function Navigation({
           className="rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80"
           onClick={connectWallet}
         >
-          Connect Wallet
+          {isConnecting ? 'Connecting...' : 'Connect Wallet'}
         </button>
       ) : (
         <div className="flex items-center justify-center space-x-2">

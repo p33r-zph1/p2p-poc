@@ -2,12 +2,13 @@ import { useState } from 'react';
 
 import { Navigation } from '@/components/layout';
 import { useConnect, useDisconnect } from 'wagmi';
-import { InjectedConnector } from 'wagmi/connectors/injected';
+import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 
 import { AddPaymentDetails, TokensForm } from '@/components/Tokens';
 import { PairPriceMatrix } from '@/components/PairPriceMatrix';
 import { classNames } from '@/utils';
 import useMountedAccount from '@/hooks/useMountedAccount';
+import chains from '@/constants/chains';
 
 export type PaymentField = {
   label: string;
@@ -21,8 +22,13 @@ export type PaymentDetails = {
 };
 
 function Home() {
-  const { connect } = useConnect({
-    connector: new InjectedConnector(),
+  const { connect, isLoading: isConnecting } = useConnect({
+    // Manually setting up the connector to only use MetaMask
+    // If we want to support other wallets, use the connectors prop from useConnect() hook and remove the connector below)
+    // https://wagmi.sh/examples/connect-wallet
+    connector: new MetaMaskConnector({
+      chains,
+    }),
   });
   const { disconnect } = useDisconnect();
   const { isConnected, address } = useMountedAccount();
@@ -33,6 +39,7 @@ function Home() {
     <div className="mx-auto flex min-h-screen max-w-7xl flex-col">
       <Navigation
         connected={isConnected}
+        isConnecting={isConnecting}
         walletAddress={address as string}
         connectWallet={connect}
         disconnectWallet={disconnect}

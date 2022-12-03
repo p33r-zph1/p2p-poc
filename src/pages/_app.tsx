@@ -4,6 +4,7 @@ import { Inter } from '@next/font/google';
 import { WagmiConfig, createClient, configureChains } from 'wagmi';
 import { publicProvider } from 'wagmi/providers/public';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
+import { InjectedConnector } from 'wagmi/connectors/injected';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { classNames } from '@/utils';
@@ -17,10 +18,19 @@ const { chains, provider, webSocketProvider } = configureChains(chainList, [
 // Set up client
 const wagmiClient = createClient({
   autoConnect: true,
-  /** @see https://wagmi.sh/react/connectors/metaMask */
   connectors: [
-    new MetaMaskConnector({
+    /** @see https://wagmi.sh/react/connectors/injected */
+    new InjectedConnector({
       chains,
+      options: {
+        name: detectedName =>
+          `Injected (${
+            typeof detectedName === 'string'
+              ? detectedName
+              : detectedName.join(', ')
+          })`,
+        shimDisconnect: true,
+      },
     }),
   ],
   provider,
