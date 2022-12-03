@@ -1,4 +1,9 @@
-import { mainnet, goerli, polygon, polygonMumbai } from 'wagmi/chains';
+import {
+  mainnet as ethereum,
+  goerli,
+  polygon,
+  polygonMumbai,
+} from 'wagmi/chains';
 import type { Chain } from 'wagmi';
 
 import { buildConfig } from './build';
@@ -49,9 +54,9 @@ const bscTest: Chain = {
   testnet: true,
 };
 
-export { mainnet, goerli, bsc, bscTest, polygon, polygonMumbai };
+export { ethereum, goerli, bsc, bscTest, polygon, polygonMumbai };
 
-const mainnetChains = [mainnet, bsc, polygon];
+const mainnetChains = [ethereum, bsc, polygon];
 const testnetChains = [goerli, bscTest, polygonMumbai];
 
 export default buildConfig.isProdOrStaging ? mainnetChains : testnetChains;

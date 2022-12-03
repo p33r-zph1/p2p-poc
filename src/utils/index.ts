@@ -26,7 +26,9 @@ export function classNames(...classes: string[]) {
 }
 
 export function onlyNumbers(value: string): string {
-  return value.replace(/[^0-9.]/g, '');
+  if (value.startsWith('.')) return '';
+
+  return value.replace(/[^0-9.]|\.(?=.*\.)/g, '');
 }
 
 export function errorWithReason(

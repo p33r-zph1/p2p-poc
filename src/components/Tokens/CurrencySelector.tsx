@@ -1,51 +1,44 @@
 import Image from 'next/image';
-import { Fragment, ReactNode, useState } from 'react';
+import { Fragment } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon } from '@heroicons/react/20/solid';
 
 import { classNames } from '@/utils';
+import { Currency } from '@/constants/currency';
 
-interface Currency {
-  name: string;
-  icon?: string;
+interface Props<T> {
+  currencies: T[];
+  selected?: T;
+  onChange: (currency: T) => void;
 }
 
-interface Props {
-  currencies: Currency[];
-  defaultSelected?: Currency;
-  onChange?: (currency: Currency) => void;
-}
-
-function CurrencySelector({ currencies, defaultSelected, onChange }: Props) {
-  const [selected, setSelected] = useState(defaultSelected || currencies[0]);
+function CurrencySelector<T extends Currency>({
+  currencies,
+  selected,
+  onChange,
+}: Props<T>) {
+  if (currencies.length === 0 || !selected) {
+    return <p className="px-5 text-sleep-100">N/A</p>;
+  }
 
   return (
-    <Listbox
-      value={selected}
-      onChange={value => {
-        setSelected(value);
-
-        if (onChange) {
-          onChange(value);
-        }
-      }}
-    >
+    <Listbox value={selected} onChange={onChange}>
       <div className="relative">
         <Listbox.Button
           className="
         inline-flex items-center justify-center rounded-4xl px-4 py-2 font-bold text-sleep-100
         hover:border-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-opacity-75"
         >
-          {selected.icon && (
+          {selected?.icon && (
             <Image
               src={selected.icon}
               width={24}
               height={24}
-              alt={`${selected.name} network`}
+              alt={`${selected.symbol} network`}
               className="mr-2"
             />
           )}
-          <span className="text-xs lg:text-sm">{selected.name}</span>
+          <span className="text-xs lg:text-sm">{selected.symbol}</span>
           <ChevronDownIcon className="ml-2 -mr-1 h-5 w-5 text-sleep-100 hover:text-sleep-200" />
         </Listbox.Button>
 
@@ -75,7 +68,7 @@ function CurrencySelector({ currencies, defaultSelected, onChange }: Props) {
                         'block truncate'
                       )}
                     >
-                      {currency.name}
+                      {currency.symbol}
                     </span>
                     {selected && (
                       <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-brand">

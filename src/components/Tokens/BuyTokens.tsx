@@ -1,20 +1,12 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { MinusIcon, XMarkIcon } from '@heroicons/react/20/solid';
+import { useNetwork } from 'wagmi';
 
 import { PaymentDetails } from '@/pages';
 import CurrencySelector from './CurrencySelector';
 import { InlineErrorDisplay } from '../shared';
-
-const tokens = [
-  { name: 'ETH', icon: '/images/ethereum.svg' },
-  { name: 'MATIC', icon: '/images/polygon.svg' },
-  { name: 'BNB', icon: '/images/bnb.svg' },
-];
-
-const fiat = [
-  { name: 'USD', icon: '/images/ethereum.svg' },
-  { name: 'PHP', icon: '/images/polygon.svg' },
-];
+import { fromChain, Token } from '@/constants/tokens';
+import fiatCurrencies, { Currency } from '@/constants/currency';
 
 interface Props {
   paymentDetails?: PaymentDetails;
@@ -23,7 +15,14 @@ interface Props {
 }
 
 function BuyTokens({ paymentDetails, connected, connectWallet }: Props) {
+  const { chain } = useNetwork();
+  const tokens = useMemo(() => fromChain(chain), [chain]);
+
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [error, setError] = useState('');
+
+  const [selectedToken, setSelectedToken] = useState<Token>();
+  const [selectedFiat, setSelectedFiat] = useState(fiatCurrencies[0]);
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,6 +33,10 @@ function BuyTokens({ paymentDetails, connected, connectWallet }: Props) {
       return;
     }
   };
+
+  useEffect(() => {
+    setSelectedToken(tokens[0]);
+  }, [tokens]);
 
   return (
     <form className="space-y-8" onSubmit={onSubmit}>
@@ -48,7 +51,11 @@ function BuyTokens({ paymentDetails, connected, connectWallet }: Props) {
             placeholder="0.00"
           />
           <div className="absolute inset-y-0 right-0 flex items-center border-l">
-            <CurrencySelector currencies={fiat} />
+            <CurrencySelector<Currency>
+              selected={selectedFiat}
+              currencies={fiatCurrencies}
+              onChange={setSelectedFiat}
+            />
           </div>
         </div>
         <div className="relative">
@@ -97,7 +104,11 @@ function BuyTokens({ paymentDetails, connected, connectWallet }: Props) {
             placeholder="0.00"
           />
           <div className="absolute inset-y-0 right-0 flex items-center border-l">
-            <CurrencySelector currencies={tokens} />
+            <CurrencySelector<Token>
+              selected={selectedToken}
+              currencies={tokens}
+              onChange={setSelectedToken}
+            />
           </div>
         </div>
       </div>

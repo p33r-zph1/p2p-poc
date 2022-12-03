@@ -7,7 +7,7 @@ import {
 } from 'wagmi';
 
 interface Props {
-  contractAddress: `0x${string}`;
+  contractAddress?: `0x${string}`;
   recipient: `0x${string}`;
   amount: string;
 }

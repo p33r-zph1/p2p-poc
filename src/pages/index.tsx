@@ -8,6 +8,7 @@ import { AddPaymentDetails, TokensForm } from '@/components/Tokens';
 import { PairPriceMatrix } from '@/components/PairPriceMatrix';
 import { classNames } from '@/utils';
 import useMountedAccount from '@/hooks/useMountedAccount';
+import useIsMounted from '@/hooks/useIsMounted';
 import chains from '@/constants/chains';
 
 export type PaymentField = {
@@ -33,7 +34,11 @@ function Home() {
   const { disconnect } = useDisconnect();
   const { isConnected, address } = useMountedAccount();
 
+  const mounted = useIsMounted();
+
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails>();
+
+  if (!mounted) return null; // TODO(dennis): display loading indicator while wagmi is hydrating
 
   return (
     <div className="mx-auto flex min-h-screen max-w-7xl flex-col">
