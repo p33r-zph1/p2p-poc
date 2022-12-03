@@ -32,6 +32,13 @@ function ConfirmationModal({
   const { payAmount, payCurrency, receiveAmount, receiveCurrency } =
     transferDetails;
 
+  const confirmReceipt = () => {
+    // TODO(Denis): add functionality for confirmation
+    setTimeout(() => {
+      close();
+    }, 1000);
+  };
+
   return (
     <Transition show={isOpen} as={Fragment}>
       <Dialog onClose={close}>
@@ -93,6 +100,16 @@ function ConfirmationModal({
                 Paying {payAmount} {payCurrency} for {receiveAmount}{' '}
                 {receiveCurrency} <br /> Confirm this transaction in your wallet
               </Dialog.Description>
+            )}
+
+            {transferSuccessful && (
+              <button
+                type="submit"
+                className="mt-8 w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
+                onClick={confirmReceipt}
+              >
+                Confirm receipt
+              </button>
             )}
 
             <InlineErrorDisplay show={showError} error={error} />
