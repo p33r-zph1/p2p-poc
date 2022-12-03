@@ -42,7 +42,7 @@ function StatusIndicator({ status }: StatusIndicatorProps) {
           status === 'validatingWallet' ? 'scale-75 bg-blue-400' : '',
           status === 'validatingBank' ? 'scale-110 bg-brand' : '',
           status === 'validated' ? 'bg-[#25D3B0]' : '',
-          'absolute top-0 right-0 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-brand text-white transition-all'
+          'absolute top-0 right-0 z-10 flex h-10 w-10 items-center justify-center rounded-full text-white transition-all'
         )}
       >
         <BankIcon className="text-white" />
