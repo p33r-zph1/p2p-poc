@@ -124,6 +124,19 @@ function BuyTokens({ paymentDetails, connected, connectWallet }: Props) {
           <div className="space-y-6 py-6">
             <div className="flex items-center justify-between pl-14 pr-4 lg:pr-10">
               <div className="absolute left-6 -ml-px h-5 w-5 rounded-full bg-[#E7E9EB] p-1">
+                <MinusIcon
+                  className="h-full w-full text-sleep-200"
+                  strokeWidth={2}
+                />
+              </div>
+              <span className="text-sm font-semibold text-sleep-100">5%</span>
+              <span className="text-sm font-semibold text-sleep-200">
+                Platform fee
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between pl-14 pr-4 lg:pr-10">
+              <div className="absolute left-6 -ml-px h-5 w-5 rounded-full bg-[#E7E9EB] p-1">
                 <XMarkIcon
                   className="h-full w-full text-sleep-200"
                   strokeWidth={2}
@@ -139,21 +152,6 @@ function BuyTokens({ paymentDetails, connected, connectWallet }: Props) {
               </span>
               <span className="text-sm font-semibold text-sleep-200">
                 Conversion rate
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between pl-14 pr-4 lg:pr-10">
-              <div className="absolute left-6 -ml-px h-5 w-5 rounded-full bg-[#E7E9EB] p-1">
-                <MinusIcon
-                  className="h-full w-full text-sleep-200"
-                  strokeWidth={2}
-                />
-              </div>
-              <span className="text-sm font-semibold text-sleep-100">
-                Waived
-              </span>
-              <span className="text-sm font-semibold text-sleep-200">
-                Platform fee
               </span>
             </div>
 

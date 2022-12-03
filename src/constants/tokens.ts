@@ -74,7 +74,7 @@ export const bscTokens: Tokens = {
   tokens: [
     {
       contractAddress: '0x55d398326f99059ff775485246999027b3197955',
-      symbol: 'BSC-USD',
+      symbol: 'USDT',
       icon: '/images/bnb.svg',
       id: 'tether',
     },
@@ -98,7 +98,7 @@ export const bscTestTokens: Tokens = {
   tokens: [
     {
       contractAddress: '0x99D572B6B04ae564A9a61239A6dc744A573FFb4D',
-      symbol: 'BSC-USD',
+      symbol: 'USDT',
       icon: '/images/bnb.svg',
       id: 'tether',
     },
