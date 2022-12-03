@@ -1,5 +1,6 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { XMarkIcon, MinusIcon } from '@heroicons/react/20/solid';
+import { useQuery } from '@tanstack/react-query';
 import { useDebounce } from 'use-debounce';
 import { useBalance, useNetwork } from 'wagmi';
 
@@ -7,7 +8,7 @@ import { PaymentDetails } from '@/pages';
 import { classNames, errorWithReason, onlyNumbers } from '@/utils';
 import useTokenTransfer from '@/hooks/useTokenTransfer';
 import useMountedAccount from '@/hooks/useMountedAccount';
-import { fromChain, Token } from '@/constants/tokens';
+import { fromChain, PairPrice, Token } from '@/constants/tokens';
 import fiatCurrencies, { Currency } from '@/constants/currency';
 
 import CurrencySelector from './CurrencySelector';
@@ -23,6 +24,22 @@ interface Props {
 
 type FindingPairStatus = 'idle' | 'findingPair' | 'pairFound' | 'pairNotFound';
 
+async function getPairPrice(pair1?: string, pair2?: string) {
+  if (!pair1 || !pair2) {
+    throw new Error('Invalid pair was provided');
+  }
+
+  const url = `https://api.coingecko.com/api/v3/simple/price?ids=${pair1}&vs_currencies=${pair2}`;
+  const response = await fetch(url);
+  const pairPrice = (await response.json()) as PairPrice;
+
+  if (!response.ok || !pairPrice[pair1][pair2]) {
+    throw new Error(`Could not retrieve price for pair ${pair1} : ${pair2}`);
+  }
+
+  return pairPrice[pair1][pair2];
+}
+
 function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
   const { address } = useMountedAccount();
   const { chain } = useNetwork();
@@ -34,7 +51,9 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
   const [findingPairStatus, setFindingPairStatus] =
     useState<FindingPairStatus>('idle');
 
-  const [selectedToken, setSelectedToken] = useState<Token>();
+  const [selectedToken, setSelectedToken] = useState<Token>(
+    fromChain(chain)[0]
+  );
   const [selectedFiat, setSelectedFiat] = useState(fiatCurrencies[0]);
 
   const [tokenAmount, setTokenAmount] = useState('');
@@ -85,27 +104,43 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
     transfer();
   };
 
+  useEffect(() => {
+    setSelectedToken(tokens[0]);
+  }, [tokens]);
+
+  const { data: pairPrice, isLoading: isLoadingPairPrice } = useQuery({
+    queryKey: [selectedToken.id, selectedFiat.id],
+    queryFn: () => getPairPrice(selectedToken.id, selectedFiat.id),
+  });
+
   const tokenAmountHandler = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const { value } = e.target;
       const onlyNums = onlyNumbers(value);
+
       setTokenAmount(onlyNums);
+
+      if (!pairPrice) return;
+
+      const conversion = Number(onlyNums) * pairPrice;
+      setFiatAmount(conversion <= 0 ? '' : conversion.toString());
     },
-    []
+    [pairPrice]
   );
 
   const fiatAmountHandler = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const { value } = e.target;
       const onlyNums = onlyNumbers(value);
-      setFiatAmount(onlyNums);
-    },
-    []
-  );
 
-  useEffect(() => {
-    setSelectedToken(tokens[0]);
-  }, [tokens]);
+      setFiatAmount(onlyNums);
+
+      if (!pairPrice) return;
+      const conversion = Number(onlyNums) / pairPrice;
+      setTokenAmount(conversion <= 0 ? '' : conversion.toString());
+    },
+    [pairPrice]
+  );
 
   return (
     <>
@@ -155,7 +190,7 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
                   />
                 </div>
                 <span className="text-sm font-semibold text-sleep-100">
-                  3.2 ETH
+                  Waived
                 </span>
                 <span className="text-sm font-semibold text-sleep-200">
                   Platform fee
@@ -170,7 +205,9 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
                   />
                 </div>
                 <span className="text-sm font-semibold text-sleep-100">
-                  1,184.89 USD
+                  {pairPrice
+                    ? `${pairPrice} ${selectedFiat.symbol}`
+                    : 'calculating...'}
                 </span>
                 <span className="text-sm font-semibold text-sleep-200">
                   Conversion rate
@@ -187,6 +224,7 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
               type="text"
               className="w-full rounded-full border-brand pl-8 pt-7 pb-3 pr-36 text-lg"
               placeholder="0.00"
+              disabled={!pairPrice || isLoadingPairPrice}
               value={debouncedFiatAmount}
               onChange={fiatAmountHandler}
             />
