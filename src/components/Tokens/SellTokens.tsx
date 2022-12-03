@@ -1,11 +1,20 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
-import { XMarkIcon, MinusIcon } from '@heroicons/react/20/solid';
+import {
+  XMarkIcon,
+  MinusIcon,
+  CurrencyDollarIcon,
+} from '@heroicons/react/20/solid';
 import { useQuery } from '@tanstack/react-query';
 import { useDebounce } from 'use-debounce';
 import { useBalance, useNetwork } from 'wagmi';
 
 import { PaymentDetails } from '@/pages';
-import { classNames, errorWithReason, onlyNumbers } from '@/utils';
+import {
+  classNames,
+  errorWithReason,
+  onlyNumbers,
+  truncateText,
+} from '@/utils';
 import useTokenTransfer from '@/hooks/useTokenTransfer';
 import useMountedAccount from '@/hooks/useMountedAccount';
 import { fromChain, Token } from '@/constants/tokens';
@@ -157,9 +166,20 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
             <div className="space-y-6 py-6">
               {tokenBalance && selectedToken && (
                 <div className="flex items-center justify-between pl-14 pr-4 lg:pr-10">
-                  <div className="absolute left-6 -ml-px h-5 w-5 rounded-full bg-[#E7E9EB] p-1" />
+                  <div className="absolute left-6 -ml-px h-5 w-5 rounded-full bg-[#E7E9EB] p-1">
+                    <CurrencyDollarIcon
+                      className="h-full w-full text-sleep-200"
+                      strokeWidth={2}
+                    />
+                  </div>
                   <span className="text-sm font-semibold text-sleep-100">
-                    {tokenBalance.formatted} {selectedToken.symbol}
+                    {truncateText(
+                      `${Number(tokenBalance.formatted) - Number(tokenAmount)}`,
+                      {
+                        startPos: 12,
+                        endingText: selectedToken.symbol,
+                      }
+                    )}
                   </span>
                   <span className="text-sm font-semibold text-sleep-200">
                     Balance
@@ -191,7 +211,10 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
                 </div>
                 <span className="text-sm font-semibold text-sleep-100">
                   {pairPrice
-                    ? `${pairPrice} ${selectedFiat.symbol}`
+                    ? truncateText(`${pairPrice}`, {
+                        startPos: 12,
+                        endingText: selectedFiat.symbol,
+                      })
                     : 'calculating...'}
                 </span>
                 <span className="text-sm font-semibold text-sleep-200">
