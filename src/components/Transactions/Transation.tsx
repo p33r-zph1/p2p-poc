@@ -1,9 +1,9 @@
-import { classNames } from '@/utils';
+import { MouseEventHandler } from 'react';
 import { Disclosure, Transition } from '@headlessui/react';
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
-import { MouseEventHandler } from 'react';
 
-import { type ITransaction } from './Transactions';
+import { ITransaction } from '@/hooks/useTransactions';
+import { classNames } from '@/utils';
 
 interface Props {
   transaction: ITransaction;

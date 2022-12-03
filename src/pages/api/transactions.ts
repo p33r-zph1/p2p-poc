@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import { ITransaction } from '@/components/Transactions/Transactions';
+import { ITransaction } from '@/hooks/useTransactions';
 
 const transactions: ITransaction[] = [
   {

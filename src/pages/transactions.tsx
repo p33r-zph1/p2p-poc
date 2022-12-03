@@ -6,6 +6,7 @@ import { Transactions } from '@/components/Transactions';
 import useMountedAccount from '@/hooks/useMountedAccount';
 import useIsMounted from '@/hooks/useIsMounted';
 import chains from '@/constants/chains';
+import useTransactions from '@/hooks/useTransactions';
 
 export type PaymentField = {
   label: string;
@@ -29,6 +30,7 @@ function TransactionsPage() {
   });
   const { disconnect } = useDisconnect();
   const { isConnected, address } = useMountedAccount();
+  const { data, isFetching } = useTransactions();
 
   const mounted = useIsMounted();
 
@@ -51,7 +53,15 @@ function TransactionsPage() {
               Transactions
             </h1>
 
-            <div className="mt-5">
+            <div className="my-3">
+              {isFetching ? (
+                <div className="h-2.5 w-12 animate-pulse rounded-full bg-gray-300"></div>
+              ) : (
+                <p className="text-sm text-sleep-100">{data?.length} results</p>
+              )}
+            </div>
+
+            <div className="my-5">
               <Transactions />
             </div>
           </div>
