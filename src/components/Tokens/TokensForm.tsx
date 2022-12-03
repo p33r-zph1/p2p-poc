@@ -10,10 +10,16 @@ const tabs = ['Buy', 'Sell'];
 interface Props {
   paymentDetails?: PaymentDetails;
   connected: boolean;
+  isConnecting: boolean;
   connectWallet(): void;
 }
 
-function TokensForm({ paymentDetails, connected, connectWallet }: Props) {
+function TokensForm({
+  paymentDetails,
+  connected,
+  connectWallet,
+  isConnecting,
+}: Props) {
   return (
     <Tab.Group
       as="div"
@@ -46,6 +52,7 @@ function TokensForm({ paymentDetails, connected, connectWallet }: Props) {
       >
         <Tab.Panel>
           <BuyTokens
+            isConnecting={isConnecting}
             paymentDetails={paymentDetails}
             connected={connected}
             connectWallet={connectWallet}
@@ -53,6 +60,7 @@ function TokensForm({ paymentDetails, connected, connectWallet }: Props) {
         </Tab.Panel>
         <Tab.Panel>
           <SellTokens
+            isConnecting={isConnecting}
             paymentDetails={paymentDetails}
             connected={connected}
             connectWallet={connectWallet}

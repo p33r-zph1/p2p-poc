@@ -30,12 +30,18 @@ import ConfirmationModal from './ConfirmationModal';
 interface Props {
   paymentDetails?: PaymentDetails;
   connected: boolean;
+  isConnecting: boolean;
   connectWallet(): void;
 }
 
 type FindingPairStatus = 'idle' | 'findingPair' | 'pairFound' | 'pairNotFound';
 
-function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
+function SellTokens({
+  paymentDetails,
+  connected,
+  connectWallet,
+  isConnecting,
+}: Props) {
   const { address } = useMountedAccount();
   const { chain } = useNetwork();
   const tokens = useMemo(() => fromChain(chain), [chain]);
@@ -63,6 +69,7 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
     error: transferError,
     preparationError,
     isError,
+    isSuccess,
   } = useTokenTransfer({
     amount: tokenAmount ? tokenAmount : '0',
     contractAddress: selectedToken?.contractAddress,
@@ -335,10 +342,11 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
         {!connected && (
           <button
             type="button"
-            className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80"
+            className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
+            disabled={isConnecting}
             onClick={connectWallet}
           >
-            Connect Wallet
+            {isConnecting ? 'Connecting...' : 'Connect Wallet'}
           </button>
         )}
       </form>
@@ -350,6 +358,13 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
             setIsConfirmModalOpen(false);
           }
         }}
+        transferDetails={{
+          payAmount: debouncedTokenAmount,
+          payCurrency: selectedToken.symbol,
+          receiveAmount: debouncedFiatAmount,
+          receiveCurrency: selectedFiat.symbol,
+        }}
+        transferSuccessful={isSuccess}
         showError={isError}
         transfering={isLoading}
         // TODO(Dennis, Karim): improve error handling
