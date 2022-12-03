@@ -26,5 +26,37 @@ export function classNames(...classes: string[]) {
 }
 
 export function onlyNumbers(value: string): string {
-  return value.replace(/[^0-9.]/g, '');
+  if (value.startsWith('.')) return '';
+
+  return value.replace(/[^0-9.]|\.(?=.*\.)/g, '');
+}
+
+export function errorWithReason(
+  error: unknown
+): error is Error & { reason: string } {
+  if (error === null || error === undefined) return false;
+
+  return typeof error === 'object' && 'message' in error && 'reason' in error;
+}
+
+type TruncateOptions = {
+  startPos?: number;
+  endPos?: number;
+  maxLength?: number;
+  endingText?: string;
+};
+
+export function truncateText(
+  text: string,
+  { startPos = 7, endPos = 0, maxLength = 10, endingText }: TruncateOptions = {}
+): string {
+  if (!text) return '-';
+
+  const endingTextToPad = endingText ? ` ${endingText}` : '';
+
+  if (text.length <= maxLength) return `${text}${endingTextToPad}`;
+
+  return `${text.substring(0, startPos)}...${text.substring(
+    text.length - endPos
+  )}${endingTextToPad}`;
 }

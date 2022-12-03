@@ -1,26 +1,30 @@
-import { FormEvent, useCallback, useState } from 'react';
-import { XMarkIcon, MinusIcon } from '@heroicons/react/20/solid';
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  XMarkIcon,
+  MinusIcon,
+  CurrencyDollarIcon,
+} from '@heroicons/react/20/solid';
+import { useQuery } from '@tanstack/react-query';
 import { useDebounce } from 'use-debounce';
+import { useBalance, useNetwork } from 'wagmi';
 
 import { PaymentDetails } from '@/pages';
-import { classNames, onlyNumbers } from '@/utils';
+import {
+  classNames,
+  errorWithReason,
+  onlyNumbers,
+  truncateText,
+} from '@/utils';
 import useTokenTransfer from '@/hooks/useTokenTransfer';
+import useMountedAccount from '@/hooks/useMountedAccount';
+import { fromChain, Token } from '@/constants/tokens';
+import fiatCurrencies, { Currency } from '@/constants/currency';
+import { getPairPrice } from '@/lib/coingecko';
 
 import CurrencySelector from './CurrencySelector';
 import { InlineErrorDisplay } from '../shared';
 import { MatchedIcon, MatchingIcon } from '../icons';
 import ConfirmationModal from './ConfirmationModal';
-
-const tokens = [
-  { name: 'ETH', icon: '/images/ethereum.svg' },
-  { name: 'MATIC', icon: '/images/polygon.svg' },
-  { name: 'BNB', icon: '/images/bnb.svg' },
-];
-
-const fiat = [
-  { name: 'USD', icon: '/images/ethereum.svg' },
-  { name: 'PHP', icon: '/images/polygon.svg' },
-];
 
 interface Props {
   paymentDetails?: PaymentDetails;
@@ -31,12 +35,23 @@ interface Props {
 type FindingPairStatus = 'idle' | 'findingPair' | 'pairFound' | 'pairNotFound';
 
 function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
+  const { address } = useMountedAccount();
+  const { chain } = useNetwork();
+  const tokens = useMemo(() => fromChain(chain), [chain]);
+
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [error, setError] = useState('');
-  const [tokenAmount, setTokenAmount] = useState('');
-  const [debouncedTokenAmount] = useDebounce(tokenAmount, 100);
+
   const [findingPairStatus, setFindingPairStatus] =
     useState<FindingPairStatus>('idle');
+
+  const [selectedToken, setSelectedToken] = useState<Token>(
+    fromChain(chain)[0]
+  );
+  const [selectedFiat, setSelectedFiat] = useState(fiatCurrencies[0]);
+
+  const [tokenAmount, setTokenAmount] = useState('');
+  const [debouncedTokenAmount] = useDebounce(tokenAmount, 100);
 
   const [fiatAmount, setFiatAmount] = useState('');
   const [debouncedFiatAmount] = useDebounce(fiatAmount, 100);
@@ -45,11 +60,17 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
     transfer,
     isLoading,
     error: transferError,
+    preparationError,
     isError,
   } = useTokenTransfer({
     amount: tokenAmount ? tokenAmount : '0',
-    contractAddress: '0xa2Fe6F40289ab5f017e8224fF7abD85C75E6DD34', // TODO(dennis): make dynamic
-    recipient: '0x89B82794DbEDfc0DA33B5A824f07f39eC6aCCe34', // TODO(dennis): make dynamic
+    contractAddress: selectedToken?.contractAddress,
+    recipient: '0xDc1ACdb071490A6fd66f449Db98F977a8B60FfC6', // TODO(dennis): make dynamic
+  });
+
+  const { data: tokenBalance, refetch: refetchTokenBalance } = useBalance({
+    address,
+    token: selectedToken?.contractAddress,
   });
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -77,22 +98,42 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
     transfer();
   };
 
+  useEffect(() => {
+    setSelectedToken(tokens[0]);
+  }, [tokens]);
+
+  const { data: pairPrice, isLoading: isLoadingPairPrice } = useQuery({
+    queryKey: [selectedToken.id, selectedFiat.id],
+    queryFn: () => getPairPrice(selectedToken.id, selectedFiat.id),
+  });
+
   const tokenAmountHandler = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const { value } = e.target;
       const onlyNums = onlyNumbers(value);
+
       setTokenAmount(onlyNums);
+
+      if (!pairPrice) return;
+
+      const conversion = Number(onlyNums) * pairPrice;
+      setFiatAmount(conversion <= 0 ? '' : conversion.toString());
     },
-    []
+    [pairPrice]
   );
 
   const fiatAmountHandler = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const { value } = e.target;
       const onlyNums = onlyNumbers(value);
+
       setFiatAmount(onlyNums);
+
+      if (!pairPrice) return;
+      const conversion = Number(onlyNums) / pairPrice;
+      setTokenAmount(conversion <= 0 ? '' : conversion.toString());
     },
-    []
+    [pairPrice]
   );
 
   return (
@@ -111,7 +152,11 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
               onChange={tokenAmountHandler}
             />
             <div className="absolute inset-y-0 right-0 flex items-center border-l">
-              <CurrencySelector currencies={tokens} />
+              <CurrencySelector<Token>
+                selected={selectedToken}
+                currencies={tokens}
+                onChange={setSelectedToken}
+              />
             </div>
           </div>
 
@@ -119,6 +164,29 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
             <div className="absolute inset-y-0 left-8 w-0.5 bg-[#E7E9EB]" />
 
             <div className="space-y-6 py-6">
+              {tokenBalance && selectedToken && (
+                <div className="flex items-center justify-between pl-14 pr-4 lg:pr-10">
+                  <div className="absolute left-6 -ml-px h-5 w-5 rounded-full bg-[#E7E9EB] p-1">
+                    <CurrencyDollarIcon
+                      className="h-full w-full text-sleep-200"
+                      strokeWidth={2}
+                    />
+                  </div>
+                  <span className="text-sm font-semibold text-sleep-100">
+                    {truncateText(
+                      `${Number(tokenBalance.formatted) - Number(tokenAmount)}`,
+                      {
+                        startPos: 12,
+                        endingText: selectedToken.symbol,
+                      }
+                    )}
+                  </span>
+                  <span className="text-sm font-semibold text-sleep-200">
+                    Balance
+                  </span>
+                </div>
+              )}
+
               <div className="flex items-center justify-between pl-14 pr-4 lg:pr-10">
                 <div className="absolute left-6 -ml-px h-5 w-5 rounded-full bg-[#E7E9EB] p-1">
                   <MinusIcon
@@ -127,7 +195,7 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
                   />
                 </div>
                 <span className="text-sm font-semibold text-sleep-100">
-                  3.2 ETH
+                  Waived
                 </span>
                 <span className="text-sm font-semibold text-sleep-200">
                   Platform fee
@@ -142,7 +210,12 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
                   />
                 </div>
                 <span className="text-sm font-semibold text-sleep-100">
-                  1,184.89 USD
+                  {pairPrice
+                    ? truncateText(`${pairPrice}`, {
+                        startPos: 12,
+                        endingText: selectedFiat.symbol,
+                      })
+                    : 'calculating...'}
                 </span>
                 <span className="text-sm font-semibold text-sleep-200">
                   Conversion rate
@@ -159,16 +232,25 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
               type="text"
               className="w-full rounded-full border-brand pl-8 pt-7 pb-3 pr-36 text-lg"
               placeholder="0.00"
+              disabled={!pairPrice || isLoadingPairPrice}
               value={debouncedFiatAmount}
               onChange={fiatAmountHandler}
             />
             <div className="absolute inset-y-0 right-0 flex items-center border-l">
-              <CurrencySelector currencies={fiat} />
+              <CurrencySelector<Currency>
+                selected={selectedFiat}
+                currencies={fiatCurrencies}
+                onChange={setSelectedFiat}
+              />
             </div>
           </div>
         </div>
 
         <InlineErrorDisplay show={Boolean(error)} error={error} />
+
+        {errorWithReason(preparationError) && (
+          <InlineErrorDisplay show error={preparationError.reason} />
+        )}
 
         {connected && findingPairStatus !== 'idle' && (
           <div className="flex flex-col items-center justify-center">
@@ -228,7 +310,11 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
         {connected && findingPairStatus === 'idle' && (
           <button
             type="submit"
-            disabled={!Boolean(paymentDetails)}
+            disabled={
+              !Boolean(paymentDetails) ||
+              Boolean(preparationError) ||
+              Number(tokenAmount) <= 0
+            }
             className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
             onClick={findPair}
           >
@@ -245,8 +331,6 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
             Connect Wallet
           </button>
         )}
-
-        {/* TODO(dennis): display insufficient funds if token balance is not enough */}
       </form>
 
       <ConfirmationModal

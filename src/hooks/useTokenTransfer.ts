@@ -5,9 +5,10 @@ import {
   useContractWrite,
   useNetwork,
 } from 'wagmi';
+import { mainnet } from 'wagmi/chains';
 
 interface Props {
-  contractAddress: `0x${string}`;
+  contractAddress?: `0x${string}`;
   recipient: `0x${string}`;
   amount: string;
 }
@@ -19,18 +20,19 @@ export default function useTokenTransfer({
 }: Props) {
   const { chain } = useNetwork();
 
-  const { config } = usePrepareContractWrite({
+  const { config, error: preparationError } = usePrepareContractWrite({
     address: contractAddress,
     abi: erc20ABI,
     functionName: 'transfer',
     args: [recipient, utils.parseEther(amount)],
-    chainId: chain?.id || -1,
+    chainId: chain?.id || mainnet.id, // fallback to mainnet
   });
 
   const { write, ...rest } = useContractWrite(config);
 
   return {
     transfer: write,
+    preparationError,
     ...rest,
   };
 }
