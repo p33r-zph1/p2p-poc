@@ -1,9 +1,10 @@
-import { MouseEventHandler } from 'react';
+import { MouseEventHandler, useState } from 'react';
 import { Disclosure, Transition } from '@headlessui/react';
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
 
 import { ITransaction } from '@/hooks/useTransactions';
 import { classNames } from '@/utils';
+import SuccessfulTransactionModal from './SuccessfulTransactionModal';
 
 interface Props {
   transaction: ITransaction;
@@ -69,12 +70,16 @@ function StatusBadge({ status, onConfirmReciept }: StatusBadgeProps) {
 }
 
 function Transation({ transaction, lastItem = true }: Props) {
+  const [isOpen, setIsOpen] = useState(false);
+
   const { details, status } = transaction;
 
   const confirmReceipt: MouseEventHandler<HTMLButtonElement> = e => {
     e.stopPropagation();
 
-    console.log('called');
+    // TODO(Dennis): you can do the confirmation here
+
+    setIsOpen(true);
   };
 
   return (
@@ -130,6 +135,12 @@ function Transation({ transaction, lastItem = true }: Props) {
           </div>
         )}
       </Disclosure>
+
+      <SuccessfulTransactionModal
+        isOpen={isOpen}
+        close={() => setIsOpen(false)}
+        transaction={{ details, status }}
+      />
     </div>
   );
 }
