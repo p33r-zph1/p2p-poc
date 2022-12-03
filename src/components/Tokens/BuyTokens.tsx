@@ -32,7 +32,7 @@ function BuyTokens({ paymentDetails, connected, connectWallet }: Props) {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [error, setError] = useState('');
 
-  const [selectedToken, setSelectedToken] = useState<Token>(
+  const [selectedToken, setSelectedToken] = useState<Token | undefined>(
     fromChain(chain)[0]
   );
   const [selectedFiat, setSelectedFiat] = useState(fiatCurrencies[0]);
@@ -63,8 +63,8 @@ function BuyTokens({ paymentDetails, connected, connectWallet }: Props) {
   }, [tokens]);
 
   const { data: pairPrice, isLoading: isLoadingPairPrice } = useQuery({
-    queryKey: [selectedToken.id, selectedFiat.id],
-    queryFn: () => getPairPrice(selectedToken.id, selectedFiat.id),
+    queryKey: [selectedToken?.id, selectedFiat.id],
+    queryFn: () => getPairPrice(selectedToken?.id, selectedFiat.id),
   });
 
   const tokenAmountHandler = useCallback(
@@ -135,25 +135,27 @@ function BuyTokens({ paymentDetails, connected, connectWallet }: Props) {
               </span>
             </div>
 
-            <div className="flex items-center justify-between pl-14 pr-4 lg:pr-10">
-              <div className="absolute left-6 -ml-px h-5 w-5 rounded-full bg-[#E7E9EB] p-1">
-                <XMarkIcon
-                  className="h-full w-full text-sleep-200"
-                  strokeWidth={2}
-                />
+            {selectedToken && (
+              <div className="flex items-center justify-between pl-14 pr-4 lg:pr-10">
+                <div className="absolute left-6 -ml-px h-5 w-5 rounded-full bg-[#E7E9EB] p-1">
+                  <XMarkIcon
+                    className="h-full w-full text-sleep-200"
+                    strokeWidth={2}
+                  />
+                </div>
+                <span className="text-sm font-semibold text-sleep-100">
+                  {pairPrice
+                    ? truncateText(`${1 / pairPrice}`, {
+                        startPos: 12,
+                        endingText: selectedToken.symbol,
+                      })
+                    : 'calculating...'}
+                </span>
+                <span className="text-sm font-semibold text-sleep-200">
+                  Conversion rate
+                </span>
               </div>
-              <span className="text-sm font-semibold text-sleep-100">
-                {pairPrice
-                  ? truncateText(`${1 / pairPrice}`, {
-                      startPos: 12,
-                      endingText: selectedToken.symbol,
-                    })
-                  : 'calculating...'}
-              </span>
-              <span className="text-sm font-semibold text-sleep-200">
-                Conversion rate
-              </span>
-            </div>
+            )}
 
             {tokenBalance && selectedToken && (
               <div className="flex items-center justify-between pl-14 pr-4 lg:pr-10">
