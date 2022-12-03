@@ -5,7 +5,8 @@ import { useConnect, useDisconnect } from 'wagmi';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 
 import { AddPaymentDetails, TokensForm } from '@/components/Tokens';
-import { PairPriceMatrix } from '@/components/PairPriceMatrix';
+import { RecentTransactions } from '@/components/Transactions';
+// import { PairPriceMatrix } from '@/components/PairPriceMatrix';
 import { classNames } from '@/utils';
 import useMountedAccount from '@/hooks/useMountedAccount';
 import useIsMounted from '@/hooks/useIsMounted';
@@ -67,7 +68,8 @@ function Home() {
           </div>
 
           <div className="col-span-3">
-            {isConnected && paymentDetails && <PairPriceMatrix />}
+            {/* {isConnected && paymentDetails && <PairPriceMatrix />} */}
+            {isConnected && paymentDetails && <RecentTransactions />}
 
             {!paymentDetails && isConnected && (
               <AddPaymentDetails
