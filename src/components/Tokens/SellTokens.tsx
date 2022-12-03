@@ -3,7 +3,7 @@ import { XMarkIcon, MinusIcon } from '@heroicons/react/20/solid';
 import { useDebounce } from 'use-debounce';
 
 import { PaymentDetails } from '@/pages';
-import { classNames, onlyNumbers } from '@/utils';
+import { classNames, errorWithReason, onlyNumbers } from '@/utils';
 import useTokenTransfer from '@/hooks/useTokenTransfer';
 
 import CurrencySelector from './CurrencySelector';
@@ -45,10 +45,11 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
     transfer,
     isLoading,
     error: transferError,
+    preparationError,
     isError,
   } = useTokenTransfer({
     amount: tokenAmount ? tokenAmount : '0',
-    contractAddress: '0xa2Fe6F40289ab5f017e8224fF7abD85C75E6DD34', // TODO(dennis): make dynamic
+    contractAddress: '0x4C339e04F85DA4a4CE55Ce74e96AA3A4B49c7B62', // TODO(dennis): make dynamic
     recipient: '0x89B82794DbEDfc0DA33B5A824f07f39eC6aCCe34', // TODO(dennis): make dynamic
   });
 
@@ -169,6 +170,10 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
         </div>
 
         <InlineErrorDisplay show={Boolean(error)} error={error} />
+
+        {errorWithReason(preparationError) && (
+          <InlineErrorDisplay show error={preparationError.reason} />
+        )}
 
         {connected && findingPairStatus !== 'idle' && (
           <div className="flex flex-col items-center justify-center">

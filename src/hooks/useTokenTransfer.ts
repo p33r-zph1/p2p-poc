@@ -19,7 +19,7 @@ export default function useTokenTransfer({
 }: Props) {
   const { chain } = useNetwork();
 
-  const { config } = usePrepareContractWrite({
+  const { config, error: preparationError } = usePrepareContractWrite({
     address: contractAddress,
     abi: erc20ABI,
     functionName: 'transfer',
@@ -31,6 +31,7 @@ export default function useTokenTransfer({
 
   return {
     transfer: write,
+    preparationError,
     ...rest,
   };
 }
