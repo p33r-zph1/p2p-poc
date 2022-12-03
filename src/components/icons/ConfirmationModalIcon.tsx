@@ -1,8 +1,10 @@
 import { SVGProps } from 'react';
 
-interface Props extends SVGProps<SVGSVGElement> {}
+interface Props extends SVGProps<SVGSVGElement> {
+  ellipseFill?: string;
+}
 
-function ConfirmationModalIcon(props: Props) {
+function ConfirmationModalIcon({ ellipseFill = '#FD8B4B', ...props }: Props) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -13,7 +15,7 @@ function ConfirmationModalIcon(props: Props) {
       stroke="currentColor"
       {...props}
     >
-      <ellipse cx="76.5" cy="75.5" fill="#FD8B4B" rx="76" ry="75.5" />
+      <ellipse cx="76.5" cy="75.5" fill={ellipseFill} rx="76" ry="75.5" />
       <path
         fill="url(#a)"
         d="M101 56.75v38.5c0 2.077-1.782 3.75-3.995 3.75h-41.01C53.782 99 52 97.327 52 95.25v-38.5c0-2.077 1.782-3.75 3.995-3.75h41.01c2.213 0 3.995 1.673 3.995 3.75Z"

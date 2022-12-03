@@ -63,6 +63,7 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
     error: transferError,
     preparationError,
     isError,
+    isSuccess,
   } = useTokenTransfer({
     amount: tokenAmount ? tokenAmount : '0',
     contractAddress: selectedToken?.contractAddress,
@@ -356,6 +357,7 @@ function SellTokens({ paymentDetails, connected, connectWallet }: Props) {
           receiveAmount: debouncedFiatAmount,
           receiveCurrency: selectedFiat.symbol,
         }}
+        transferSuccessful={isSuccess}
         showError={isError}
         transfering={isLoading}
         // TODO(Dennis, Karim): improve error handling
