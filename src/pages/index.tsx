@@ -59,6 +59,7 @@ function Home() {
         >
           <div className="col-span-2">
             <TokensForm
+              isConnecting={isConnecting}
               paymentDetails={paymentDetails}
               connected={isConnected}
               connectWallet={connect}
