@@ -21,14 +21,6 @@ export type Tokens = {
   tokens: Token[];
 };
 
-export interface Rate {
-  [currency: string]: number;
-}
-
-export interface PairPrice {
-  [tokenId: string]: Rate;
-}
-
 export const ethereumTokens: Tokens = {
   chainId: ethereum.id,
   tokens: [

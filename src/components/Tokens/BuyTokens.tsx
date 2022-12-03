@@ -1,12 +1,15 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { MinusIcon, XMarkIcon } from '@heroicons/react/20/solid';
+import { useQuery } from '@tanstack/react-query';
 import { useNetwork } from 'wagmi';
 
 import { PaymentDetails } from '@/pages';
-import CurrencySelector from './CurrencySelector';
-import { InlineErrorDisplay } from '../shared';
 import { fromChain, Token } from '@/constants/tokens';
 import fiatCurrencies, { Currency } from '@/constants/currency';
+import { getPairPrice } from '@/lib/coingecko';
+
+import CurrencySelector from './CurrencySelector';
+import { InlineErrorDisplay } from '../shared';
 
 interface Props {
   paymentDetails?: PaymentDetails;
@@ -21,7 +24,9 @@ function BuyTokens({ paymentDetails, connected, connectWallet }: Props) {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [error, setError] = useState('');
 
-  const [selectedToken, setSelectedToken] = useState<Token>();
+  const [selectedToken, setSelectedToken] = useState<Token>(
+    fromChain(chain)[0]
+  );
   const [selectedFiat, setSelectedFiat] = useState(fiatCurrencies[0]);
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -37,6 +42,11 @@ function BuyTokens({ paymentDetails, connected, connectWallet }: Props) {
   useEffect(() => {
     setSelectedToken(tokens[0]);
   }, [tokens]);
+
+  const { data: pairPrice, isLoading: isLoadingPairPrice } = useQuery({
+    queryKey: [selectedToken.id, selectedFiat.id],
+    queryFn: () => getPairPrice(selectedToken.id, selectedFiat.id),
+  });
 
   return (
     <form className="space-y-8" onSubmit={onSubmit}>
@@ -70,7 +80,7 @@ function BuyTokens({ paymentDetails, connected, connectWallet }: Props) {
                 />
               </div>
               <span className="text-sm font-semibold text-sleep-100">
-                3.2 ETH
+                Waived
               </span>
               <span className="text-sm font-semibold text-sleep-200">
                 Platform fee
@@ -85,7 +95,9 @@ function BuyTokens({ paymentDetails, connected, connectWallet }: Props) {
                 />
               </div>
               <span className="text-sm font-semibold text-sleep-100">
-                1,184.89 USD
+                {pairPrice
+                  ? `${pairPrice} ${selectedFiat.symbol}`
+                  : 'calculating...'}
               </span>
               <span className="text-sm font-semibold text-sleep-200">
                 Conversion rate
