@@ -6,11 +6,12 @@ import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 
 import { AddPaymentDetails, TokensForm } from '@/components/Tokens';
 import { RecentTransactions } from '@/components/Transactions';
-// import { PairPriceMatrix } from '@/components/PairPriceMatrix';
+import { PairPriceMatrix } from '@/components/PairPriceMatrix';
 import { classNames } from '@/utils';
 import useMountedAccount from '@/hooks/useMountedAccount';
 import useIsMounted from '@/hooks/useIsMounted';
 import chains from '@/constants/chains';
+import { Tab } from '@headlessui/react';
 
 export type PaymentField = {
   label: string;
@@ -22,6 +23,8 @@ export type PaymentDetails = {
   name: string;
   fields: PaymentField[];
 };
+
+const tabs = ['Market prices', 'Transactions'];
 
 function Home() {
   const { connect, isLoading: isConnecting } = useConnect({
@@ -68,8 +71,40 @@ function Home() {
           </div>
 
           <div className="col-span-3">
-            {/* {isConnected && paymentDetails && <PairPriceMatrix />} */}
-            {isConnected && paymentDetails && <RecentTransactions />}
+            {isConnected && paymentDetails && (
+              <Tab.Group
+                as="div"
+                className="flex w-full flex-col overflow-hidden rounded-xl"
+              >
+                <Tab.List className="flex space-x-1 bg-[#E7E9EB]">
+                  {tabs.map(tabName => (
+                    <Tab
+                      key={tabName}
+                      className={({ selected }) =>
+                        classNames(
+                          'w-full p-5 text-xl font-bold leading-5 sm:text-2xl',
+                          'focus:text-slate-300 focus:outline-none',
+                          selected
+                            ? 'rounded-tl-xl rounded-tr-xl bg-white text-body'
+                            : 'text-sleep-200 hover:bg-white/[0.12] hover:text-white'
+                        )
+                      }
+                    >
+                      {tabName}
+                    </Tab>
+                  ))}
+                </Tab.List>
+
+                <Tab.Panels className="rounded-b-xl bg-white ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2">
+                  <Tab.Panel>
+                    <PairPriceMatrix />
+                  </Tab.Panel>
+                  <Tab.Panel>
+                    <RecentTransactions />
+                  </Tab.Panel>
+                </Tab.Panels>
+              </Tab.Group>
+            )}
 
             {!paymentDetails && isConnected && (
               <AddPaymentDetails

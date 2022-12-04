@@ -144,7 +144,7 @@ function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
   );
 
   return (
-    <div className="mt-5 overflow-hidden rounded-xl bg-white p-5 md:mt-0 lg:p-10">
+    <div className="mt-5 min-h-[628px] overflow-hidden rounded-xl bg-white p-5 md:mt-0 lg:p-10">
       <p className="font-semibold md:text-2xl">Provide your payment details</p>
       <p className="text-sm text-sleep-100">
         Provide your bank account details or upload a QR code below.
