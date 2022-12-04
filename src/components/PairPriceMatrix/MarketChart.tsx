@@ -1,5 +1,4 @@
-import { useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import {
   Area,
   AreaChart,
@@ -10,43 +9,52 @@ import {
   YAxis,
 } from 'recharts';
 
-interface HistoricalData {
-  prices: [number, number][];
+import usePriceChart from '@/hooks/usePriceChart';
+
+export enum PairDataTimeWindowEnum {
+  DAY = 1,
+  WEEK = 7,
+  MONTH = 30,
+  YEAR = 365,
 }
 
-async function getHistoricalData(
-  coinId: string,
-  currency: string,
-  days: number
-) {
-  const url = `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=${currency}&days=${days}`;
-  const response = await fetch(url);
-  const historicalData = (await response.json()) as HistoricalData;
+const dateFormattingByTimewindow: Record<
+  PairDataTimeWindowEnum,
+  Intl.DateTimeFormatOptions
+> = {
+  [PairDataTimeWindowEnum.DAY]: {
+    hour: '2-digit',
+    minute: '2-digit',
+  },
+  [PairDataTimeWindowEnum.WEEK]: {
+    month: 'short',
+    day: '2-digit',
+  },
+  [PairDataTimeWindowEnum.MONTH]: {
+    month: 'short',
+    day: '2-digit',
+  },
+  [PairDataTimeWindowEnum.YEAR]: {
+    month: 'short',
+    day: '2-digit',
+  },
+};
 
-  if (!response.ok) {
-    throw new Error('Could not fetch chart data');
-  }
-
-  return historicalData;
+interface Props {
+  coinId: string;
+  currency: string;
+  days: PairDataTimeWindowEnum;
 }
 
-function MarketChart() {
-  const [coinId] = useState('tether');
-  const [currency] = useState('usd');
-  const [days] = useState(1);
-
-  const { data } = useQuery({
-    queryKey: [coinId, currency, days],
-    queryFn: () => getHistoricalData(coinId, currency, days),
-  });
+function MarketChart({ coinId, currency, days }: Props) {
+  const { data } = usePriceChart({ coinId, currency, days });
 
   const chartData = useMemo(() => {
     if (!data || !data.prices.length) return [];
 
-    return data.prices.map(([coin, targetCurrancy]) => ({
-      name: 'Page A',
-      uv: coin,
-      pv: targetCurrancy,
+    return data.prices.map(([time, price]) => ({
+      time: new Date(time),
+      price,
     }));
   }, [data]);
 
@@ -61,15 +69,20 @@ function MarketChart() {
         margin={{
           top: 10,
           right: 30,
-          left: 0,
+          left: 20,
           bottom: 0,
         }}
       >
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
-        <YAxis />
+        <XAxis
+          dataKey="time"
+          tickFormatter={(time: Date) =>
+            time.toLocaleString('en', dateFormattingByTimewindow[days])
+          }
+        />
+        <YAxis tickFormatter={(price: number) => price.toFixed(5)} />
         <Tooltip />
-        <Area type="monotone" dataKey="uv" stroke="#8884d8" fill="#8884d8" />
+        <Area type="monotone" dataKey="price" stroke="#8884d8" fill="#8884d8" />
       </AreaChart>
     </ResponsiveContainer>
   );

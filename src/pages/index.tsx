@@ -54,7 +54,7 @@ function Home() {
         disconnectWallet={disconnect}
       />
 
-      <main className="flex-1 p-4 md:flex md:items-center md:justify-center md:p-8 lg:px-10">
+      <main className="flex-1 p-4 md:flex md:items-center md:justify-center md:p-8 lg:mt-8 lg:px-10">
         <div
           className={classNames(
             isConnected ? 'md:grid-cols-5' : '',
