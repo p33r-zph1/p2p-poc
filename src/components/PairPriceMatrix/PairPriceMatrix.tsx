@@ -6,10 +6,10 @@ const tabs = ['24h', '1w', '1m', '1y'];
 
 function PairPriceMatrix() {
   return (
-    <div className="mt-10 h-full md:mt-0">
+    <div className="mt-5 h-full px-2 pb-5 md:px-5 lg:px-10">
       <h3 className="text-xl font-bold md:text-2xl">ETH / USD</h3>
 
-      <div className="mt-3 bg-white p-5 md:p-10">
+      <div className="mt-3 bg-white">
         <p className="text-lg font-bold">$1,350 (-2,1%)</p>
         <p className="text-sm text-sleep-100">Nov 28, 2022, 10:47 AM</p>
 

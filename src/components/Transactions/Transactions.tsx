@@ -42,7 +42,7 @@ function Transactions() {
         leave="transition-all duration-150"
         leaveFrom="opacity-100 scale-100"
         leaveTo="opacity-0 scale-75"
-        className="fixed bottom-2 left-1/2 -translate-x-1/2 rounded-xl bg-brand px-4 py-3"
+        className="fixed bottom-2 left-1/2 z-10 -translate-x-1/2 rounded-xl bg-brand px-4 py-3"
       >
         <p className="text-sm text-white">Retrieving transactions...</p>
       </Transition>
