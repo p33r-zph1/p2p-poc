@@ -49,7 +49,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <div className={classNames(inter.variable, 'bg-paper font-sans text-body')}>
       <QueryClientProvider client={queryClient}>
         <WagmiConfig client={wagmiClient}>
-          <Component {...pageProps} />;
+          <Component {...pageProps} />
         </WagmiConfig>
       </QueryClientProvider>
     </div>
