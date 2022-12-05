@@ -1,18 +1,14 @@
-import { useCallback, useState } from 'react';
-import { isMobile } from 'react-device-detect';
+import { useState } from 'react';
 import { Tab } from '@headlessui/react';
-import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
-import { useConnect, useDisconnect } from 'wagmi';
 
 import { Navigation } from '@/components/layout';
 import { AddPaymentDetails, TokensForm } from '@/components/Tokens';
 import { RecentTransactions } from '@/components/Transactions';
 import { PairPriceMatrix } from '@/components/PairPriceMatrix';
 import { classNames } from '@/utils';
-import { getAppDomainName } from '@/constants/build';
 import useMountedAccount from '@/hooks/useMountedAccount';
 import useIsMounted from '@/hooks/useIsMounted';
-import chains from '@/constants/chains';
+import useAuth from '@/hooks/useAuth';
 
 export type PaymentField = {
   label: string;
@@ -28,38 +24,12 @@ export type PaymentDetails = {
 const tabs = ['Market prices', 'Transactions'];
 
 function Home() {
-  const { connect, isLoading: isConnecting } = useConnect({
-    // Manually setting up the connector to only use MetaMask
-    // If we want to support other wallets, use the connectors prop from useConnect() hook and remove the connector below)
-    // https://wagmi.sh/examples/connect-wallet
-    connector: new MetaMaskConnector({
-      chains,
-    }),
-  });
-  const { disconnect } = useDisconnect();
+  const { connect, disconnect, connectProps } = useAuth();
   const { isConnected, address } = useMountedAccount();
-
-  const mounted = useIsMounted();
 
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails>();
 
-  const connectWallet = useCallback(() => {
-    if (typeof window.ethereum === 'undefined') {
-      const deepLink = `https://metamask.app.link/dapp/${getAppDomainName({
-        localhostAllowed: false,
-      })}`;
-
-      window.open(
-        isMobile ? deepLink : 'https://metamask.io/',
-        '_blank',
-        'noopener,noreferrer'
-      );
-
-      return;
-    }
-
-    connect();
-  }, [connect]);
+  const mounted = useIsMounted();
 
   if (!mounted) return null; // TODO(dennis): display loading indicator while wagmi is hydrating
 
@@ -67,9 +37,9 @@ function Home() {
     <div className="mx-auto flex min-h-screen max-w-7xl flex-col">
       <Navigation
         connected={isConnected}
-        isConnecting={isConnecting}
+        isConnecting={connectProps.isLoading}
         walletAddress={address as string}
-        connectWallet={connectWallet}
+        connectWallet={connect}
         disconnectWallet={disconnect}
       />
 
@@ -82,10 +52,10 @@ function Home() {
         >
           <div className="col-span-2">
             <TokensForm
-              isConnecting={isConnecting}
+              isConnecting={connectProps.isLoading}
               paymentDetails={paymentDetails}
               connected={isConnected}
-              connectWallet={connectWallet}
+              connectWallet={connect}
             />
           </div>
 
