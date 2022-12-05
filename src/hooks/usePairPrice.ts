@@ -1,4 +1,4 @@
-import { baseAPI } from './constants';
+import { useQuery } from '@tanstack/react-query';
 
 export interface Rate {
   [currency: string]: number;
@@ -13,7 +13,7 @@ export async function getPairPrice(pair1?: string, pair2?: string) {
     throw new Error('Invalid pair was provided');
   }
 
-  const url = `${baseAPI}/v3/simple/price?ids=${pair1}&vs_currencies=${pair2}`;
+  const url = `https://api.coingecko.com/api/v3/simple/price?ids=${pair1}&vs_currencies=${pair2}`;
   const response = await fetch(url);
   const pairPrice = (await response.json()) as PairPrice;
 
@@ -23,3 +23,12 @@ export async function getPairPrice(pair1?: string, pair2?: string) {
 
   return pairPrice[pair1][pair2];
 }
+
+function usePairPrice(pair1?: string, pair2?: string) {
+  return useQuery({
+    queryKey: [pair1, pair2],
+    queryFn: async () => getPairPrice(pair1, pair2),
+  });
+}
+
+export default usePairPrice;

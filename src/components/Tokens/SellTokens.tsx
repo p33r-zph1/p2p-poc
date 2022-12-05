@@ -4,7 +4,6 @@ import {
   MinusIcon,
   CurrencyDollarIcon,
 } from '@heroicons/react/20/solid';
-import { useQuery } from '@tanstack/react-query';
 import { useDebounce } from 'use-debounce';
 import { useBalance, useNetwork } from 'wagmi';
 
@@ -17,10 +16,10 @@ import {
 } from '@/utils';
 import useTokenTransfer from '@/hooks/useTokenTransfer';
 import useMountedAccount from '@/hooks/useMountedAccount';
+import usePairPrice from '@/hooks/usePairPrice';
 import { fromChain, Token } from '@/constants/tokens';
 import fiatCurrencies, { Currency } from '@/constants/currency';
 import { platformFee } from '@/constants/dapp';
-import { getPairPrice } from '@/lib/coingecko';
 
 import CurrencySelector from './CurrencySelector';
 import { InlineErrorDisplay } from '../shared';
@@ -110,10 +109,10 @@ function SellTokens({
     setSelectedToken(tokens[0]);
   }, [tokens]);
 
-  const { data: pairPrice, isLoading: isLoadingPairPrice } = useQuery({
-    queryKey: [selectedToken?.id, selectedFiat.id],
-    queryFn: () => getPairPrice(selectedToken?.id, selectedFiat.id),
-  });
+  const { data: pairPrice, isLoading: isLoadingPairPrice } = usePairPrice(
+    selectedToken?.id,
+    selectedFiat.id
+  );
 
   const tokenAmountHandler = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
