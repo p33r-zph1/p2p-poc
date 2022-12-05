@@ -21,7 +21,7 @@ export default function useTokens({ type }: Props) {
   const { address } = useMountedAccount();
   const { chain } = useNetwork();
 
-  const [editingAmountType, setEditingAmountType] = useState<Fields>();
+  const [editingField, setEditingField] = useState<Fields>();
 
   const [error, setError] = useState('');
 
@@ -52,7 +52,7 @@ export default function useTokens({ type }: Props) {
     (value: string) => {
       const tokenNumberValue = onlyNumbers(value);
 
-      setEditingAmountType('Token');
+      setEditingField('Token');
       setTokenAmount(format(tokenNumberValue));
 
       if (!pairPrice) return;
@@ -69,7 +69,7 @@ export default function useTokens({ type }: Props) {
     (value: string) => {
       const fiatNumberValue = onlyNumbers(value);
 
-      setEditingAmountType('Fiat');
+      setEditingField('Fiat');
       setFiatAmount(format(fiatNumberValue));
 
       if (!pairPrice) return;
@@ -173,14 +173,14 @@ export default function useTokens({ type }: Props) {
   useEffect(() => {
     if (!formattedPairPrice) return;
 
-    if (editingAmountType === 'Token') {
+    if (editingField === 'Token') {
       tokenAmountHandler(onlyNumbers(tokenAmount));
     }
-    if (editingAmountType === 'Fiat') {
+    if (editingField === 'Fiat') {
       fiatAmountHandler(onlyNumbers(fiatAmount));
     }
   }, [
-    editingAmountType,
+    editingField,
     fiatAmount,
     fiatAmountHandler,
     formattedPairPrice,
