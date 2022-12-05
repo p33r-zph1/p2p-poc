@@ -6,14 +6,12 @@ import {
 } from '@heroicons/react/20/solid';
 
 import { PaymentDetails } from '@/pages';
-import { truncateText } from '@/utils';
 import { Token } from '@/constants/tokens';
 import fiatCurrencies, { Currency } from '@/constants/currency';
-import { platformFee } from '@/constants/dapp';
 
 import CurrencySelector from './CurrencySelector';
 import { InlineErrorDisplay } from '../shared';
-import useToken from '@/hooks/useTokens';
+import useTokens from '@/hooks/useTokens';
 
 interface Props {
   paymentDetails?: PaymentDetails;
@@ -39,8 +37,10 @@ function BuyTokens({
     tokenAmountHandler,
     pairPrice,
     tokenBalance,
+    computedBalance,
+    computedPlatformFee,
     tokens,
-  } = useToken();
+  } = useTokens({ type: 'BUY' });
 
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [error, setError] = useState('');
@@ -93,12 +93,7 @@ function BuyTokens({
                 />
               </div>
               <span className="text-sm font-semibold text-sleep-100">
-                {platformFee.amount}%{' '}
-                {tokenAmount
-                  ? `(${(Number(tokenAmount) * platformFee.percentage).toFixed(
-                      2
-                    )} ${selectedToken.symbol})`
-                  : ''}
+                {computedPlatformFee}
               </span>
               <span className="text-sm font-semibold text-sleep-200">
                 Platform fee
@@ -113,19 +108,14 @@ function BuyTokens({
                 />
               </div>
               <span className="text-sm font-semibold text-sleep-100">
-                {pairPrice
-                  ? truncateText(`${1 / pairPrice}`, {
-                      startPos: 12,
-                      endingText: selectedToken.symbol,
-                    })
-                  : 'calculating...'}
+                {pairPrice ? pairPrice : 'calculating...'}
               </span>
               <span className="text-sm font-semibold text-sleep-200">
                 Conversion rate
               </span>
             </div>
 
-            {tokenBalance && (
+            {computedBalance && (
               <div className="flex items-center justify-between pl-14 pr-4 lg:pr-10">
                 <div className="absolute left-6 -ml-px h-5 w-5 rounded-full bg-[#E7E9EB] p-1">
                   <CurrencyDollarIcon
@@ -134,13 +124,7 @@ function BuyTokens({
                   />
                 </div>
                 <span className="text-sm font-semibold text-sleep-100">
-                  {truncateText(
-                    `${Number(tokenBalance.formatted) + Number(tokenAmount)}`,
-                    {
-                      startPos: 12,
-                      endingText: selectedToken.symbol,
-                    }
-                  )}
+                  {computedBalance}
                 </span>
                 <span className="text-sm font-semibold text-sleep-200">
                   Balance

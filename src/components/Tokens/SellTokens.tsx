@@ -1,31 +1,21 @@
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import {
   XMarkIcon,
   MinusIcon,
   CurrencyDollarIcon,
 } from '@heroicons/react/20/solid';
-import { useDebounce } from 'use-debounce';
-import { useBalance, useNetwork } from 'wagmi';
 
 import { PaymentDetails } from '@/pages';
-import {
-  classNames,
-  errorWithReason,
-  onlyNumbers,
-  truncateText,
-} from '@/utils';
+import { classNames, errorWithReason } from '@/utils';
 import useTokenTransfer from '@/hooks/useTokenTransfer';
-import useMountedAccount from '@/hooks/useMountedAccount';
-import usePairPrice from '@/hooks/usePairPrice';
-import { fromChain, Token } from '@/constants/tokens';
+import { Token } from '@/constants/tokens';
 import fiatCurrencies, { Currency } from '@/constants/currency';
-import { platformFee } from '@/constants/dapp';
 
 import CurrencySelector from './CurrencySelector';
 import { InlineErrorDisplay } from '../shared';
 import { MatchedIcon, MatchingIcon } from '../icons';
 import ConfirmationModal from './ConfirmationModal';
-import useToken from '@/hooks/useTokens';
+import useTokens from '@/hooks/useTokens';
 
 interface Props {
   paymentDetails?: PaymentDetails;
@@ -54,8 +44,10 @@ function SellTokens({
     pairPrice,
     isLoadingPairPrice,
     tokenBalance,
+    computedBalance,
+    computedPlatformFee,
     tokens,
-  } = useToken();
+  } = useTokens({ type: 'SELL' });
 
   const {
     transfer,
@@ -133,7 +125,7 @@ function SellTokens({
             <div className="absolute inset-y-0 left-8 w-0.5 bg-[#E7E9EB]" />
 
             <div className="space-y-6 py-6">
-              {tokenBalance && (
+              {computedBalance && (
                 <div className="flex items-center justify-between pl-14 pr-4 lg:pr-10">
                   <div className="absolute left-6 -ml-px h-5 w-5 rounded-full bg-[#E7E9EB] p-1">
                     <CurrencyDollarIcon
@@ -142,13 +134,7 @@ function SellTokens({
                     />
                   </div>
                   <span className="text-sm font-semibold text-sleep-100">
-                    {truncateText(
-                      `${Number(tokenBalance.formatted) - Number(tokenAmount)}`,
-                      {
-                        startPos: 12,
-                        endingText: selectedToken.symbol,
-                      }
-                    )}
+                    {computedBalance}
                   </span>
                   <span className="text-sm font-semibold text-sleep-200">
                     Balance
@@ -164,12 +150,7 @@ function SellTokens({
                   />
                 </div>
                 <span className="text-sm font-semibold text-sleep-100">
-                  {pairPrice
-                    ? truncateText(`${pairPrice}`, {
-                        startPos: 12,
-                        endingText: selectedFiat.symbol,
-                      })
-                    : 'calculating...'}
+                  {pairPrice ? pairPrice : 'calculating...'}
                 </span>
                 <span className="text-sm font-semibold text-sleep-200">
                   Conversion rate
@@ -184,12 +165,7 @@ function SellTokens({
                   />
                 </div>
                 <span className="text-sm font-semibold text-sleep-100">
-                  {platformFee.amount}%{' '}
-                  {tokenAmount
-                    ? `(${(
-                        Number(tokenAmount) * platformFee.percentage
-                      ).toFixed(2)} ${selectedToken.symbol})`
-                    : ''}
+                  {computedPlatformFee}
                 </span>
                 <span className="text-sm font-semibold text-sleep-200">
                   Platform fee

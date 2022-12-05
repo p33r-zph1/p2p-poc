@@ -1,3 +1,4 @@
+import { onlyNumbers } from '@/utils';
 import { utils } from 'ethers';
 import {
   usePrepareContractWrite,
@@ -24,7 +25,7 @@ export default function useTokenTransfer({
     address: contractAddress,
     abi: erc20ABI,
     functionName: 'transfer',
-    args: [recipient, utils.parseEther(amount)],
+    args: [recipient, utils.parseEther(onlyNumbers(amount))],
     chainId: chain?.id || mainnet.id, // fallback to mainnet
   });
 
