@@ -1,4 +1,4 @@
 export const platformFee = {
-  amount: 5,
-  percentage: 0.05,
+  amount: 2,
+  percentage: 0.02,
 };
