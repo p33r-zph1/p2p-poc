@@ -114,7 +114,7 @@ function SellTokens({
               className="w-full rounded-full border-brand pl-8 pt-7 pb-3 pr-36 text-lg"
               placeholder="0.00"
               value={tokenAmount}
-              onChange={tokenAmountHandler}
+              onChange={e => tokenAmountHandler(e.target.value)}
             />
             <div className="absolute inset-y-0 right-0 flex items-center border-l">
               <CurrencySelector<Token>
@@ -188,7 +188,7 @@ function SellTokens({
               placeholder="0.00"
               disabled={!pairPrice || isLoadingPairPrice}
               value={fiatAmount}
-              onChange={fiatAmountHandler}
+              onChange={e => fiatAmountHandler(e.target.value)}
             />
             <div className="absolute inset-y-0 right-0 flex items-center border-l">
               <CurrencySelector<Currency>

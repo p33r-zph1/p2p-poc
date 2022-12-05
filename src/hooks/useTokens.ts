@@ -10,13 +10,18 @@ import { onlyNumbers, truncateText } from '@/utils';
 import useMountedAccount from './useMountedAccount';
 import usePairPrice from './usePairPrice';
 
+export type ServiceType = 'BUY' | 'SELL';
+export type Fields = 'Token' | 'Fiat';
+
 interface Props {
-  type: 'BUY' | 'SELL';
+  type: ServiceType;
 }
 
 export default function useTokens({ type }: Props) {
   const { address } = useMountedAccount();
   const { chain } = useNetwork();
+
+  const [editingAmountType, setEditingAmountType] = useState<Fields>();
 
   const [error, setError] = useState('');
 
@@ -44,10 +49,10 @@ export default function useTokens({ type }: Props) {
   });
 
   const tokenAmountHandler = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { value } = e.target;
+    (value: string) => {
       const tokenNumberValue = onlyNumbers(value);
 
+      setEditingAmountType('Token');
       setTokenAmount(format(tokenNumberValue));
 
       if (!pairPrice) return;
@@ -61,10 +66,10 @@ export default function useTokens({ type }: Props) {
   );
 
   const fiatAmountHandler = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { value } = e.target;
+    (value: string) => {
       const fiatNumberValue = onlyNumbers(value);
 
+      setEditingAmountType('Fiat');
       setFiatAmount(format(fiatNumberValue));
 
       if (!pairPrice) return;
@@ -77,35 +82,35 @@ export default function useTokens({ type }: Props) {
     [format, pairPrice]
   );
 
-  const checkTokenAmountErrors = useCallback(
-    (tokenAmount: number) => {
-      if (!selectedToken) return;
-
-      setError(
-        tokenAmount >= maxStableCoinConversion
-          ? `Max conversion of 1,000 ${selectedToken.symbol}`
-          : ''
-      );
-    },
-    [selectedToken]
-  );
-
   const tokens = useMemo(() => fromChain(chain), [chain]);
 
   const formattedPairPrice = useMemo(() => {
-    if (!pairPrice || !selectedToken) return undefined;
+    if (!pairPrice || !selectedToken || isLoadingPairPrice) return undefined;
 
-    let price = pairPrice;
+    let price = 0;
+    let currency = '-';
 
     if (type === 'BUY') {
       price = 1 / pairPrice;
+      currency = selectedToken.symbol;
+    }
+    if (type === 'SELL') {
+      price = pairPrice;
+      currency = selectedFiat.symbol;
     }
 
     return truncateText(format(price.toString()), {
       startPos: 12,
-      endingText: selectedToken.symbol,
+      endingText: currency,
     });
-  }, [pairPrice, selectedToken, type, format]);
+  }, [
+    pairPrice,
+    selectedToken,
+    isLoadingPairPrice,
+    type,
+    format,
+    selectedFiat.symbol,
+  ]);
 
   const computedBalance = useMemo(() => {
     if (!tokenBalance || !selectedToken) return undefined;
@@ -143,13 +148,45 @@ export default function useTokens({ type }: Props) {
     });
   }, [format, selectedToken, tokenAmount]);
 
+  // effect for when the tokens array changed
+  // caused by switching networks
   useEffect(() => {
     setSelectedToken(tokens[0]);
-  }, [tokens]);
+  }, [setSelectedToken, tokens]);
 
+  // effect for checking errors for the token amount
   useEffect(() => {
-    checkTokenAmountErrors(Number(onlyNumbers(tokenAmount)));
-  }, [checkTokenAmountErrors, tokenAmount]);
+    function checkTokenAmountError() {
+      if (!selectedToken) return;
+
+      setError(
+        Number(onlyNumbers(tokenAmount)) >= maxStableCoinConversion
+          ? `Max conversion of 1,000 ${selectedToken.symbol}`
+          : ''
+      );
+    }
+
+    checkTokenAmountError();
+  }, [selectedToken, tokenAmount]);
+
+  // effect for recalculating values when the selected token/fiat changed
+  useEffect(() => {
+    if (!formattedPairPrice) return;
+
+    if (editingAmountType === 'Token') {
+      tokenAmountHandler(onlyNumbers(tokenAmount));
+    }
+    if (editingAmountType === 'Fiat') {
+      fiatAmountHandler(onlyNumbers(fiatAmount));
+    }
+  }, [
+    editingAmountType,
+    fiatAmount,
+    fiatAmountHandler,
+    formattedPairPrice,
+    tokenAmount,
+    tokenAmountHandler,
+  ]);
 
   return {
     selectedToken,
