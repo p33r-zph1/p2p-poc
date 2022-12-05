@@ -1,17 +1,18 @@
 import { useCallback, useState } from 'react';
+import { isMobile } from 'react-device-detect';
+import { Tab } from '@headlessui/react';
+import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
+import { useConnect, useDisconnect } from 'wagmi';
 
 import { Navigation } from '@/components/layout';
-import { useConnect, useDisconnect } from 'wagmi';
-import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
-
 import { AddPaymentDetails, TokensForm } from '@/components/Tokens';
 import { RecentTransactions } from '@/components/Transactions';
 import { PairPriceMatrix } from '@/components/PairPriceMatrix';
 import { classNames } from '@/utils';
+import { getAppDomainName } from '@/constants/build';
 import useMountedAccount from '@/hooks/useMountedAccount';
 import useIsMounted from '@/hooks/useIsMounted';
 import chains from '@/constants/chains';
-import { Tab } from '@headlessui/react';
 
 export type PaymentField = {
   label: string;
@@ -44,7 +45,17 @@ function Home() {
 
   const connectWallet = useCallback(() => {
     if (typeof window.ethereum === 'undefined') {
-      window.open('https://metamask.io/', '_blank', 'noopener,noreferrer');
+      const deepLink = `https://metamask.app.link/dapp/${getAppDomainName({
+        localhostAllowed: false,
+      })}`;
+
+      window.open(
+        isMobile ? deepLink : 'https://metamask.io/',
+        '_blank',
+        'noopener,noreferrer'
+      );
+
+      return;
     }
 
     connect();

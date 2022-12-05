@@ -1,9 +1,11 @@
 import { useCallback } from 'react';
+import { isMobile } from 'react-device-detect';
 import { useConnect, useDisconnect } from 'wagmi';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 
 import { Navigation } from '@/components/layout';
 import { Transactions } from '@/components/Transactions';
+import { getAppDomainName } from '@/constants/build';
 import useMountedAccount from '@/hooks/useMountedAccount';
 import useIsMounted from '@/hooks/useIsMounted';
 import chains from '@/constants/chains';
@@ -37,7 +39,17 @@ function TransactionsPage() {
 
   const connectWallet = useCallback(() => {
     if (typeof window.ethereum === 'undefined') {
-      window.open('https://metamask.io/', '_blank', 'noopener,noreferrer');
+      const deepLink = `https://metamask.app.link/dapp/${getAppDomainName({
+        localhostAllowed: false,
+      })}`;
+
+      window.open(
+        isMobile ? deepLink : 'https://metamask.io/',
+        '_blank',
+        'noopener,noreferrer'
+      );
+
+      return;
     }
 
     connect();
