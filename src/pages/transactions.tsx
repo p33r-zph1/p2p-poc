@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useConnect, useDisconnect } from 'wagmi';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 
@@ -34,6 +35,14 @@ function TransactionsPage() {
 
   const mounted = useIsMounted();
 
+  const connectWallet = useCallback(() => {
+    if (typeof window.ethereum === 'undefined') {
+      window.open('https://metamask.io/', '_blank', 'noopener,noreferrer');
+    }
+
+    connect();
+  }, [connect]);
+
   if (!mounted) return null; // TODO(dennis): display loading indicator while wagmi is hydrating
 
   return (
@@ -42,7 +51,7 @@ function TransactionsPage() {
         connected={isConnected}
         isConnecting={isConnecting}
         walletAddress={address as string}
-        connectWallet={connect}
+        connectWallet={connectWallet}
         disconnectWallet={disconnect}
       />
 
@@ -79,7 +88,7 @@ function TransactionsPage() {
                   type="button"
                   className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
                   disabled={isConnecting}
-                  onClick={() => connect()}
+                  onClick={connectWallet}
                 >
                   {isConnecting ? 'Connecting...' : 'Connect Wallet'}
                 </button>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { Navigation } from '@/components/layout';
 import { useConnect, useDisconnect } from 'wagmi';
@@ -42,6 +42,14 @@ function Home() {
 
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails>();
 
+  const connectWallet = useCallback(() => {
+    if (typeof window.ethereum === 'undefined') {
+      window.open('https://metamask.io/', '_blank', 'noopener,noreferrer');
+    }
+
+    connect();
+  }, [connect]);
+
   if (!mounted) return null; // TODO(dennis): display loading indicator while wagmi is hydrating
 
   return (
@@ -50,7 +58,7 @@ function Home() {
         connected={isConnected}
         isConnecting={isConnecting}
         walletAddress={address as string}
-        connectWallet={connect}
+        connectWallet={connectWallet}
         disconnectWallet={disconnect}
       />
 
@@ -66,7 +74,7 @@ function Home() {
               isConnecting={isConnecting}
               paymentDetails={paymentDetails}
               connected={isConnected}
-              connectWallet={connect}
+              connectWallet={connectWallet}
             />
           </div>
 
