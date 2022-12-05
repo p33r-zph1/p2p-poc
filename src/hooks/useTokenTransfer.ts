@@ -14,11 +14,7 @@ interface Props {
   amount: string;
 }
 
-export default function useTokenTransfer({
-  contractAddress,
-  recipient,
-  amount,
-}: Props) {
+function useTokenTransfer({ contractAddress, recipient, amount }: Props) {
   const { chain } = useNetwork();
 
   const { config, error: preparationError } = usePrepareContractWrite({
@@ -37,3 +33,5 @@ export default function useTokenTransfer({
     ...rest,
   };
 }
+
+export default useTokenTransfer;
