@@ -6,12 +6,12 @@ import {
 } from '@heroicons/react/20/solid';
 
 import { PaymentDetails } from '@/pages';
+import useTokens from '@/hooks/useTokens';
 import { Token } from '@/constants/tokens';
 import fiatCurrencies, { Currency } from '@/constants/currency';
 
 import CurrencySelector from './CurrencySelector';
 import { InlineErrorDisplay } from '../shared';
-import useTokens from '@/hooks/useTokens';
 
 interface Props {
   paymentDetails?: PaymentDetails;
@@ -40,6 +40,7 @@ function BuyTokens({
     computedBalance,
     computedPlatformFee,
     tokens,
+    error: tokenError,
   } = useTokens({ type: 'BUY' });
 
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -156,11 +157,16 @@ function BuyTokens({
       </div>
 
       <InlineErrorDisplay show={Boolean(error)} error={error} />
+      <InlineErrorDisplay show={Boolean(tokenError)} error={tokenError} />
 
       {connected && (
         <button
           type="submit"
-          disabled={!Boolean(paymentDetails)}
+          disabled={
+            !Boolean(paymentDetails) ||
+            Boolean(tokenError) ||
+            Number(tokenAmount) <= 0
+          }
           className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
         >
           Confirm

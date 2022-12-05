@@ -4,18 +4,19 @@ import {
   MinusIcon,
   CurrencyDollarIcon,
 } from '@heroicons/react/20/solid';
+import { useDebounce } from 'use-debounce';
 
 import { PaymentDetails } from '@/pages';
 import { classNames, errorWithReason } from '@/utils';
 import useTokenTransfer from '@/hooks/useTokenTransfer';
 import { Token } from '@/constants/tokens';
+import useTokens from '@/hooks/useTokens';
 import fiatCurrencies, { Currency } from '@/constants/currency';
 
 import CurrencySelector from './CurrencySelector';
 import { InlineErrorDisplay } from '../shared';
 import { MatchedIcon, MatchingIcon } from '../icons';
 import ConfirmationModal from './ConfirmationModal';
-import useTokens from '@/hooks/useTokens';
 
 interface Props {
   paymentDetails?: PaymentDetails;
@@ -47,17 +48,20 @@ function SellTokens({
     computedBalance,
     computedPlatformFee,
     tokens,
+    error: tokenError,
   } = useTokens({ type: 'SELL' });
+
+  const [debouncedTokenAmount] = useDebounce(tokenAmount, 500);
 
   const {
     transfer,
     isLoading,
     error: transferError,
-    preparationError,
+    preparationError: transferPreparationError,
     isError,
     isSuccess,
   } = useTokenTransfer({
-    amount: tokenAmount ? tokenAmount : '0',
+    amount: debouncedTokenAmount ? debouncedTokenAmount : '0',
     contractAddress: selectedToken?.contractAddress,
     recipient: '0xDc1ACdb071490A6fd66f449Db98F977a8B60FfC6', // TODO(dennis): make dynamic
   });
@@ -197,9 +201,10 @@ function SellTokens({
         </div>
 
         <InlineErrorDisplay show={Boolean(error)} error={error} />
+        <InlineErrorDisplay show={Boolean(tokenError)} error={tokenError} />
 
-        {errorWithReason(preparationError) && (
-          <InlineErrorDisplay show error={preparationError.reason} />
+        {errorWithReason(transferPreparationError) && (
+          <InlineErrorDisplay show error={transferPreparationError.reason} />
         )}
 
         {connected && findingPairStatus !== 'idle' && (
@@ -262,7 +267,8 @@ function SellTokens({
             type="submit"
             disabled={
               !Boolean(paymentDetails) ||
-              Boolean(preparationError) ||
+              Boolean(transferPreparationError) ||
+              Boolean(tokenError) ||
               Number(tokenAmount) <= 0
             }
             className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"

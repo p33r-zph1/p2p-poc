@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNumericFormat } from 'react-number-format';
-import { useDebounce } from 'use-debounce';
 import { useBalance, useNetwork } from 'wagmi';
 
 import fiatCurrencies from '@/constants/currency';
 import { fromChain, type Token } from '@/constants/tokens';
-import { platformFee } from '@/constants/dapp';
+import { maxStableCoinConversion, platformFee } from '@/constants/dapp';
 import { onlyNumbers, truncateText } from '@/utils';
 
 import useMountedAccount from './useMountedAccount';
@@ -19,16 +18,15 @@ export default function useTokens({ type }: Props) {
   const { address } = useMountedAccount();
   const { chain } = useNetwork();
 
+  const [error, setError] = useState('');
+
   const [selectedToken, setSelectedToken] = useState<Token | undefined>(
     fromChain(chain)[0]
   );
   const [selectedFiat, setSelectedFiat] = useState(fiatCurrencies[0]);
 
   const [tokenAmount, setTokenAmount] = useState('');
-  const [debouncedTokenAmount] = useDebounce(tokenAmount, 100);
-
   const [fiatAmount, setFiatAmount] = useState('');
-  const [debouncedFiatAmount] = useDebounce(fiatAmount, 100);
 
   const { data: pairPrice, isLoading: isLoadingPairPrice } = usePairPrice(
     selectedToken?.id,
@@ -48,14 +46,16 @@ export default function useTokens({ type }: Props) {
   const tokenAmountHandler = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const { value } = e.target;
-      const onlyNums = onlyNumbers(value);
+      const tokenNumberValue = onlyNumbers(value);
 
-      setTokenAmount(format(onlyNums));
+      setTokenAmount(format(tokenNumberValue));
 
       if (!pairPrice) return;
 
-      const conversion = Number(onlyNums) * pairPrice;
-      setFiatAmount(conversion <= 0 ? '' : format(conversion.toString()));
+      const fiatConversion = Number(tokenNumberValue) * pairPrice;
+      setFiatAmount(
+        fiatConversion <= 0 ? '' : format(fiatConversion.toString())
+      );
     },
     [format, pairPrice]
   );
@@ -63,15 +63,31 @@ export default function useTokens({ type }: Props) {
   const fiatAmountHandler = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const { value } = e.target;
-      const onlyNums = onlyNumbers(value);
+      const fiatNumberValue = onlyNumbers(value);
 
-      setFiatAmount(format(onlyNums));
+      setFiatAmount(format(fiatNumberValue));
 
       if (!pairPrice) return;
-      const conversion = Number(onlyNums) / pairPrice;
-      setTokenAmount(conversion <= 0 ? '' : format(conversion.toString()));
+
+      const tokenConversion = Number(fiatNumberValue) / pairPrice;
+      setTokenAmount(
+        tokenConversion <= 0 ? '' : format(tokenConversion.toString())
+      );
     },
     [format, pairPrice]
+  );
+
+  const checkTokenAmountErrors = useCallback(
+    (tokenAmount: number) => {
+      if (!selectedToken) return;
+
+      setError(
+        tokenAmount >= maxStableCoinConversion
+          ? `Max conversion of 1,000 ${selectedToken.symbol}`
+          : ''
+      );
+    },
+    [selectedToken]
   );
 
   const tokens = useMemo(() => fromChain(chain), [chain]);
@@ -131,13 +147,17 @@ export default function useTokens({ type }: Props) {
     setSelectedToken(tokens[0]);
   }, [tokens]);
 
+  useEffect(() => {
+    checkTokenAmountErrors(Number(onlyNumbers(tokenAmount)));
+  }, [checkTokenAmountErrors, tokenAmount]);
+
   return {
     selectedToken,
     selectedFiat,
     setSelectedToken,
     setSelectedFiat,
-    fiatAmount: debouncedFiatAmount,
-    tokenAmount: debouncedTokenAmount,
+    fiatAmount,
+    tokenAmount,
     fiatAmountHandler,
     tokenAmountHandler,
     pairPrice: formattedPairPrice,
@@ -147,5 +167,6 @@ export default function useTokens({ type }: Props) {
     computedPlatformFee,
     refetchTokenBalance,
     tokens,
+    error,
   };
 }
