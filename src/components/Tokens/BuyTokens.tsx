@@ -1,22 +1,19 @@
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import {
   CurrencyDollarIcon,
   MinusIcon,
   XMarkIcon,
 } from '@heroicons/react/20/solid';
-import { useDebounce } from 'use-debounce';
-import { useBalance, useNetwork } from 'wagmi';
 
 import { PaymentDetails } from '@/pages';
-import { onlyNumbers, truncateText } from '@/utils';
-import useMountedAccount from '@/hooks/useMountedAccount';
-import usePairPrice from '@/hooks/usePairPrice';
-import { fromChain, Token } from '@/constants/tokens';
+import { truncateText } from '@/utils';
+import { Token } from '@/constants/tokens';
 import fiatCurrencies, { Currency } from '@/constants/currency';
 import { platformFee } from '@/constants/dapp';
 
 import CurrencySelector from './CurrencySelector';
 import { InlineErrorDisplay } from '../shared';
+import useToken from '@/hooks/useTokens';
 
 interface Props {
   paymentDetails?: PaymentDetails;
@@ -31,28 +28,22 @@ function BuyTokens({
   connectWallet,
   isConnecting,
 }: Props) {
-  const { address } = useMountedAccount();
-  const { chain } = useNetwork();
-  const tokens = useMemo(() => fromChain(chain), [chain]);
+  const {
+    selectedToken,
+    selectedFiat,
+    setSelectedToken,
+    setSelectedFiat,
+    fiatAmount,
+    tokenAmount,
+    fiatAmountHandler,
+    tokenAmountHandler,
+    pairPrice,
+    tokenBalance,
+    tokens,
+  } = useToken();
 
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [error, setError] = useState('');
-
-  const [selectedToken, setSelectedToken] = useState<Token | undefined>(
-    fromChain(chain)[0]
-  );
-  const [selectedFiat, setSelectedFiat] = useState(fiatCurrencies[0]);
-
-  const [tokenAmount, setTokenAmount] = useState('');
-  const [debouncedTokenAmount] = useDebounce(tokenAmount, 100);
-
-  const [fiatAmount, setFiatAmount] = useState('');
-  const [debouncedFiatAmount] = useDebounce(fiatAmount, 100);
-
-  const { data: tokenBalance, refetch: refetchTokenBalance } = useBalance({
-    address,
-    token: selectedToken?.contractAddress,
-  });
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -63,44 +54,6 @@ function BuyTokens({
       return;
     }
   };
-
-  useEffect(() => {
-    setSelectedToken(tokens[0]);
-  }, [tokens]);
-
-  const { data: pairPrice, isLoading: isLoadingPairPrice } = usePairPrice(
-    selectedToken?.id,
-    selectedFiat.id
-  );
-
-  const tokenAmountHandler = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { value } = e.target;
-      const onlyNums = onlyNumbers(value);
-
-      setTokenAmount(onlyNums);
-
-      if (!pairPrice) return;
-
-      const conversion = Number(onlyNums) * pairPrice;
-      setFiatAmount(conversion <= 0 ? '' : conversion.toString());
-    },
-    [pairPrice]
-  );
-
-  const fiatAmountHandler = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { value } = e.target;
-      const onlyNums = onlyNumbers(value);
-
-      setFiatAmount(onlyNums);
-
-      if (!pairPrice) return;
-      const conversion = Number(onlyNums) / pairPrice;
-      setTokenAmount(conversion <= 0 ? '' : conversion.toString());
-    },
-    [pairPrice]
-  );
 
   if (!selectedToken) {
     return <InlineErrorDisplay show error="Service currently not available" />;
@@ -117,7 +70,7 @@ function BuyTokens({
             type="text"
             className="w-full rounded-full border-brand pl-8 pt-7 pb-3 pr-36 text-lg"
             placeholder="0.00"
-            value={debouncedFiatAmount}
+            value={fiatAmount}
             onChange={fiatAmountHandler}
           />
           <div className="absolute inset-y-0 right-0 flex items-center border-l">
@@ -205,7 +158,7 @@ function BuyTokens({
             type="text"
             className="w-full rounded-full border-brand pl-8 pt-7 pb-3 pr-36 text-lg"
             placeholder="0.00"
-            value={debouncedTokenAmount}
+            value={tokenAmount}
             onChange={tokenAmountHandler}
           />
           <div className="absolute inset-y-0 right-0 flex items-center border-l">

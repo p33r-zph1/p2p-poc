@@ -25,6 +25,7 @@ import CurrencySelector from './CurrencySelector';
 import { InlineErrorDisplay } from '../shared';
 import { MatchedIcon, MatchingIcon } from '../icons';
 import ConfirmationModal from './ConfirmationModal';
+import useToken from '@/hooks/useTokens';
 
 interface Props {
   paymentDetails?: PaymentDetails;
@@ -41,26 +42,20 @@ function SellTokens({
   connectWallet,
   isConnecting,
 }: Props) {
-  const { address } = useMountedAccount();
-  const { chain } = useNetwork();
-  const tokens = useMemo(() => fromChain(chain), [chain]);
-
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [error, setError] = useState('');
-
-  const [findingPairStatus, setFindingPairStatus] =
-    useState<FindingPairStatus>('idle');
-
-  const [selectedToken, setSelectedToken] = useState<Token | undefined>(
-    fromChain(chain)[0]
-  );
-  const [selectedFiat, setSelectedFiat] = useState(fiatCurrencies[0]);
-
-  const [tokenAmount, setTokenAmount] = useState('');
-  const [debouncedTokenAmount] = useDebounce(tokenAmount, 100);
-
-  const [fiatAmount, setFiatAmount] = useState('');
-  const [debouncedFiatAmount] = useDebounce(fiatAmount, 100);
+  const {
+    selectedToken,
+    selectedFiat,
+    setSelectedToken,
+    setSelectedFiat,
+    fiatAmount,
+    tokenAmount,
+    fiatAmountHandler,
+    tokenAmountHandler,
+    pairPrice,
+    isLoadingPairPrice,
+    tokenBalance,
+    tokens,
+  } = useToken();
 
   const {
     transfer,
@@ -75,10 +70,11 @@ function SellTokens({
     recipient: '0xDc1ACdb071490A6fd66f449Db98F977a8B60FfC6', // TODO(dennis): make dynamic
   });
 
-  const { data: tokenBalance, refetch: refetchTokenBalance } = useBalance({
-    address,
-    token: selectedToken?.contractAddress,
-  });
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [error, setError] = useState('');
+
+  const [findingPairStatus, setFindingPairStatus] =
+    useState<FindingPairStatus>('idle');
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -105,44 +101,6 @@ function SellTokens({
     transfer();
   };
 
-  useEffect(() => {
-    setSelectedToken(tokens[0]);
-  }, [tokens]);
-
-  const { data: pairPrice, isLoading: isLoadingPairPrice } = usePairPrice(
-    selectedToken?.id,
-    selectedFiat.id
-  );
-
-  const tokenAmountHandler = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { value } = e.target;
-      const onlyNums = onlyNumbers(value);
-
-      setTokenAmount(onlyNums);
-
-      if (!pairPrice) return;
-
-      const conversion = Number(onlyNums) * pairPrice;
-      setFiatAmount(conversion <= 0 ? '' : conversion.toString());
-    },
-    [pairPrice]
-  );
-
-  const fiatAmountHandler = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { value } = e.target;
-      const onlyNums = onlyNumbers(value);
-
-      setFiatAmount(onlyNums);
-
-      if (!pairPrice) return;
-      const conversion = Number(onlyNums) / pairPrice;
-      setTokenAmount(conversion <= 0 ? '' : conversion.toString());
-    },
-    [pairPrice]
-  );
-
   if (!selectedToken) {
     return <InlineErrorDisplay show error="Service currently not available" />;
   }
@@ -159,7 +117,7 @@ function SellTokens({
               type="text"
               className="w-full rounded-full border-brand pl-8 pt-7 pb-3 pr-36 text-lg"
               placeholder="0.00"
-              value={debouncedTokenAmount}
+              value={tokenAmount}
               onChange={tokenAmountHandler}
             />
             <div className="absolute inset-y-0 right-0 flex items-center border-l">
@@ -249,7 +207,7 @@ function SellTokens({
               className="w-full rounded-full border-brand pl-8 pt-7 pb-3 pr-36 text-lg"
               placeholder="0.00"
               disabled={!pairPrice || isLoadingPairPrice}
-              value={debouncedFiatAmount}
+              value={fiatAmount}
               onChange={fiatAmountHandler}
             />
             <div className="absolute inset-y-0 right-0 flex items-center border-l">
@@ -358,9 +316,9 @@ function SellTokens({
           }
         }}
         transferDetails={{
-          payAmount: debouncedTokenAmount,
+          payAmount: tokenAmount,
           payCurrency: selectedToken.symbol,
-          receiveAmount: debouncedFiatAmount,
+          receiveAmount: fiatAmount,
           receiveCurrency: selectedFiat.symbol,
         }}
         transferSuccessful={isSuccess}
