@@ -11,7 +11,7 @@ export interface BankDetails {
 
 export interface BankInfo {
   countryCode: string;
-  bankDetails: BankDetails;
+  bankDetails: BankDetails | { mobileNumber: string };
 }
 
 export interface OnboardingResponse {
@@ -37,15 +37,18 @@ export async function getUser(walletAddress?: Address) {
   return getUserResponse.data;
 }
 
-export async function saveUser(bankInfo?: BankInfo) {
-  if (!bankInfo) {
-    throw new Error('Bank details is required');
+export async function saveUser(walletAddress?: Address, bankInfo?: BankInfo) {
+  if (!walletAddress || !bankInfo) {
+    throw new Error('Bank details and wallet address is required');
   }
 
   const url = `https://od21v6lbu1.execute-api.ap-southeast-1.amazonaws.com/develop`;
   const response = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      walletAddress,
+    },
     body: JSON.stringify(bankInfo),
   });
 
@@ -68,11 +71,15 @@ export function useGetUser(connected: boolean, walletAddress?: Address) {
   });
 }
 
-export function useSaveUser(connected: boolean, bankInfo?: BankInfo) {
+export function useSaveUser(
+  connected: boolean,
+  walletAddress?: Address,
+  bankInfo?: BankInfo
+) {
   return useQuery({
     queryKey: [],
-    queryFn: async () => saveUser(bankInfo),
-    enabled: Boolean(bankInfo) && connected,
+    queryFn: async () => saveUser(walletAddress, bankInfo),
+    enabled: Boolean(walletAddress) && Boolean(bankInfo) && connected,
     retry: false,
     refetchOnWindowFocus: false,
   });

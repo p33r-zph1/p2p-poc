@@ -11,7 +11,8 @@ import { InlineErrorDisplay } from '../shared';
 import ZPKycModal from './ZPKycModal';
 
 interface Props {
-  saveBankInfo(bankInfo: BankInfo): void;
+  saveBankInfo(bankInfo: BankInfo): Promise<BankInfo>;
+  refectchBankInfo: () => void;
   walletAddress?: Address;
 }
 
@@ -54,7 +55,11 @@ const paymentCountries: PaymentDetails[] = [
   },
 ];
 
-function AddPaymentDetails({ saveBankInfo, walletAddress }: Props) {
+function AddPaymentDetails({
+  saveBankInfo,
+  refectchBankInfo,
+  walletAddress,
+}: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState('');
   const [paymentDetails, setPaymentDetails] = useState(paymentCountries[0]);
@@ -144,30 +149,25 @@ function AddPaymentDetails({ saveBankInfo, walletAddress }: Props) {
     reader.readAsDataURL(imageFile);
   }, [fieldsHandler, imageFile]);
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError('');
+  const onSubmit = useCallback(
+    async (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      setError('');
 
-    const valid = paymentDetails.fields.every(field => {
-      const isValid = Boolean(field.value.trim());
-      if (!isValid) {
-        setError(`${field.label} is required`);
-        return;
-      }
+      const valid = paymentDetails.fields.every(field => {
+        const isValid = Boolean(field.value.trim());
+        if (!isValid) {
+          setError(`${field.label} is required`);
+        }
 
-      return isValid;
-    });
+        return isValid;
+      });
 
-    if (!valid) return;
+      if (!valid) return;
 
-    setIsOpen(true);
-  };
-
-  const onValidated = useCallback(
-    (bankInfo: BankInfo) => {
-      saveBankInfo(bankInfo);
+      setIsOpen(true);
     },
-    [saveBankInfo]
+    [paymentDetails.fields]
   );
 
   return (
@@ -179,10 +179,13 @@ function AddPaymentDetails({ saveBankInfo, walletAddress }: Props) {
 
       <ZPKycModal
         isOpen={isOpen}
-        close={() => setIsOpen(false)}
+        close={() => {
+          setIsOpen(false);
+          refectchBankInfo();
+        }}
         bankInfo={bankInfo}
         walletAddress={walletAddress}
-        onValidated={onValidated}
+        saveBankInfo={saveBankInfo}
       />
 
       <form onSubmit={onSubmit}>

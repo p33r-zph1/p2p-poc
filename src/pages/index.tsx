@@ -8,7 +8,7 @@ import { classNames } from '@/utils';
 import useMountedAccount from '@/hooks/useMountedAccount';
 import useIsMounted from '@/hooks/useIsMounted';
 import useAuth from '@/hooks/useAuth';
-import { useGetUser } from '@/hooks/useOnboarding';
+import { saveUser, useGetUser } from '@/hooks/useOnboarding';
 
 const tabs = ['Market prices', 'Transactions'];
 
@@ -18,7 +18,7 @@ function Home() {
   const {
     data: bankInfo,
     isLoading: isLoadingUser,
-    isFetching: isFetchingUser,
+    refetch: refetchBankInfo,
   } = useGetUser(isConnected, address);
 
   const mounted = useIsMounted();
@@ -65,7 +65,8 @@ function Home() {
               if (!bankInfo) {
                 return (
                   <AddPaymentDetails
-                    saveBankInfo={bankInfo => console.log({ bankInfo })}
+                    saveBankInfo={bankInfo => saveUser(address, bankInfo)}
+                    refectchBankInfo={refetchBankInfo}
                     walletAddress={address}
                   />
                 );

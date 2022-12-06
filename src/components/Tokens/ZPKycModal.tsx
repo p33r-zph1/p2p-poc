@@ -12,7 +12,7 @@ import { BankIcon, WalletIcon } from '../icons';
 interface Props {
   isOpen: boolean;
   close(): void;
-  onValidated(bankInfo: BankInfo): void;
+  saveBankInfo(bankInfo: BankInfo): Promise<BankInfo>;
   bankInfo?: BankInfo;
   walletAddress?: Address;
 }
@@ -90,13 +90,13 @@ function StatusIndicator({ status }: StatusIndicatorProps) {
 function ZPKycModal({
   close,
   isOpen,
-  onValidated,
+  saveBankInfo,
   walletAddress,
   bankInfo,
 }: Props) {
   const [status, setStatus] = useState<Status>('idle');
 
-  // Start mock validation
+  // Start validation
   useEffect(() => {
     if (isOpen && status === 'idle') {
       setStatus('validatingWallet');
@@ -142,34 +142,27 @@ function ZPKycModal({
     }
   }, [isOpen, status, walletAddress]);
 
-  // Mock validating payment details
+  // Validating payment details
   useEffect(() => {
     if (isOpen && status === 'validatingBank') {
-      let ignore = false;
+      if (!bankInfo) {
+        setStatus('rejected');
+        return;
+      }
 
-      const id = setTimeout(() => {
-        if (!ignore) {
-          // console.log({ bankInfo });
-          setStatus('validated');
-        }
-      }, 2000);
-
-      return () => {
-        ignore = true;
-        clearTimeout(id);
-      };
+      saveBankInfo(bankInfo)
+        .then(() => setStatus('validated'))
+        .catch(() => setStatus('rejected'));
     }
-  }, [isOpen, bankInfo, status]);
+  }, [isOpen, bankInfo, status, saveBankInfo]);
 
   return (
     <Transition show={isOpen} as={Fragment}>
       <Dialog
         onClose={() => {
-          if (status === 'validated' && bankInfo) {
-            onValidated(bankInfo);
+          if (status === 'validated' || status === 'rejected') {
+            close();
           }
-
-          close();
         }}
       >
         <Transition.Child
