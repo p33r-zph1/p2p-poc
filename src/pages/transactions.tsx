@@ -5,17 +5,6 @@ import useIsMounted from '@/hooks/useIsMounted';
 import useTransactions from '@/hooks/useTransactions';
 import useAuth from '@/hooks/useAuth';
 
-export type PaymentField = {
-  label: string;
-  id: string;
-  value: string;
-};
-
-export type PaymentDetails = {
-  name: string;
-  fields: PaymentField[];
-};
-
 function TransactionsPage() {
   const { connect, disconnect, connectProps } = useAuth();
   const { isConnected, address } = useMountedAccount();
@@ -30,7 +19,7 @@ function TransactionsPage() {
       <Navigation
         connected={isConnected}
         isConnecting={connectProps.isLoading}
-        walletAddress={address as string}
+        walletAddress={address}
         connectWallet={connect}
         disconnectWallet={disconnect}
       />

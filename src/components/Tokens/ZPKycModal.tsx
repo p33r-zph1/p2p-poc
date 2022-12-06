@@ -1,18 +1,20 @@
 import { Fragment, useEffect, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { UserIcon } from '@heroicons/react/20/solid';
+import { Address } from 'wagmi';
 
-import { PaymentDetails } from '@/pages';
+import { BankInfo } from '@/hooks/useOnboarding';
+import { classNames } from '@/utils';
+
 import { InlineErrorDisplay } from '../shared';
 import { BankIcon, WalletIcon } from '../icons';
-import { classNames } from '@/utils';
 
 interface Props {
   isOpen: boolean;
   close(): void;
-  onValidated(paymentDetails: PaymentDetails): void;
-  paymentDetails?: PaymentDetails;
-  walletAddress?: string;
+  onValidated(bankInfo: BankInfo): void;
+  bankInfo?: BankInfo;
+  walletAddress?: Address;
 }
 
 type Status =
@@ -90,7 +92,7 @@ function ZPKycModal({
   isOpen,
   onValidated,
   walletAddress,
-  paymentDetails,
+  bankInfo,
 }: Props) {
   const [status, setStatus] = useState<Status>('idle');
 
@@ -147,7 +149,7 @@ function ZPKycModal({
 
       const id = setTimeout(() => {
         if (!ignore) {
-          // console.log({ paymentDetails });
+          // console.log({ bankInfo });
           setStatus('validated');
         }
       }, 2000);
@@ -157,14 +159,14 @@ function ZPKycModal({
         clearTimeout(id);
       };
     }
-  }, [isOpen, paymentDetails, status]);
+  }, [isOpen, bankInfo, status]);
 
   return (
     <Transition show={isOpen} as={Fragment}>
       <Dialog
         onClose={() => {
-          if (status === 'validated' && paymentDetails) {
-            onValidated(paymentDetails);
+          if (status === 'validated' && bankInfo) {
+            onValidated(bankInfo);
           }
 
           close();

@@ -6,7 +6,7 @@ import {
 } from '@heroicons/react/20/solid';
 import { useDebounce } from 'use-debounce';
 
-import { PaymentDetails } from '@/pages';
+import { BankInfo } from '@/hooks/useOnboarding';
 import { classNames, errorWithReason } from '@/utils';
 import useTokenTransfer from '@/hooks/useTokenTransfer';
 import { Token } from '@/constants/tokens';
@@ -19,7 +19,7 @@ import { MatchedIcon, MatchingIcon } from '../icons';
 import ConfirmationModal from './ConfirmationModal';
 
 interface Props {
-  paymentDetails?: PaymentDetails;
+  bankInfo?: BankInfo;
   connected: boolean;
   isConnecting: boolean;
   connectWallet(): void;
@@ -28,7 +28,7 @@ interface Props {
 type FindingPairStatus = 'idle' | 'findingPair' | 'pairFound' | 'pairNotFound';
 
 function SellTokens({
-  paymentDetails,
+  bankInfo,
   connected,
   connectWallet,
   isConnecting,
@@ -76,8 +76,8 @@ function SellTokens({
     e.preventDefault();
     setError('');
 
-    if (!paymentDetails) {
-      setError('Provide your payment details to transact.');
+    if (!bankInfo) {
+      setError('Provide your bank information to transact.');
       return;
     }
   };
@@ -266,7 +266,7 @@ function SellTokens({
           <button
             type="submit"
             disabled={
-              !Boolean(paymentDetails) ||
+              !Boolean(bankInfo) ||
               Boolean(transferPreparationError) ||
               Boolean(tokenError) ||
               Number(tokenAmount) <= 0

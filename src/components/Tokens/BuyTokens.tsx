@@ -5,7 +5,7 @@ import {
   XMarkIcon,
 } from '@heroicons/react/20/solid';
 
-import { PaymentDetails } from '@/pages';
+import { BankInfo } from '@/hooks/useOnboarding';
 import useTokens from '@/hooks/useTokens';
 import { Token } from '@/constants/tokens';
 import fiatCurrencies, { Currency } from '@/constants/currency';
@@ -14,14 +14,14 @@ import CurrencySelector from './CurrencySelector';
 import { InlineErrorDisplay } from '../shared';
 
 interface Props {
-  paymentDetails?: PaymentDetails;
+  bankInfo?: BankInfo;
   connected: boolean;
   isConnecting: boolean;
   connectWallet(): void;
 }
 
 function BuyTokens({
-  paymentDetails,
+  bankInfo,
   connected,
   connectWallet,
   isConnecting,
@@ -50,8 +50,8 @@ function BuyTokens({
     e.preventDefault();
     setError('');
 
-    if (!paymentDetails) {
-      setError('Provide your payment details to transact.');
+    if (!bankInfo) {
+      setError('Provide your bank information to transact.');
       return;
     }
   };
@@ -163,7 +163,7 @@ function BuyTokens({
         <button
           type="submit"
           disabled={
-            !Boolean(paymentDetails) ||
+            !Boolean(bankInfo) ||
             Boolean(tokenError) ||
             Number(tokenAmount) <= 0
           }

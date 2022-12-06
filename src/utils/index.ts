@@ -1,7 +1,8 @@
 import { getAddress } from '@ethersproject/address';
+import { Address } from 'wagmi';
 
 // returns the checksummed address if the address is valid, otherwise returns false
-export function isAddress(value: string): string | false {
+export function isAddress(value: Address | string): string | false {
   try {
     // Alphabetical letters must be made lowercase for getAddress to work.
     // See documentation here: https://docs.ethers.io/v5/api/utils/address/
@@ -11,7 +12,7 @@ export function isAddress(value: string): string | false {
   }
 }
 
-export function shortenAddress(address: string, chars = 4): string {
+export function shortenAddress(address: Address, chars = 4): string {
   const parsed = isAddress(address);
 
   if (!parsed) {

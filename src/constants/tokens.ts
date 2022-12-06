@@ -1,4 +1,4 @@
-import { Chain } from 'wagmi';
+import { Address, Chain } from 'wagmi';
 
 import {
   ethereum,
@@ -10,7 +10,7 @@ import {
 } from './chains';
 
 export type Token = {
-  contractAddress: `0x${string}`;
+  contractAddress: Address | undefined; // explicitly specify type
   symbol: string;
   icon: string;
   id: string;
@@ -146,11 +146,33 @@ export const mumbaiTokens: Tokens = {
   tokens: [],
 };
 
-// default/fallback to ethereum mainnet
-export const fallbackTokens = ethereumTokens.tokens;
+// default/fallback tokens with undefined contract address
+export const fallbackTokens: Tokens = {
+  chainId: -1,
+  tokens: [
+    {
+      contractAddress: undefined,
+      symbol: 'USDT',
+      icon: '/images/ethereum.svg',
+      id: 'tether',
+    },
+    {
+      contractAddress: undefined,
+      symbol: 'USDC',
+      icon: '/images/ethereum.svg',
+      id: 'usd-coin',
+    },
+    {
+      contractAddress: undefined,
+      symbol: 'DAI',
+      icon: '/images/ethereum.svg',
+      id: 'dai',
+    },
+  ],
+};
 
 export function fromChain(chain?: Chain): Token[] {
-  if (!chain) return fallbackTokens;
+  if (!chain) return fallbackTokens.tokens;
 
   if (chain.id === ethereumTokens.chainId) return ethereumTokens.tokens;
   if (chain.id === goerliTokens.chainId) return goerliTokens.tokens;
@@ -159,5 +181,5 @@ export function fromChain(chain?: Chain): Token[] {
   if (chain.id === polygonTokens.chainId) return polygonTokens.tokens;
   if (chain.id === mumbaiTokens.chainId) return mumbaiTokens.tokens;
 
-  return fallbackTokens;
+  return fallbackTokens.tokens;
 }

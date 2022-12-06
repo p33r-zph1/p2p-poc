@@ -1,12 +1,13 @@
 import Link from 'next/link';
 import { Menu, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
+import { Address } from 'wagmi';
 
 import { WalletIcon } from '../icons';
 import { classNames, shortenAddress } from '@/utils';
 
 interface Props {
-  walletAddress: string;
+  walletAddress: Address;
   disconnectWallet(): void;
 }
 

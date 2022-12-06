@@ -1,21 +1,21 @@
 import { Tab } from '@headlessui/react';
 
 import { classNames } from '@/utils';
-import { PaymentDetails } from '@/pages';
+import { BankInfo } from '@/hooks/useOnboarding';
 import BuyTokens from './BuyTokens';
 import SellTokens from './SellTokens';
 
 const tabs = ['Buy', 'Sell'];
 
 interface Props {
-  paymentDetails?: PaymentDetails;
+  bankInfo?: BankInfo;
   connected: boolean;
   isConnecting: boolean;
   connectWallet(): void;
 }
 
 function TokensForm({
-  paymentDetails,
+  bankInfo,
   connected,
   connectWallet,
   isConnecting,
@@ -53,7 +53,7 @@ function TokensForm({
         <Tab.Panel>
           <BuyTokens
             isConnecting={isConnecting}
-            paymentDetails={paymentDetails}
+            bankInfo={bankInfo}
             connected={connected}
             connectWallet={connectWallet}
           />
@@ -61,7 +61,7 @@ function TokensForm({
         <Tab.Panel>
           <SellTokens
             isConnecting={isConnecting}
-            paymentDetails={paymentDetails}
+            bankInfo={bankInfo}
             connected={connected}
             connectWallet={connectWallet}
           />

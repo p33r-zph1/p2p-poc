@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Tab } from '@headlessui/react';
 
 import { Navigation } from '@/components/layout';
@@ -9,25 +8,18 @@ import { classNames } from '@/utils';
 import useMountedAccount from '@/hooks/useMountedAccount';
 import useIsMounted from '@/hooks/useIsMounted';
 import useAuth from '@/hooks/useAuth';
-
-export type PaymentField = {
-  label: string;
-  id: string;
-  value: string;
-};
-
-export type PaymentDetails = {
-  name: string;
-  fields: PaymentField[];
-};
+import { useGetUser } from '@/hooks/useOnboarding';
 
 const tabs = ['Market prices', 'Transactions'];
 
 function Home() {
   const { connect, disconnect, connectProps } = useAuth();
   const { isConnected, address } = useMountedAccount();
-
-  const [paymentDetails, setPaymentDetails] = useState<PaymentDetails>();
+  const {
+    data: bankInfo,
+    isLoading: isLoadingUser,
+    isFetching: isFetchingUser,
+  } = useGetUser(isConnected, address);
 
   const mounted = useIsMounted();
 
@@ -38,7 +30,7 @@ function Home() {
       <Navigation
         connected={isConnected}
         isConnecting={connectProps.isLoading}
-        walletAddress={address as string}
+        walletAddress={address}
         connectWallet={connect}
         disconnectWallet={disconnect}
       />
@@ -53,54 +45,67 @@ function Home() {
           <div className="col-span-2">
             <TokensForm
               isConnecting={connectProps.isLoading}
-              paymentDetails={paymentDetails}
+              bankInfo={bankInfo}
               connected={isConnected}
               connectWallet={connect}
             />
           </div>
 
           <div className="col-span-3">
-            {isConnected && paymentDetails && (
-              <Tab.Group
-                as="div"
-                className="flex w-full flex-col overflow-hidden rounded-xl"
-              >
-                <Tab.List className="flex space-x-1 bg-[#E7E9EB]">
-                  {tabs.map(tabName => (
-                    <Tab
-                      key={tabName}
-                      className={({ selected }) =>
-                        classNames(
-                          'w-full p-5 text-xl font-bold leading-5 sm:text-2xl',
-                          'focus:text-slate-300 focus:outline-none',
-                          selected
-                            ? 'rounded-tl-xl rounded-tr-xl bg-white text-body'
-                            : 'text-sleep-200 hover:bg-white/[0.12] hover:text-white'
-                        )
-                      }
-                    >
-                      {tabName}
-                    </Tab>
-                  ))}
-                </Tab.List>
+            {(() => {
+              if (!isConnected) return;
 
-                <Tab.Panels className="rounded-b-xl bg-white ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2">
-                  <Tab.Panel>
-                    <PairPriceMatrix />
-                  </Tab.Panel>
-                  <Tab.Panel>
-                    <RecentTransactions />
-                  </Tab.Panel>
-                </Tab.Panels>
-              </Tab.Group>
-            )}
+              // TODO(dennis): check for error - return a JSX
 
-            {!paymentDetails && isConnected && (
-              <AddPaymentDetails
-                addPaymentDetails={setPaymentDetails}
-                walletAddress={address}
-              />
-            )}
+              // TODO(dennis): improve loading feedback
+              if (isLoadingUser) {
+                return <p>Please wait...</p>;
+              }
+
+              if (!bankInfo) {
+                return (
+                  <AddPaymentDetails
+                    saveBankInfo={bankInfo => console.log({ bankInfo })}
+                    walletAddress={address}
+                  />
+                );
+              }
+
+              return (
+                <Tab.Group
+                  as="div"
+                  className="flex w-full flex-col overflow-hidden rounded-xl"
+                >
+                  <Tab.List className="flex space-x-1 bg-[#E7E9EB]">
+                    {tabs.map(tabName => (
+                      <Tab
+                        key={tabName}
+                        className={({ selected }) =>
+                          classNames(
+                            'w-full p-5 text-xl font-bold leading-5 sm:text-2xl',
+                            'focus:text-slate-300 focus:outline-none',
+                            selected
+                              ? 'rounded-tl-xl rounded-tr-xl bg-white text-body'
+                              : 'text-sleep-200 hover:bg-white/[0.12] hover:text-white'
+                          )
+                        }
+                      >
+                        {tabName}
+                      </Tab>
+                    ))}
+                  </Tab.List>
+
+                  <Tab.Panels className="rounded-b-xl bg-white ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2">
+                    <Tab.Panel>
+                      <PairPriceMatrix />
+                    </Tab.Panel>
+                    <Tab.Panel>
+                      <RecentTransactions />
+                    </Tab.Panel>
+                  </Tab.Panels>
+                </Tab.Group>
+              );
+            })()}
           </div>
         </div>
       </main>

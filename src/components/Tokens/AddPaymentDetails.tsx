@@ -2,16 +2,29 @@ import { FormEvent, useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { ArrowDownTrayIcon } from '@heroicons/react/20/solid';
 import QrScanner from 'qr-scanner';
+import { Address } from 'wagmi';
 
-import { PaymentDetails, PaymentField } from '@/pages';
+import { BankInfo } from '@/hooks/useOnboarding';
 import { extractQrData, getErrors, parseQrData } from '@/lib/instapay';
+
 import { InlineErrorDisplay } from '../shared';
 import ZPKycModal from './ZPKycModal';
 
 interface Props {
-  addPaymentDetails(paymentDetails: PaymentDetails): void;
-  walletAddress?: string;
+  saveBankInfo(bankInfo: BankInfo): void;
+  walletAddress?: Address;
 }
+
+type PaymentField = {
+  label: string;
+  id: string;
+  value: string;
+};
+
+type PaymentDetails = {
+  name: string;
+  fields: PaymentField[];
+};
 
 const paymentCountries: PaymentDetails[] = [
   {
@@ -41,10 +54,11 @@ const paymentCountries: PaymentDetails[] = [
   },
 ];
 
-function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
+function AddPaymentDetails({ saveBankInfo, walletAddress }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState('');
   const [paymentDetails, setPaymentDetails] = useState(paymentCountries[0]);
+  const [bankInfo, setBankInfo] = useState<BankInfo>();
   const [imageFile, setImageFile] = useState<File>();
   const [qrPreview, setQrPreview] = useState<string>();
 
@@ -63,6 +77,7 @@ function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
   useEffect(() => {
     if (!imageFile) {
       setQrPreview(undefined);
+      setBankInfo(undefined);
       setPaymentDetails(paymentCountries[0]);
       return;
     }
@@ -82,6 +97,17 @@ function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
         const recoverableErrors = getErrors(qrData);
 
         // TODO(dennis): display errors
+
+        setBankInfo({
+          countryCode: qrData.countryCode,
+          bankDetails: {
+            bankName: qrData.bankName,
+            accountName: qrData.name,
+            accountNumber: qrData.accountNumber,
+            city: qrData.city,
+            swiftCode: qrData.swiftCode,
+          },
+        });
 
         if (qrData?.countryCode === 'PH') {
           if (qrData?.name) {
@@ -109,6 +135,7 @@ function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
       } catch (error) {
         setError('Failed to read the Qr Code');
         setQrPreview(undefined);
+        setBankInfo(undefined);
         setPaymentDetails(paymentCountries[0]);
         console.error({ error });
       }
@@ -137,10 +164,10 @@ function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
   };
 
   const onValidated = useCallback(
-    (details: PaymentDetails) => {
-      addPaymentDetails(details);
+    (bankInfo: BankInfo) => {
+      saveBankInfo(bankInfo);
     },
-    [addPaymentDetails]
+    [saveBankInfo]
   );
 
   return (
@@ -153,7 +180,7 @@ function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
       <ZPKycModal
         isOpen={isOpen}
         close={() => setIsOpen(false)}
-        paymentDetails={paymentDetails}
+        bankInfo={bankInfo}
         walletAddress={walletAddress}
         onValidated={onValidated}
       />

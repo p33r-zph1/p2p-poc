@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useState } from 'react';
-import { Chain } from 'wagmi';
+import { Address, Chain } from 'wagmi';
 
 import AccountDetails from '../AccountDetails';
 import { Logo, LogoIcon } from '../icons';
@@ -9,7 +9,7 @@ import { NetworkSwitcher } from '../Network';
 interface Props {
   connected: boolean;
   isConnecting: boolean;
-  walletAddress?: string;
+  walletAddress?: Address;
   connectWallet(): void;
   disconnectWallet(): void;
 }
