@@ -1,4 +1,5 @@
 import { Tab } from '@headlessui/react';
+import { Address } from 'wagmi';
 
 import { classNames } from '@/utils';
 import { BankInfo } from '@/hooks/useOnboarding';
@@ -9,6 +10,7 @@ const tabs = ['Buy', 'Sell'];
 
 interface Props {
   bankInfo?: BankInfo;
+  walletAddress?: Address;
   connected: boolean;
   isConnecting: boolean;
   connectWallet(): void;
@@ -16,6 +18,7 @@ interface Props {
 
 function TokensForm({
   bankInfo,
+  walletAddress,
   connected,
   connectWallet,
   isConnecting,
@@ -53,6 +56,7 @@ function TokensForm({
         <Tab.Panel>
           <BuyTokens
             isConnecting={isConnecting}
+            walletAddress={walletAddress}
             bankInfo={bankInfo}
             connected={connected}
             connectWallet={connectWallet}
@@ -61,6 +65,7 @@ function TokensForm({
         <Tab.Panel>
           <SellTokens
             isConnecting={isConnecting}
+            walletAddress={walletAddress}
             bankInfo={bankInfo}
             connected={connected}
             connectWallet={connectWallet}

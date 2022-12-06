@@ -7,7 +7,6 @@ import {
   useNetwork,
   Address,
 } from 'wagmi';
-import { mainnet } from 'wagmi/chains';
 
 interface Props {
   contractAddress?: Address;

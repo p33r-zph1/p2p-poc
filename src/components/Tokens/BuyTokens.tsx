@@ -4,6 +4,7 @@ import {
   MinusIcon,
   XMarkIcon,
 } from '@heroicons/react/20/solid';
+import { Address } from 'wagmi';
 
 import { BankInfo } from '@/hooks/useOnboarding';
 import useTokens from '@/hooks/useTokens';
@@ -15,6 +16,7 @@ import { InlineErrorDisplay } from '../shared';
 
 interface Props {
   bankInfo?: BankInfo;
+  walletAddress?: Address;
   connected: boolean;
   isConnecting: boolean;
   connectWallet(): void;
@@ -22,6 +24,7 @@ interface Props {
 
 function BuyTokens({
   bankInfo,
+  walletAddress,
   connected,
   connectWallet,
   isConnecting,

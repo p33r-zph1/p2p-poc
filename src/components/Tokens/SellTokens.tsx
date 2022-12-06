@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   XMarkIcon,
   MinusIcon,
@@ -12,23 +12,28 @@ import useTokenTransfer from '@/hooks/useTokenTransfer';
 import { Token } from '@/constants/tokens';
 import useTokens from '@/hooks/useTokens';
 import fiatCurrencies, { Currency } from '@/constants/currency';
+import { Address } from 'wagmi';
 
 import CurrencySelector from './CurrencySelector';
 import { InlineErrorDisplay } from '../shared';
 import { MatchedIcon, MatchingIcon } from '../icons';
 import ConfirmationModal from './ConfirmationModal';
+import {
+  Transaction,
+  useCreateSellTransaction,
+} from '@/hooks/useCreateTransaction';
 
 interface Props {
   bankInfo?: BankInfo;
+  walletAddress?: Address;
   connected: boolean;
   isConnecting: boolean;
   connectWallet(): void;
 }
 
-type FindingPairStatus = 'idle' | 'findingPair' | 'pairFound' | 'pairNotFound';
-
 function SellTokens({
   bankInfo,
+  walletAddress,
   connected,
   connectWallet,
   isConnecting,
@@ -57,22 +62,15 @@ function SellTokens({
     transfer,
     isLoading,
     error: transferError,
-    transferPreparation,
     isError,
     isSuccess,
+    data: transferData,
+    transferPreparation,
   } = useTokenTransfer({
     amount: debouncedTokenAmount ? debouncedTokenAmount : '0',
     contractAddress: selectedToken?.contractAddress,
     recipient: '0xDc1ACdb071490A6fd66f449Db98F977a8B60FfC6', // TODO(dennis): make dynamic
   });
-
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [error, setError] = useState('');
-
-  const [findingPairStatus, setFindingPairStatus] =
-    useState<FindingPairStatus>('idle');
-
-  console.log({ fetcinh: transferPreparation.isFetching });
 
   const isTransferError = useMemo(
     () =>
@@ -83,30 +81,59 @@ function SellTokens({
     [bankInfo, tokenError, transferPreparation.error, tokenAmount]
   );
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError('');
+  const transaction = useMemo((): Transaction | undefined => {
+    if (!selectedToken) return undefined;
+    if (!selectedFiat) return undefined;
+    if (!tokenAmount) return undefined;
+    if (isTransferError) return undefined;
 
-    if (!bankInfo) {
-      setError('Provide your bank information to transact.');
-      return;
-    }
-  };
+    return {
+      order: {
+        currency: selectedFiat.symbol,
+      },
+      payment: {
+        currency: selectedToken.symbol,
+        amount: Number(tokenAmount),
+      },
+    };
+  }, [isTransferError, selectedFiat, selectedToken, tokenAmount]);
 
-  const findPair = () => {
-    setFindingPairStatus('findingPair');
+  const {
+    findingPairStatus,
+    setFindingPairStatus,
+    refetch: createSellTransaction,
+  } = useCreateSellTransaction(transaction, walletAddress);
 
-    setTimeout(() => {
-      setFindingPairStatus('pairFound');
-    }, 2000);
-  };
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [error, setError] = useState('');
 
-  const transferFunds = () => {
+  const onSubmit = useCallback(
+    (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      setError('');
+
+      if (!bankInfo) {
+        setError('Provide your bank information to transact.');
+        return;
+      }
+
+      createSellTransaction();
+    },
+    [bankInfo, createSellTransaction]
+  );
+
+  const transferFunds = useCallback(() => {
     if (!transfer) return;
 
     setIsConfirmModalOpen(true);
     transfer();
-  };
+  }, [transfer]);
+
+  useEffect(() => {
+    if (!transferData) return;
+
+    console.log(transferData.hash);
+  }, [transferData]);
 
   if (!selectedToken) {
     return <InlineErrorDisplay show error="Service currently not available" />;
@@ -259,7 +286,7 @@ function SellTokens({
 
         {connected && findingPairStatus === 'pairFound' && (
           <button
-            type="submit"
+            type="button"
             disabled={isTransferError}
             onClick={transferFunds}
             className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
@@ -272,11 +299,16 @@ function SellTokens({
           findingPairStatus !== 'idle' &&
           findingPairStatus !== 'pairFound' && (
             <button
-              type="submit"
-              disabled={findingPairStatus === 'findingPair'}
+              type="button"
+              disabled={
+                findingPairStatus === 'findingPair' ||
+                findingPairStatus === 'pairNotFound'
+              }
               className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
             >
-              Processing
+              {findingPairStatus === 'findingPair'
+                ? 'Processing'
+                : 'No pairs available'}
             </button>
           )}
 
@@ -285,7 +317,6 @@ function SellTokens({
             type="submit"
             disabled={isTransferError}
             className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
-            onClick={findPair}
           >
             Confirm
           </button>
