@@ -18,7 +18,7 @@ interface Props {
 function useTokenTransfer({ contractAddress, recipient, amount }: Props) {
   const { chain } = useNetwork();
 
-  const { config, error: preparationError } = usePrepareContractWrite({
+  const { config, ...transferPreparation } = usePrepareContractWrite({
     address: contractAddress,
     abi: erc20ABI,
     functionName: 'transfer',
@@ -31,7 +31,7 @@ function useTokenTransfer({ contractAddress, recipient, amount }: Props) {
 
   return {
     transfer: write,
-    preparationError,
+    transferPreparation,
     ...rest,
   };
 }

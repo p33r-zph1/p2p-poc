@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useMemo, useState } from 'react';
 import {
   XMarkIcon,
   MinusIcon,
@@ -57,7 +57,7 @@ function SellTokens({
     transfer,
     isLoading,
     error: transferError,
-    preparationError: transferPreparationError,
+    transferPreparation,
     isError,
     isSuccess,
   } = useTokenTransfer({
@@ -71,6 +71,17 @@ function SellTokens({
 
   const [findingPairStatus, setFindingPairStatus] =
     useState<FindingPairStatus>('idle');
+
+  console.log({ fetcinh: transferPreparation.isFetching });
+
+  const isTransferError = useMemo(
+    () =>
+      !Boolean(bankInfo) ||
+      Boolean(tokenError) ||
+      Boolean(transferPreparation.error) ||
+      Number(tokenAmount) <= 0,
+    [bankInfo, tokenError, transferPreparation.error, tokenAmount]
+  );
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -114,7 +125,10 @@ function SellTokens({
               className="w-full rounded-full border-brand pl-8 pt-7 pb-3 pr-36 text-lg"
               placeholder="0.00"
               value={tokenAmount}
-              onChange={e => tokenAmountHandler(e.target.value)}
+              onChange={e => {
+                tokenAmountHandler(e.target.value);
+                setFindingPairStatus('idle');
+              }}
             />
             <div className="absolute inset-y-0 right-0 flex items-center border-l">
               <CurrencySelector<Token>
@@ -188,7 +202,10 @@ function SellTokens({
               placeholder="0.00"
               disabled={!pairPrice || isLoadingPairPrice}
               value={fiatAmount}
-              onChange={e => fiatAmountHandler(e.target.value)}
+              onChange={e => {
+                fiatAmountHandler(e.target.value);
+                setFindingPairStatus('idle');
+              }}
             />
             <div className="absolute inset-y-0 right-0 flex items-center border-l">
               <CurrencySelector<Currency>
@@ -203,8 +220,8 @@ function SellTokens({
         <InlineErrorDisplay show={Boolean(error)} error={error} />
         <InlineErrorDisplay show={Boolean(tokenError)} error={tokenError} />
 
-        {errorWithReason(transferPreparationError) && (
-          <InlineErrorDisplay show error={transferPreparationError.reason} />
+        {errorWithReason(transferPreparation.error) && (
+          <InlineErrorDisplay show error={transferPreparation.error.reason} />
         )}
 
         {connected && findingPairStatus !== 'idle' && (
@@ -243,6 +260,7 @@ function SellTokens({
         {connected && findingPairStatus === 'pairFound' && (
           <button
             type="submit"
+            disabled={isTransferError}
             onClick={transferFunds}
             className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
           >
@@ -265,12 +283,7 @@ function SellTokens({
         {connected && findingPairStatus === 'idle' && (
           <button
             type="submit"
-            disabled={
-              !Boolean(bankInfo) ||
-              Boolean(transferPreparationError) ||
-              Boolean(tokenError) ||
-              Number(tokenAmount) <= 0
-            }
+            disabled={isTransferError}
             className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
             onClick={findPair}
           >
