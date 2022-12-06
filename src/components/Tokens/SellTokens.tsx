@@ -5,6 +5,7 @@ import {
   CurrencyDollarIcon,
 } from '@heroicons/react/20/solid';
 import { useDebounce } from 'use-debounce';
+import { Address, useNetwork } from 'wagmi';
 
 import { BankInfo } from '@/hooks/useOnboarding';
 import { classNames, errorWithReason } from '@/utils';
@@ -12,16 +13,15 @@ import useTokenTransfer from '@/hooks/useTokenTransfer';
 import { Token } from '@/constants/tokens';
 import useTokens from '@/hooks/useTokens';
 import fiatCurrencies, { Currency } from '@/constants/currency';
-import { Address } from 'wagmi';
+import { getCustomChainId } from '@/constants/chains';
+import useCreateTransaction, {
+  Transaction,
+} from '@/hooks/useCreateTransaction';
 
 import CurrencySelector from './CurrencySelector';
 import { InlineErrorDisplay } from '../shared';
 import { MatchedIcon, MatchingIcon } from '../icons';
 import ConfirmationModal from './ConfirmationModal';
-import {
-  Transaction,
-  useCreateSellTransaction,
-} from '@/hooks/useCreateTransaction';
 
 interface Props {
   bankInfo?: BankInfo;
@@ -98,11 +98,21 @@ function SellTokens({
     };
   }, [isTransferError, selectedFiat, selectedToken, tokenAmount]);
 
+  const { chain } = useNetwork();
+
   const {
     findingPairStatus,
     setFindingPairStatus,
     refetch: createSellTransaction,
-  } = useCreateSellTransaction(transaction, walletAddress);
+  } = useCreateTransaction({
+    type: 'SELL',
+    createTransaction: {
+      transaction,
+      walletAddress,
+      bankInfo,
+      customChainId: getCustomChainId(chain),
+    },
+  });
 
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [error, setError] = useState('');

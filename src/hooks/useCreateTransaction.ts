@@ -1,6 +1,9 @@
-import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Address } from 'wagmi';
+
+import { BankInfo } from './useOnboarding';
+import { ServiceType } from './useTokens';
 
 interface Payment {
   currency: string;
@@ -26,86 +29,59 @@ interface TransactionResponse {
   copyright: string;
 }
 
-type FindingPairStatus = 'idle' | 'findingPair' | 'pairFound' | 'pairNotFound';
-
-export async function createBuyTransaction(
-  transaction: Transaction | undefined,
-  walletAddress: Address | undefined
-) {
-  if (!transaction) {
-    throw new Error('Transaction is required');
-  }
-
-  const url =
-    'https://tmbtem7z94.execute-api.ap-southeast-1.amazonaws.com/develop/transaction/buy';
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(transaction),
-  });
-
-  const buyTransaction = (await response.json()) as TransactionResponse;
-
-  if (!response.ok || !buyTransaction.data?.referenceId) {
-    throw new Error('Transaction/Wallet address is required');
-  }
-
-  return buyTransaction.data;
+interface CreateTransaction {
+  transaction: Transaction | undefined;
+  walletAddress: Address | undefined;
+  bankInfo: BankInfo | undefined;
+  customChainId: string | undefined;
 }
 
-export async function createSellTransaction(
-  transaction: Transaction | undefined,
-  walletAddress: Address | undefined
-) {
-  if (!transaction || !walletAddress) {
-    throw new Error('Transaction/Wallet address is required');
-  }
+interface Props {
+  type: ServiceType;
+  createTransaction: CreateTransaction;
+}
 
-  const url =
-    'https://tmbtem7z94.execute-api.ap-southeast-1.amazonaws.com/develop/transaction/sell';
+export async function createTransaction({ type, createTransaction }: Props) {
+  const { bankInfo, customChainId, transaction, walletAddress } =
+    createTransaction;
+
+  if (!bankInfo) throw new Error('Bank information is required');
+  if (!customChainId) throw new Error('Custom chain id is required');
+  if (!transaction) throw new Error('Transaction is required');
+  if (!walletAddress) throw new Error('Wallet address is required');
+
+  const url = `https://tmbtem7z94.execute-api.ap-southeast-1.amazonaws.com/develop/transaction/${
+    type === 'BUY' ? 'buy' : 'sell'
+  }`;
   const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      country: 'ph',
-      chain: 'eth',
+      country: bankInfo.bankDetails.countryCode,
+      chain: customChainId,
       walletAddress,
     },
     body: JSON.stringify(transaction),
   });
 
-  const sellTransaction = (await response.json()) as TransactionResponse;
+  const createdTransaction = (await response.json()) as TransactionResponse;
 
-  if (!response.ok || !sellTransaction.data?.referenceId) {
-    throw new Error(`Failed to create sell transaction`);
+  if (!response.ok || !createdTransaction.data?.referenceId) {
+    throw new Error(`Failed to create ${type} transaction`);
   }
 
-  return sellTransaction.data;
+  return createdTransaction.data;
 }
 
-export function useCreateBuyTransaction(
-  transaction: Transaction,
-  walletAddress: Address
-) {
-  return useQuery({
-    queryKey: [transaction, walletAddress],
-    queryFn: async () => createBuyTransaction(transaction, walletAddress),
-    enabled: false,
-    retry: false,
-    refetchOnWindowFocus: false,
-  });
-}
+type FindingPairStatus = 'idle' | 'findingPair' | 'pairFound' | 'pairNotFound';
 
-export function useCreateSellTransaction(
-  transaction: Transaction | undefined,
-  walletAddress: Address | undefined
-) {
+function useCreateTransaction(props: Props) {
   const [findingPairStatus, setFindingPairStatus] =
     useState<FindingPairStatus>('idle');
 
   const { isFetching, ...rest } = useQuery({
-    queryKey: [transaction, walletAddress],
-    queryFn: async () => createSellTransaction(transaction, walletAddress),
+    queryKey: [props],
+    queryFn: async () => createTransaction(props),
     onSuccess() {
       setFindingPairStatus('pairFound');
     },
@@ -128,3 +104,5 @@ export function useCreateSellTransaction(
     setFindingPairStatus,
   };
 }
+
+export default useCreateTransaction;

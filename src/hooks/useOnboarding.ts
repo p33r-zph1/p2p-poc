@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Address } from 'wagmi';
 
-export interface BankDetails {
+export interface PHBankDetails {
   bankName: string;
   accountName: string;
   accountNumber: string;
@@ -9,9 +9,12 @@ export interface BankDetails {
   swiftCode: string;
 }
 
+type SGBankDetails = {
+  mobileNumber: string;
+};
+
 export interface BankInfo {
-  countryCode: string;
-  bankDetails: BankDetails | { mobileNumber: string };
+  bankDetails: (PHBankDetails | SGBankDetails) & { countryCode: string };
 }
 
 export interface OnboardingResponse {

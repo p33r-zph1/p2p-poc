@@ -104,8 +104,8 @@ function AddPaymentDetails({
         // TODO(dennis): display errors
 
         setBankInfo({
-          countryCode: qrData.countryCode,
           bankDetails: {
+            countryCode: qrData.countryCode,
             bankName: qrData.bankName,
             accountName: qrData.name,
             accountNumber: qrData.accountNumber,
