@@ -73,7 +73,12 @@ export async function createTransaction({ type, createTransaction }: Props) {
   return createdTransaction.data;
 }
 
-type FindingPairStatus = 'idle' | 'findingPair' | 'pairFound' | 'pairNotFound';
+type FindingPairStatus =
+  | 'idle'
+  | 'findingPair'
+  | 'waitingForEscrow'
+  | 'pairFound'
+  | 'pairNotFound';
 
 function useCreateTransaction(props: Props) {
   const [findingPairStatus, setFindingPairStatus] =
@@ -83,7 +88,8 @@ function useCreateTransaction(props: Props) {
     queryKey: [props],
     queryFn: async () => createTransaction(props),
     onSuccess() {
-      setFindingPairStatus('pairFound');
+      if (props.type === 'BUY') setFindingPairStatus('waitingForEscrow');
+      else setFindingPairStatus('pairFound');
     },
     onError() {
       setFindingPairStatus('pairNotFound');
@@ -96,6 +102,18 @@ function useCreateTransaction(props: Props) {
   useEffect(() => {
     if (isFetching) setFindingPairStatus('findingPair');
   }, [isFetching]);
+
+  useEffect(() => {
+    if (findingPairStatus !== 'waitingForEscrow') return;
+
+    const interval = setTimeout(() => {
+      setFindingPairStatus('pairFound');
+    }, 15000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [findingPairStatus]);
 
   return {
     ...rest,

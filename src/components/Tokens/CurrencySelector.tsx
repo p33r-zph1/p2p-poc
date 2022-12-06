@@ -9,12 +9,14 @@ import { Currency } from '@/constants/currency';
 interface Props<T> {
   currencies: T[];
   selected?: T;
+  disabled?: boolean;
   onChange: (currency: T) => void;
 }
 
 function CurrencySelector<T extends Currency>({
   currencies,
   selected,
+  disabled,
   onChange,
 }: Props<T>) {
   if (currencies.length === 0 || !selected) {
@@ -22,7 +24,7 @@ function CurrencySelector<T extends Currency>({
   }
 
   return (
-    <Listbox value={selected} onChange={onChange}>
+    <Listbox value={selected} onChange={onChange} disabled={disabled}>
       <div className="relative">
         <Listbox.Button
           className="

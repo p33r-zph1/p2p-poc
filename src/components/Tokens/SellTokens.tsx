@@ -8,7 +8,7 @@ import { useDebounce } from 'use-debounce';
 import { Address, useNetwork } from 'wagmi';
 
 import { BankInfo } from '@/hooks/useOnboarding';
-import { classNames, errorWithReason } from '@/utils';
+import { classNames, errorWithReason, onlyNumbers } from '@/utils';
 import useTokenTransfer from '@/hooks/useTokenTransfer';
 import { Token } from '@/constants/tokens';
 import useTokens from '@/hooks/useTokens';
@@ -93,7 +93,7 @@ function SellTokens({
       },
       payment: {
         currency: selectedToken.symbol,
-        amount: Number(tokenAmount),
+        amount: Number(onlyNumbers(tokenAmount)),
       },
     };
   }, [isTransferError, selectedFiat, selectedToken, tokenAmount]);
@@ -161,6 +161,10 @@ function SellTokens({
               type="text"
               className="w-full rounded-full border-brand pl-8 pt-7 pb-3 pr-36 text-lg"
               placeholder="0.00"
+              disabled={
+                findingPairStatus === 'findingPair' ||
+                findingPairStatus === 'waitingForEscrow'
+              }
               value={tokenAmount}
               onChange={e => {
                 tokenAmountHandler(e.target.value);
@@ -171,7 +175,14 @@ function SellTokens({
               <CurrencySelector<Token>
                 selected={selectedToken}
                 currencies={tokens}
-                onChange={setSelectedToken}
+                disabled={
+                  findingPairStatus === 'findingPair' ||
+                  findingPairStatus === 'waitingForEscrow'
+                }
+                onChange={tokens => {
+                  setSelectedToken(tokens);
+                  setFindingPairStatus('idle');
+                }}
               />
             </div>
           </div>
@@ -237,7 +248,10 @@ function SellTokens({
               type="text"
               className="w-full rounded-full border-brand pl-8 pt-7 pb-3 pr-36 text-lg"
               placeholder="0.00"
-              disabled={!pairPrice || isLoadingPairPrice}
+              disabled={
+                findingPairStatus === 'findingPair' ||
+                findingPairStatus === 'waitingForEscrow'
+              }
               value={fiatAmount}
               onChange={e => {
                 fiatAmountHandler(e.target.value);
@@ -248,7 +262,14 @@ function SellTokens({
               <CurrencySelector<Currency>
                 selected={selectedFiat}
                 currencies={fiatCurrencies}
-                onChange={setSelectedFiat}
+                disabled={
+                  findingPairStatus === 'findingPair' ||
+                  findingPairStatus === 'waitingForEscrow'
+                }
+                onChange={fiat => {
+                  setSelectedFiat(fiat);
+                  setFindingPairStatus('idle');
+                }}
               />
             </div>
           </div>
