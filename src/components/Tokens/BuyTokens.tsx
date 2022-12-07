@@ -9,12 +9,13 @@ import { Address, useNetwork } from 'wagmi';
 import { BankInfo } from '@/hooks/useOnboarding';
 import { classNames, onlyNumbers } from '@/utils';
 import useTokens from '@/hooks/useTokens';
-import { Token } from '@/constants/tokens';
-import fiatCurrencies, { Currency } from '@/constants/currency';
-import { getCustomChainId } from '@/constants/chains';
 import useCreateTransaction, {
   Transaction,
 } from '@/hooks/useCreateTransaction';
+import useConfirmTransaction from '@/hooks/useConfirmTransaction';
+import { Token } from '@/constants/tokens';
+import fiatCurrencies, { Currency } from '@/constants/currency';
+import { getCustomChainId } from '@/constants/chains';
 
 import CurrencySelector from './CurrencySelector';
 import { InlineErrorDisplay } from '../shared';
@@ -80,7 +81,8 @@ function BuyTokens({
   const {
     findingPairStatus,
     setFindingPairStatus,
-    refetch: createSellTransaction,
+    refetch: createBuyTransaction,
+    data: buyTransaction,
   } = useCreateTransaction({
     type: 'BUY',
     createTransaction: {
@@ -88,6 +90,15 @@ function BuyTokens({
       walletAddress,
       bankInfo,
       customChainId: getCustomChainId(chain),
+    },
+  });
+
+  const { refetch: confirmBuyTransaction } = useConfirmTransaction({
+    type: 'BUY',
+    confirmTransaction: {
+      walletAddress,
+      referenceId: buyTransaction?.referenceId,
+      base64Image: 'data:image/png;base64,abcdefg',
     },
   });
 
@@ -104,9 +115,9 @@ function BuyTokens({
         return;
       }
 
-      createSellTransaction();
+      createBuyTransaction();
     },
-    [bankInfo, createSellTransaction]
+    [bankInfo, createBuyTransaction]
   );
 
   if (!selectedToken) {
@@ -286,10 +297,10 @@ function BuyTokens({
           <button
             type="button"
             disabled={isTransferError}
-            onClick={() => {}} // FIXME:: check me later
+            onClick={() => confirmBuyTransaction()} // TODO: show dialog too
             className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
           >
-            Confirm Payment
+            Confirm Payment via Screenshot
           </button>
         )}
 
@@ -349,7 +360,7 @@ function BuyTokens({
           receiveAmount: fiatAmount,
           receiveCurrency: selectedFiat.symbol,
         }}
-        transferSuccessful={true}
+        transferSuccessful={false}
         showError={false}
         transfering={false}
         // TODO(Dennis, Karim): improve error handling
