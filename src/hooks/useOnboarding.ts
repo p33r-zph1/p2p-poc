@@ -6,7 +6,6 @@ export interface PHBankDetails {
   accountName: string;
   accountNumber: string;
   city: string;
-  swiftCode: string;
 }
 
 type SGBankDetails = {

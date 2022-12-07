@@ -6,6 +6,7 @@ import { Address } from 'wagmi';
 
 import { BankInfo } from '@/hooks/useOnboarding';
 import { extractQrData, getErrors, parseQrData } from '@/lib/instapay';
+import { bankInfoToArray } from '@/lib/instapay/bank-info';
 
 import { InlineErrorDisplay } from '../shared';
 import ZPKycModal from './ZPKycModal';
@@ -20,34 +21,49 @@ type PaymentField = {
   label: string;
   id: string;
   value: string;
+  options?: string[];
 };
 
 type PaymentDetails = {
   name: string;
+  countryCode: string;
   fields: PaymentField[];
 };
 
 const paymentCountries: PaymentDetails[] = [
   {
     name: 'Philippines',
+    countryCode: 'ph',
     fields: [
       {
-        id: 'accountName',
+        id: 'bank-name',
+        label: 'Bank Name',
+        options: bankInfoToArray(),
+        value: bankInfoToArray()[0],
+      },
+      {
+        id: 'account-name',
         label: 'Account Name',
         value: '',
       },
       {
-        id: 'account-mobileNumber',
+        id: 'account-number',
         label: 'Account/Mobile Number (InstaPay)',
+        value: '',
+      },
+      {
+        id: 'city',
+        label: 'City',
         value: '',
       },
     ],
   },
   {
     name: 'Singapore',
+    countryCode: 'sg',
     fields: [
       {
-        id: 'mobileNumber',
+        id: 'mobile-number',
         label: 'Mobile Number (PayNow)',
         value: '',
       },
@@ -103,37 +119,38 @@ function AddPaymentDetails({
 
         // TODO(dennis): display errors
 
-        setBankInfo({
-          bankDetails: {
-            countryCode: qrData.countryCode,
-            bankName: qrData.bankName,
-            accountName: qrData.name,
-            accountNumber: qrData.accountNumber,
-            city: qrData.city,
-            swiftCode: qrData.swiftCode,
-          },
-        });
-
         if (qrData?.countryCode === 'PH') {
-          if (qrData?.name) {
-            const field = paymentCountries[0].fields[0];
-            field.value = qrData.name;
+          let field = paymentCountries[0].fields[0];
 
-            setPaymentDetails(state => ({
-              ...state,
-              fields: fieldsHandler(field, state.fields),
-            }));
-          }
+          field.value = qrData?.bankName || '';
+          setPaymentDetails(state => ({
+            ...state,
+            fields: fieldsHandler(field, state.fields),
+          }));
 
-          if (qrData?.accountNumber) {
-            const field = paymentCountries[0].fields[1];
-            field.value = qrData.accountNumber;
+          field = paymentCountries[0].fields[1];
+          field.value = qrData?.name || '';
 
-            setPaymentDetails(state => ({
-              ...state,
-              fields: fieldsHandler(field, state.fields),
-            }));
-          }
+          setPaymentDetails(state => ({
+            ...state,
+            fields: fieldsHandler(field, state.fields),
+          }));
+
+          field = paymentCountries[0].fields[2];
+          field.value = qrData?.accountNumber || '';
+
+          setPaymentDetails(state => ({
+            ...state,
+            fields: fieldsHandler(field, state.fields),
+          }));
+
+          field = paymentCountries[0].fields[3];
+          field.value = qrData?.city || '';
+
+          setPaymentDetails(state => ({
+            ...state,
+            fields: fieldsHandler(field, state.fields),
+          }));
         }
 
         setQrPreview(result);
@@ -165,9 +182,34 @@ function AddPaymentDetails({
 
       if (!valid) return;
 
-      setIsOpen(true);
+      if (paymentDetails.countryCode === 'sg') {
+        setBankInfo({
+          bankDetails: {
+            countryCode: paymentDetails.countryCode,
+            mobileNumber: paymentDetails.fields[0]?.value,
+          },
+        });
+        setIsOpen(true);
+        return;
+      }
+
+      if (paymentDetails.countryCode === 'ph') {
+        setBankInfo({
+          bankDetails: {
+            countryCode: paymentDetails.countryCode,
+            bankName: paymentDetails.fields[0]?.value,
+            accountName: paymentDetails.fields[1]?.value,
+            accountNumber: paymentDetails.fields[2]?.value,
+            city: paymentDetails.fields[3]?.value,
+          },
+        });
+        setIsOpen(true);
+        return;
+      }
+
+      setError('Unhandled country was proccessed');
     },
-    [paymentDetails.fields]
+    [paymentDetails.countryCode, paymentDetails.fields]
   );
 
   return (
@@ -208,16 +250,18 @@ function AddPaymentDetails({
                 onChange={e => {
                   const country = e.target.value;
                   const paymentDetails = paymentCountries.find(
-                    ctrs => ctrs.name === country
+                    ctrs => ctrs.countryCode === country
                   );
 
                   if (!paymentDetails) return;
                   setPaymentDetails(paymentDetails);
                 }}
-                value={paymentDetails.name}
+                value={paymentDetails.countryCode}
               >
                 {paymentCountries.map(ctrs => (
-                  <option key={ctrs.name}>{ctrs.name}</option>
+                  <option key={ctrs.countryCode} value={ctrs.countryCode}>
+                    {ctrs.name}
+                  </option>
                 ))}
               </select>
             </div>
@@ -230,23 +274,48 @@ function AddPaymentDetails({
                 >
                   {field.label}
                 </label>
-                <input
-                  type="text"
-                  name="mobileNumber"
-                  id={field.id}
-                  autoComplete={field.id}
-                  className="mt-1 block w-full rounded-md border-[#E7E9EB] text-sleep-100 shadow-sm focus:border-brand focus:ring-brand sm:text-sm"
-                  onChange={e => {
-                    const fieldValue = e.target.value;
-                    field.value = fieldValue;
+                {field.options ? (
+                  <select
+                    id={field.id}
+                    name={field.label}
+                    autoComplete={field.label}
+                    className="mt-1 block w-full rounded-md border border-[#E7E9EB] bg-white  py-2 px-3 text-sleep-100 shadow-sm focus:border-brand focus:outline-none focus:ring-brand sm:text-sm"
+                    onChange={e => {
+                      const fieldValue = e.target.value;
+                      field.value = fieldValue;
 
-                    setPaymentDetails(state => ({
-                      ...state,
-                      fields: fieldsHandler(field, state.fields),
-                    }));
-                  }}
-                  value={field.value}
-                />
+                      setPaymentDetails(state => ({
+                        ...state,
+                        fields: fieldsHandler(field, state.fields),
+                      }));
+                    }}
+                    value={field.value}
+                  >
+                    {field.options.map(option => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    name="mobileNumber"
+                    id={field.id}
+                    autoComplete={field.id}
+                    className="mt-1 block w-full rounded-md border-[#E7E9EB] text-sleep-100 shadow-sm focus:border-brand focus:ring-brand sm:text-sm"
+                    onChange={e => {
+                      const fieldValue = e.target.value;
+                      field.value = fieldValue;
+
+                      setPaymentDetails(state => ({
+                        ...state,
+                        fields: fieldsHandler(field, state.fields),
+                      }));
+                    }}
+                    value={field.value}
+                  />
+                )}
               </div>
             ))}
           </div>
