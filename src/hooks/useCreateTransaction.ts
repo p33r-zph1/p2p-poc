@@ -108,7 +108,7 @@ function useCreateTransaction(props: Props) {
 
     const interval = setTimeout(() => {
       setFindingPairStatus('pairFound');
-    }, 1000);
+    }, 15000);
 
     return () => {
       clearInterval(interval);
