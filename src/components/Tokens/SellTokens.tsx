@@ -12,11 +12,11 @@ import { classNames, errorWithReason, onlyNumbers } from '@/utils';
 import useTokenTransfer from '@/hooks/useTokenTransfer';
 import { Token } from '@/constants/tokens';
 import useTokens from '@/hooks/useTokens';
-import fiatCurrencies, { Currency } from '@/constants/currency';
-import { getCustomChainId } from '@/constants/chains';
 import useCreateTransaction, {
   Transaction,
 } from '@/hooks/useCreateTransaction';
+import fiatCurrencies, { Currency } from '@/constants/currency';
+import { getCustomChainId } from '@/constants/chains';
 
 import CurrencySelector from './CurrencySelector';
 import { InlineErrorDisplay } from '../shared';
@@ -366,6 +366,7 @@ function SellTokens({
       </form>
 
       <ConfirmationModal
+        type="SELL"
         isOpen={isConfirmModalOpen}
         close={() => {
           if (!isLoading) {

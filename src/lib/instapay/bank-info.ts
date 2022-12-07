@@ -14,7 +14,7 @@ const BOPIPHMMXXX: BankInfo = [
   /^(\d{10}|\d{14})$/,
 ];
 
-const BANK_INFO = {
+const BANK_INFO: Record<string, BankInfo> = {
   PAPHPHM1XXX,
   UBPHPHMMXXX,
   BOPIPHMMXXX,

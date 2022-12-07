@@ -1,7 +1,10 @@
 import { Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
+import Image from 'next/image';
 
 import { classNames } from '@/utils';
+import { ServiceType } from '@/hooks/useTokens';
+
 import { InlineErrorDisplay } from '../shared';
 import { ConfirmationModalIcon } from '../icons';
 
@@ -12,6 +15,8 @@ interface Props {
   showError: boolean;
   error: string;
   transferSuccessful: boolean;
+  type: ServiceType;
+  image?: string;
   transferDetails: {
     payCurrency: string;
     payAmount: string;
@@ -28,6 +33,8 @@ function ConfirmationModal({
   showError,
   transferDetails,
   transferSuccessful,
+  type,
+  image,
 }: Props) {
   const { payAmount, payCurrency, receiveAmount, receiveCurrency } =
     transferDetails;
@@ -67,16 +74,34 @@ function ConfirmationModal({
         >
           <Dialog.Panel className="w-full max-w-md rounded-xl bg-white p-10">
             <div className="flex items-center justify-center">
-              <ConfirmationModalIcon
-                className="text-white"
-                ellipseFill={transferSuccessful ? '#67C96C' : '#FD8B4B'}
-              />
+              {image ? (
+                <Image
+                  src={image}
+                  width={200}
+                  height={200}
+                  alt="image preview"
+                  className="object-contain"
+                />
+              ) : (
+                <ConfirmationModalIcon
+                  className="text-white"
+                  ellipseFill={transferSuccessful ? '#67C96C' : '#FD8B4B'}
+                />
+              )}
             </div>
 
             <Dialog.Title className="mt-10 text-center font-sans text-xl font-semibold md:text-2xl">
-              {transferSuccessful
-                ? "Crypto successfully sent to P33R's secure escrow account!"
-                : 'Waiting For Confirmation'}
+              {(() => {
+                if (type === 'BUY') {
+                  return transferSuccessful
+                    ? 'You have recieved the crypto successfully!'
+                    : 'Waiting For Confirmation';
+                }
+
+                return transferSuccessful
+                  ? "Crypto successfully sent to P33R's secure escrow account!"
+                  : 'Waiting For Confirmation';
+              })()}
             </Dialog.Title>
             {transferSuccessful ? (
               <Dialog.Description
@@ -85,10 +110,12 @@ function ConfirmationModal({
                   'mt-2 text-center text-sm text-sleep-100'
                 )}
               >
-                Please confirm receipt of FIAT payment {receiveAmount}{' '}
+                {type === 'BUY'
+                  ? `Waiting for escrow to release crypto.`
+                  : `Please confirm receipt of FIAT payment ${receiveAmount}${' '}
                 {receiveCurrency} within the next 10 minutes, otherwise this
                 transaction will be cancelled and your crypto payment will be
-                refunded to your wallet.
+                refunded to your wallet.`}
               </Dialog.Description>
             ) : (
               <Dialog.Description
@@ -98,7 +125,12 @@ function ConfirmationModal({
                 )}
               >
                 Paying {payAmount} {payCurrency} for {receiveAmount}{' '}
-                {receiveCurrency} <br /> Confirm this transaction in your wallet
+                {receiveCurrency}
+                {type === 'SELL' && (
+                  <>
+                    <br /> Confirm this transaction in your wallet
+                  </>
+                )}
               </Dialog.Description>
             )}
 

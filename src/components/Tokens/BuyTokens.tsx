@@ -1,4 +1,11 @@
-import { FormEvent, useCallback, useMemo, useState } from 'react';
+import {
+  FormEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   CurrencyDollarIcon,
   MinusIcon,
@@ -93,12 +100,18 @@ function BuyTokens({
     },
   });
 
-  const { refetch: confirmBuyTransaction } = useConfirmTransaction({
+  const [imageFile, setImageFile] = useState<File>();
+  const [imagePreview, setImagePreview] = useState<string>();
+
+  const {
+    refetch: confirmBuyTransaction,
+    isFetching: isFetchingBuyTransaction,
+  } = useConfirmTransaction({
     type: 'BUY',
     confirmTransaction: {
       walletAddress,
       referenceId: buyTransaction?.referenceId,
-      base64Image: 'data:image/png;base64,abcdefg',
+      base64Image: imagePreview,
     },
   });
 
@@ -119,6 +132,36 @@ function BuyTokens({
     },
     [bankInfo, createBuyTransaction]
   );
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!imageFile) {
+      setImagePreview(undefined);
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onloadend = async () => {
+      try {
+        setError('');
+
+        const result = reader.result;
+        if (typeof result !== 'string') throw {};
+
+        confirmBuyTransaction();
+        setIsConfirmModalOpen(true);
+        setImagePreview(result);
+      } catch (error) {
+        setError('Failed to read the image');
+        setImagePreview(undefined);
+        console.error({ error });
+      }
+    };
+
+    reader.readAsDataURL(imageFile);
+  }, [confirmBuyTransaction, imageFile]);
 
   if (!selectedToken) {
     return <InlineErrorDisplay show error="Service currently not available" />;
@@ -297,7 +340,7 @@ function BuyTokens({
           <button
             type="button"
             disabled={isTransferError}
-            onClick={() => confirmBuyTransaction()} // TODO: show dialog too
+            onClick={() => inputRef.current?.click()}
             className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
           >
             Confirm Payment via Screenshot
@@ -345,24 +388,40 @@ function BuyTokens({
         )}
       </form>
 
-      <ConfirmationModal
-        isOpen={isConfirmModalOpen}
-        close={() => {
-          setIsConfirmModalOpen(false);
+      <input
+        type="file"
+        accept="image/*"
+        className="hidden"
+        ref={inputRef}
+        onChange={event => {
+          const file = event.target.files?.[0];
+          if (file && file.type.substring(0, 5) === 'image') setImageFile(file);
+          else setImageFile(undefined);
 
-          // if (!isLoading) {
-          //   setIsConfirmModalOpen(false);
-          // }
+          // this line right below will reset the
+          // input field so if you removed it you can re-add the same file
+          event.target.value = '';
+        }}
+      />
+
+      <ConfirmationModal
+        type="BUY"
+        isOpen={isConfirmModalOpen}
+        image={imagePreview}
+        close={() => {
+          if (!isFetchingBuyTransaction) {
+            setIsConfirmModalOpen(false);
+          }
         }}
         transferDetails={{
-          payAmount: tokenAmount,
-          payCurrency: selectedToken.symbol,
-          receiveAmount: fiatAmount,
-          receiveCurrency: selectedFiat.symbol,
+          payAmount: fiatAmount,
+          payCurrency: selectedFiat.symbol,
+          receiveAmount: tokenAmount,
+          receiveCurrency: selectedToken.symbol,
         }}
         transferSuccessful={false}
         showError={false}
-        transfering={false}
+        transfering={isFetchingBuyTransaction}
         // TODO(Dennis, Karim): improve error handling
         error=""
       />
