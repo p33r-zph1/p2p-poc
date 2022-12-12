@@ -1,8 +1,8 @@
 import {
   mainnet as ethereum,
   goerli,
-  polygon,
-  polygonMumbai,
+  // polygon,
+  // polygonMumbai,
 } from 'wagmi/chains';
 import type { Chain } from 'wagmi';
 
@@ -54,21 +54,21 @@ const bscTest: Chain = {
   testnet: true,
 };
 
-export { ethereum, goerli, bsc, bscTest, polygon, polygonMumbai };
+export { ethereum, goerli, bsc, bscTest /* polygon, polygonMumbai */ };
 
 const ethChains = [ethereum, goerli];
 const bnbChains = [bsc, bscTest];
-const maticChains = [polygon, polygonMumbai];
+// const maticChains = [polygon, polygonMumbai];
 
-const mainnetChains = [ethereum, bsc, polygon];
-const testnetChains = [goerli, bscTest, polygonMumbai];
+const mainnetChains = [ethereum, bsc /* polygon */];
+const testnetChains = [goerli, bscTest /* polygonMumbai */];
 
 export function getCustomChainId(chain: Chain | undefined) {
   if (!chain) return undefined;
 
   if (ethChains.some(c => c.id === chain.id)) return 'eth';
   if (bnbChains.some(c => c.id === chain.id)) return 'bnb';
-  if (maticChains.some(c => c.id === chain.id)) return 'matic';
+  // if (maticChains.some(c => c.id === chain.id)) return 'matic';
 
   return undefined;
 }

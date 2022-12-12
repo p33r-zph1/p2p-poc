@@ -5,8 +5,8 @@ import {
   goerli,
   bsc,
   bscTest,
-  polygon,
-  polygonMumbai,
+  // polygon,
+  // polygonMumbai,
 } from './chains';
 
 export type Token = {
@@ -117,34 +117,34 @@ export const bscTestTokens: Tokens = {
   ],
 };
 
-export const polygonTokens: Tokens = {
-  chainId: polygon.id,
-  tokens: [
-    {
-      contractAddress: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f',
-      symbol: 'USDT',
-      icon: '/images/polygon.svg',
-      id: 'tether',
-    },
-    {
-      contractAddress: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
-      symbol: 'USDC',
-      icon: '/images/polygon.svg',
-      id: 'usd-coin',
-    },
-    {
-      contractAddress: '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063',
-      symbol: 'DAI',
-      icon: '/images/polygon.svg',
-      id: 'dai',
-    },
-  ],
-};
+// export const polygonTokens: Tokens = {
+//   chainId: polygon.id,
+//   tokens: [
+//     {
+//       contractAddress: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f',
+//       symbol: 'USDT',
+//       icon: '/images/polygon.svg',
+//       id: 'tether',
+//     },
+//     {
+//       contractAddress: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+//       symbol: 'USDC',
+//       icon: '/images/polygon.svg',
+//       id: 'usd-coin',
+//     },
+//     {
+//       contractAddress: '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063',
+//       symbol: 'DAI',
+//       icon: '/images/polygon.svg',
+//       id: 'dai',
+//     },
+//   ],
+// };
 
-export const mumbaiTokens: Tokens = {
-  chainId: polygonMumbai.id,
-  tokens: [],
-};
+// export const mumbaiTokens: Tokens = {
+//   chainId: polygonMumbai.id,
+//   tokens: [],
+// };
 
 // default/fallback tokens with undefined contract address
 export const fallbackTokens: Tokens = {
@@ -178,8 +178,8 @@ export function fromChain(chain: Chain | undefined): Token[] {
   if (chain.id === goerliTokens.chainId) return goerliTokens.tokens;
   if (chain.id === bscTokens.chainId) return bscTokens.tokens;
   if (chain.id === bscTestTokens.chainId) return bscTestTokens.tokens;
-  if (chain.id === polygonTokens.chainId) return polygonTokens.tokens;
-  if (chain.id === mumbaiTokens.chainId) return mumbaiTokens.tokens;
+  // if (chain.id === polygonTokens.chainId) return polygonTokens.tokens;
+  // if (chain.id === mumbaiTokens.chainId) return mumbaiTokens.tokens;
 
   return fallbackTokens.tokens;
 }
