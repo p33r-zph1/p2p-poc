@@ -51,6 +51,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <Head>
         <title>P33R POC</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+        <link rel="shortcut icon" href="/favicon.ico" />
       </Head>
       <QueryClientProvider client={queryClient}>
         <WagmiConfig client={wagmiClient}>
