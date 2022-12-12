@@ -374,8 +374,11 @@ function BuyTokens({
       <BuyConfirmationModal
         isOpen={isConfirmModalOpen}
         image={imagePreview}
-        close={() => {
+        onClose={() => {
           if (!isConfirmingTransaction) {
+            setFindingPairStatus('idle');
+            fiatAmountHandler('');
+            setPaymentImage(undefined);
             setIsConfirmModalOpen(false);
           }
         }}

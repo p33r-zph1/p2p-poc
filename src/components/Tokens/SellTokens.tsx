@@ -378,8 +378,10 @@ function SellTokens({
 
       <SellConfirmationModal
         isOpen={isConfirmModalOpen}
-        close={() => {
+        onClose={() => {
           if (!isTransferingToken) {
+            setFindingPairStatus('idle');
+            tokenAmountHandler('');
             setIsConfirmModalOpen(false);
           }
         }}

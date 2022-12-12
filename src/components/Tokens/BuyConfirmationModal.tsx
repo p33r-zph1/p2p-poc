@@ -10,7 +10,7 @@ import { ConfirmationModalIcon } from '../icons';
 
 interface Props {
   isOpen: boolean;
-  close: () => void;
+  onClose: () => void;
   closeable: boolean;
   isConfirming: boolean;
   confirmSuccessful: boolean;
@@ -27,7 +27,7 @@ interface Props {
 
 function BuyConfirmationModal({
   isOpen,
-  close,
+  onClose,
   closeable,
   isConfirming,
   confirmSuccessful,
@@ -42,7 +42,7 @@ function BuyConfirmationModal({
   const confirmReceipt = () => {
     // TODO(Denis): add functionality for confirmation
     setTimeout(() => {
-      close();
+      onClose();
     }, 1000);
   };
 
@@ -74,7 +74,7 @@ function BuyConfirmationModal({
         >
           <Dialog.Panel className="w-full max-w-md rounded-xl bg-white p-1">
             {closeable && (
-              <button onClick={close} className="relative w-full">
+              <button onClick={onClose} className="relative w-full">
                 <XCircleIcon className="absolute right-0 mr-4 h-7 w-7" />
               </button>
             )}
