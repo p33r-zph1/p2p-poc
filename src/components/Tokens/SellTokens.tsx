@@ -26,7 +26,7 @@ import fiatCurrencies, { Currency } from '@/constants/currency';
 import CurrencySelector from './CurrencySelector';
 import { InlineErrorDisplay } from '../shared';
 import { MatchedIcon, MatchingIcon } from '../icons';
-import ConfirmationModal from './ConfirmationModal';
+import SellConfirmationModal from './SellConfirmationModal';
 
 interface Props {
   bankInfo: BankInfo | undefined;
@@ -380,8 +380,7 @@ function SellTokens({
         )}
       </form>
 
-      <ConfirmationModal
-        type="SELL"
+      <SellConfirmationModal
         isOpen={isConfirmModalOpen}
         close={() => {
           if (!isLoading) {
@@ -395,14 +394,12 @@ function SellTokens({
           receiveCurrency: selectedFiat.symbol,
         }}
         transferSuccessful={isSuccess}
-        transfering={isLoading}
-        showError={isError}
-        // TODO(Dennis, Karim): improve error handling
+        isTransfering={isLoading}
+        isError={isError}
         error={
-          transferError
-            ? // @ts-ignore
-              transferError.reason || 'Tranasaction failed'
-            : ''
+          errorWithReason(transferError)
+            ? transferError.reason
+            : 'Tranasaction failed with unknown error'
         }
       />
     </>

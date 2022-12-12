@@ -1,22 +1,18 @@
 import { Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import Image from 'next/image';
 
 import { classNames } from '@/utils';
-import { ServiceType } from '@/hooks/useTokens';
 
 import { InlineErrorDisplay } from '../shared';
 import { ConfirmationModalIcon } from '../icons';
 
 interface Props {
   isOpen: boolean;
-  close(): void;
-  transfering: boolean;
-  showError: boolean;
+  close: () => void;
+  isTransfering: boolean;
+  isError: boolean;
   error: string;
   transferSuccessful: boolean;
-  type: ServiceType;
-  image?: string;
   transferDetails: {
     payCurrency: string;
     payAmount: string;
@@ -26,15 +22,13 @@ interface Props {
 }
 
 function ConfirmationModal({
-  close,
   isOpen,
-  transfering,
+  close,
+  isTransfering,
   error,
-  showError,
+  isError,
   transferDetails,
   transferSuccessful,
-  type,
-  image,
 }: Props) {
   const { payAmount, payCurrency, receiveAmount, receiveCurrency } =
     transferDetails;
@@ -74,63 +68,39 @@ function ConfirmationModal({
         >
           <Dialog.Panel className="w-full max-w-md rounded-xl bg-white p-10">
             <div className="flex items-center justify-center">
-              {image ? (
-                <Image
-                  src={image}
-                  width={200}
-                  height={200}
-                  alt="image preview"
-                  className="object-contain"
-                />
-              ) : (
-                <ConfirmationModalIcon
-                  className="text-white"
-                  ellipseFill={transferSuccessful ? '#67C96C' : '#FD8B4B'}
-                />
-              )}
+              <ConfirmationModalIcon
+                className="text-white"
+                ellipseFill={transferSuccessful ? '#67C96C' : '#FD8B4B'}
+              />
             </div>
 
             <Dialog.Title className="mt-10 text-center font-sans text-xl font-semibold md:text-2xl">
-              {(() => {
-                if (type === 'BUY') {
-                  return transferSuccessful
-                    ? 'You have recieved the crypto successfully!'
-                    : 'Waiting For Confirmation';
-                }
-
-                return transferSuccessful
-                  ? "Crypto successfully sent to P33R's secure escrow account!"
-                  : 'Waiting For Confirmation';
-              })()}
+              {transferSuccessful
+                ? "Crypto successfully sent to P33R's secure escrow account!"
+                : 'Waiting For Confirmation'}
             </Dialog.Title>
             {transferSuccessful ? (
               <Dialog.Description
                 className={classNames(
-                  transfering ? 'animate-pulse' : '',
+                  isTransfering ? 'animate-pulse' : '',
                   'mt-2 text-center text-sm text-sleep-100'
                 )}
               >
-                {type === 'BUY'
-                  ? `Waiting for escrow to release crypto.`
-                  : `Please confirm receipt of FIAT payment ${receiveAmount}${' '}
+                Please confirm receipt of FIAT payment {receiveAmount}{' '}
                 {receiveCurrency} within the next 10 minutes, otherwise this
                 transaction will be cancelled and your crypto payment will be
-                refunded to your wallet.`}
+                refunded to your wallet.
               </Dialog.Description>
             ) : (
               <Dialog.Description
                 className={classNames(
-                  transfering ? 'animate-pulse' : '',
+                  isTransfering ? 'animate-pulse' : '',
                   'mt-2 text-center text-sm text-sleep-100'
                 )}
               >
                 Paying {payAmount} {payCurrency} for {receiveAmount}{' '}
                 {receiveCurrency}
-                {type === 'SELL' && (
-                  <>
-                    <br /> Confirm this transaction in your wallet
-                  </>
-                )}
+                <br /> Confirm this transaction in your wallet
               </Dialog.Description>
             )}
 
@@ -144,7 +114,7 @@ function ConfirmationModal({
               </button>
             )}
 
-            <InlineErrorDisplay show={showError} error={error} />
+            <InlineErrorDisplay show={isError} error={error} />
           </Dialog.Panel>
         </Transition.Child>
       </Dialog>

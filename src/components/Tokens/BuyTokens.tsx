@@ -25,7 +25,7 @@ import fiatCurrencies, { Currency } from '@/constants/currency';
 import CurrencySelector from './CurrencySelector';
 import { InlineErrorDisplay } from '../shared';
 import { MatchedIcon, MatchingIcon } from '../icons';
-import ConfirmationModal from './ConfirmationModal';
+import BuyConfirmationModal from './BuyConfirmationModal';
 
 interface Props {
   bankInfo: BankInfo | undefined;
@@ -371,8 +371,7 @@ function BuyTokens({
         }}
       />
 
-      <ConfirmationModal
-        type="BUY"
+      <BuyConfirmationModal
         isOpen={isConfirmModalOpen}
         image={imagePreview}
         close={() => {
@@ -386,9 +385,9 @@ function BuyTokens({
           receiveAmount: tokenAmount,
           receiveCurrency: selectedToken.symbol,
         }}
-        transferSuccessful={false}
-        transfering={isConfirmingTransaction}
-        showError={Boolean(confirmTransactionError)}
+        confirmSuccessful={false} // TODO(Dennis): Make a polling for the status (only when dialog is open) to confirm the transaction
+        isConfirming={isConfirmingTransaction}
+        isError={Boolean(confirmTransactionError)}
         error={getErrorMessage(confirmTransactionError)}
       />
     </>
