@@ -379,6 +379,7 @@ function BuyTokens({
             setIsConfirmModalOpen(false);
           }
         }}
+        closeable={!isConfirmingTransaction} // TODO(Dennis): closeable only when success or error
         transferDetails={{
           payAmount: fiatAmount,
           payCurrency: selectedFiat.symbol,

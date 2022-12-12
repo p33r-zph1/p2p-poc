@@ -1,6 +1,7 @@
 import { Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import Image from 'next/image';
+import { XCircleIcon } from '@heroicons/react/20/solid';
 
 import { classNames } from '@/utils';
 
@@ -10,6 +11,7 @@ import { ConfirmationModalIcon } from '../icons';
 interface Props {
   isOpen: boolean;
   close: () => void;
+  closeable: boolean;
   isConfirming: boolean;
   confirmSuccessful: boolean;
   isError: boolean;
@@ -26,6 +28,7 @@ interface Props {
 function BuyConfirmationModal({
   isOpen,
   close,
+  closeable,
   isConfirming,
   confirmSuccessful,
   isError,
@@ -45,7 +48,7 @@ function BuyConfirmationModal({
 
   return (
     <Transition show={isOpen} as={Fragment}>
-      <Dialog onClose={close}>
+      <Dialog onClose={() => null}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -69,61 +72,69 @@ function BuyConfirmationModal({
           leaveTo="opacity-0 scale-95"
           className="fixed inset-0 flex items-center justify-center p-4"
         >
-          <Dialog.Panel className="w-full max-w-md rounded-xl bg-white p-10">
-            <div className="flex items-center justify-center">
-              {image ? (
-                <Image
-                  src={image}
-                  width={200}
-                  height={200}
-                  alt="image preview"
-                  className="object-contain"
-                />
-              ) : (
-                <ConfirmationModalIcon
-                  className="text-white"
-                  ellipseFill={confirmSuccessful ? '#67C96C' : '#FD8B4B'}
-                />
-              )}
-            </div>
-
-            <Dialog.Title className="mt-10 text-center font-sans text-xl font-semibold md:text-2xl">
-              {confirmSuccessful
-                ? 'You have recieved the crypto successfully!'
-                : 'Waiting For Confirmation'}
-            </Dialog.Title>
-            {confirmSuccessful ? (
-              <Dialog.Description
-                className={classNames(
-                  isConfirming ? 'animate-pulse' : '',
-                  'mt-2 text-center text-sm text-sleep-100'
-                )}
-              >
-                Waiting for escrow to release crypto.
-              </Dialog.Description>
-            ) : (
-              <Dialog.Description
-                className={classNames(
-                  isConfirming ? 'animate-pulse' : '',
-                  'mt-2 text-center text-sm text-sleep-100'
-                )}
-              >
-                Paying {payAmount} {payCurrency} for {receiveAmount}{' '}
-                {receiveCurrency}
-              </Dialog.Description>
-            )}
-
-            {confirmSuccessful && (
-              <button
-                type="submit"
-                className="mt-8 w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
-                onClick={confirmReceipt}
-              >
-                Confirm receipt
+          <Dialog.Panel className="w-full max-w-md rounded-xl bg-white p-1">
+            {closeable && (
+              <button onClick={close} className="relative w-full">
+                <XCircleIcon className="absolute right-0 mr-4 h-7 w-7" />
               </button>
             )}
 
-            <InlineErrorDisplay show={isError} error={error} />
+            <div className="p-8">
+              <div className="flex items-center justify-center">
+                {image ? (
+                  <Image
+                    src={image}
+                    width={200}
+                    height={200}
+                    alt="image preview"
+                    className="object-contain"
+                  />
+                ) : (
+                  <ConfirmationModalIcon
+                    className="text-white"
+                    ellipseFill={confirmSuccessful ? '#67C96C' : '#FD8B4B'}
+                  />
+                )}
+              </div>
+
+              <Dialog.Title className="mt-10 text-center font-sans text-xl font-semibold md:text-2xl">
+                {confirmSuccessful
+                  ? 'You have recieved the crypto successfully!'
+                  : 'Waiting For Confirmation'}
+              </Dialog.Title>
+              {confirmSuccessful ? (
+                <Dialog.Description
+                  className={classNames(
+                    isConfirming ? 'animate-pulse' : '',
+                    'mt-2 text-center text-sm text-sleep-100'
+                  )}
+                >
+                  Waiting for escrow to release crypto.
+                </Dialog.Description>
+              ) : (
+                <Dialog.Description
+                  className={classNames(
+                    isConfirming ? 'animate-pulse' : '',
+                    'mt-2 text-center text-sm text-sleep-100'
+                  )}
+                >
+                  Paying {payAmount} {payCurrency} for {receiveAmount}{' '}
+                  {receiveCurrency}
+                </Dialog.Description>
+              )}
+
+              {confirmSuccessful && (
+                <button
+                  type="submit"
+                  className="mt-8 w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
+                  onClick={confirmReceipt}
+                >
+                  Confirm receipt
+                </button>
+              )}
+
+              <InlineErrorDisplay show={isError} error={error} />
+            </div>
           </Dialog.Panel>
         </Transition.Child>
       </Dialog>
