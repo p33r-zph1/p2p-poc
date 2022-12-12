@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { classNames } from '@/utils';
 import chainList from '@/constants/chains';
+import Head from 'next/head';
 
 /** @see https://wagmi.sh/examples/connect-wallet#step-1-configuring-connectors */
 const { chains, provider, webSocketProvider } = configureChains(chainList, [
@@ -47,6 +48,10 @@ const inter = Inter({
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <div className={classNames(inter.variable, 'bg-paper font-sans text-body')}>
+      <Head>
+        <title>P33R POC</title>
+        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+      </Head>
       <QueryClientProvider client={queryClient}>
         <WagmiConfig client={wagmiClient}>
           <Component {...pageProps} />
