@@ -9,7 +9,7 @@ import { extractQrData, getErrors, parseQrData } from '@/lib/instapay';
 import { bankInfoToArray } from '@/lib/instapay/bank-info';
 
 import { InlineErrorDisplay } from '../shared';
-import ZPKycModal from './ZPKycModal';
+import ZpkKycModal from './ZpkKycModal';
 
 interface Props {
   saveBankInfo(bankInfo: BankInfo): Promise<BankInfo>;
@@ -219,7 +219,7 @@ function AddPaymentDetails({
         Provide your bank account details or upload a QR code below.
       </p>
 
-      <ZPKycModal
+      <ZpkKycModal
         isOpen={isOpen}
         close={() => {
           setIsOpen(false);
