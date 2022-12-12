@@ -71,6 +71,7 @@ function BuyTokens({
     findingPairStatus,
     setFindingPairStatus,
     createBuyTransaction,
+    createBuyTransactionSuccess,
     createTransactionError,
 
     // confirmTransaction

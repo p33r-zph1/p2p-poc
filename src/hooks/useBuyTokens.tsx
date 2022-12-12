@@ -53,7 +53,7 @@ function useBuyTokens({ walletAddress, bankInfo }: Props) {
     refetch: createBuyTransaction,
     isFetching: isCreatingTransaction,
     data: buyCreateTransaction,
-    isSuccess: buyCreateTransactionSuccess,
+    isSuccess: createBuyTransactionSuccess,
     error: createTransactionError,
   } = useCreateTransaction({
     type: 'BUY',
@@ -119,7 +119,7 @@ function useBuyTokens({ walletAddress, bankInfo }: Props) {
     setFindingPairStatus,
     isCreatingTransaction,
     createBuyTransaction,
-    buyCreateTransactionSuccess,
+    createBuyTransactionSuccess,
     createTransactionError,
 
     // confirmTransaction
