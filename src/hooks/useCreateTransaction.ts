@@ -67,7 +67,9 @@ export async function createTransaction({ type, createTransaction }: Props) {
   const createdTransaction = (await response.json()) as TransactionResponse;
 
   if (!response.ok || !createdTransaction.data?.referenceId) {
-    throw new Error(`Failed to create ${type} transaction`);
+    throw new Error(
+      createdTransaction?.message || `Failed to create ${type} transaction`
+    );
   }
 
   return createdTransaction.data;

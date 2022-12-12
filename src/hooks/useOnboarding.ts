@@ -33,7 +33,9 @@ export async function getUser(walletAddress: Address | undefined) {
   const getUserResponse = (await response.json()) as OnboardingResponse;
 
   if (!response.ok || !getUserResponse.data?.bankDetails) {
-    throw new Error(`Failed to get user information`);
+    throw new Error(
+      getUserResponse?.message || `Failed to get user information`
+    );
   }
 
   return getUserResponse.data;
@@ -60,7 +62,9 @@ export async function saveUser(
   const saveUserResponse = (await response.json()) as OnboardingResponse;
 
   if (!response.ok || !saveUserResponse.data?.bankDetails) {
-    throw new Error(`Failed to save user information`);
+    throw new Error(
+      saveUserResponse?.message || `Failed to save user information`
+    );
   }
 
   return saveUserResponse.data;
