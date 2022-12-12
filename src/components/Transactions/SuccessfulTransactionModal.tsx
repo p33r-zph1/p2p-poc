@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { Dialog, Transition } from '@headlessui/react';
 
 import transactionDoneImg from '@/images/transaction-done.png';
-import { ITransaction } from '@/hooks/useTransactions';
+import { ITransaction } from '@/hooks/useTransactionList';
 
 interface Props {
   isOpen: boolean;
@@ -12,7 +12,7 @@ interface Props {
 }
 
 function SuccessfulTransactionModal({ close, isOpen, transaction }: Props) {
-  const { details } = transaction;
+  const { type, payment, order } = transaction;
 
   const createNewTransaction = () => {
     // TODO(Denis): add functionality for this
@@ -55,9 +55,8 @@ function SuccessfulTransactionModal({ close, isOpen, transaction }: Props) {
               Congratulations!
             </Dialog.Title>
             <Dialog.Description className="mt-2 text-center text-sm text-sleep-100">
-              You have just {details.type === 'buy' ? 'bought' : 'sold'}{' '}
-              {details.payment.amount} {details.payment.currency} for 2{' '}
-              {details.order.currency}
+              You have just {type === 'buy' ? 'bought' : 'sold'}{' '}
+              {payment.amount} {payment.currency} for 2 {order.currency}
               {/* TODO(Karim, Dennis): Update this to reflect tx once api updates for $60,876 USD */}
             </Dialog.Description>
 

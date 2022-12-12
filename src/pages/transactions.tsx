@@ -2,13 +2,13 @@ import { Navigation } from '@/components/layout';
 import { Transactions } from '@/components/Transactions';
 import useMountedAccount from '@/hooks/useMountedAccount';
 import useIsMounted from '@/hooks/useIsMounted';
-import useTransactions from '@/hooks/useTransactions';
+import useTransactions from '@/hooks/useTransactionList';
 import useAuth from '@/hooks/useAuth';
 
 function TransactionsPage() {
   const { connect, disconnect, connectProps } = useAuth();
   const { isConnected, address } = useMountedAccount();
-  const { data, isFetching } = useTransactions();
+  const { data, isFetching } = useTransactions({ walletAddress: address });
 
   const mounted = useIsMounted();
 
@@ -44,7 +44,7 @@ function TransactionsPage() {
                 </div>
 
                 <div className="my-5">
-                  <Transactions />
+                  <Transactions walletAddress={address} />
                 </div>
               </>
             ) : (

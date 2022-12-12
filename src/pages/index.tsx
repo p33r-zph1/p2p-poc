@@ -113,7 +113,7 @@ function Home() {
                       <PairPriceMatrix token={pair.token} fiat={pair.fiat} />
                     </Tab.Panel>
                     <Tab.Panel>
-                      <RecentTransactions />
+                      <RecentTransactions walletAddress={address} />
                     </Tab.Panel>
                   </Tab.Panels>
                 </Tab.Group>
