@@ -1,4 +1,12 @@
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  Dispatch,
+  FormEvent,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {
   XMarkIcon,
   MinusIcon,
@@ -29,6 +37,14 @@ interface Props {
   connected: boolean;
   isConnecting: boolean;
   connectWallet(): void;
+  setPair: Dispatch<
+    SetStateAction<
+      Partial<{
+        token: Token;
+        fiat: Currency;
+      }>
+    >
+  >;
 }
 
 function SellTokens({
@@ -37,6 +53,7 @@ function SellTokens({
   connected,
   connectWallet,
   isConnecting,
+  setPair,
 }: Props) {
   const {
     selectedToken,
@@ -145,6 +162,10 @@ function SellTokens({
     console.log(transferData.hash);
   }, [transferData]);
 
+  useEffect(() => {
+    setPair({ token: selectedToken, fiat: selectedFiat });
+  }, [selectedFiat, selectedToken, setPair]);
+
   if (!selectedToken) {
     return <InlineErrorDisplay show error="Service currently not available" />;
   }
@@ -179,8 +200,8 @@ function SellTokens({
                   findingPairStatus === 'findingPair' ||
                   findingPairStatus === 'waitingForEscrow'
                 }
-                onChange={tokens => {
-                  setSelectedToken(tokens);
+                onChange={token => {
+                  setSelectedToken(token);
                   setFindingPairStatus('idle');
                 }}
               />

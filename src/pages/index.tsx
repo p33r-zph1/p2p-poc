@@ -1,4 +1,5 @@
 import { Tab } from '@headlessui/react';
+import { useState } from 'react';
 
 import { Navigation } from '@/components/layout';
 import { AddPaymentDetails, TokensForm } from '@/components/Tokens';
@@ -9,6 +10,8 @@ import useMountedAccount from '@/hooks/useMountedAccount';
 import useIsMounted from '@/hooks/useIsMounted';
 import useAuth from '@/hooks/useAuth';
 import { saveUser, useGetUser } from '@/hooks/useOnboarding';
+import { Token } from '@/constants/tokens';
+import { Currency } from '@/constants/currency';
 
 const tabs = ['Market prices', 'Transactions'];
 
@@ -20,6 +23,13 @@ function Home() {
     isLoading: isLoadingUser,
     refetch: refetchBankInfo,
   } = useGetUser(isConnected, address);
+
+  const [pair, setPair] = useState<
+    Partial<{
+      token: Token;
+      fiat: Currency;
+    }>
+  >({});
 
   const mounted = useIsMounted();
 
@@ -49,6 +59,7 @@ function Home() {
               bankInfo={bankInfo}
               connected={isConnected}
               connectWallet={connect}
+              setPair={setPair}
             />
           </div>
 
@@ -99,7 +110,7 @@ function Home() {
 
                   <Tab.Panels className="rounded-b-xl bg-white ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2">
                     <Tab.Panel>
-                      <PairPriceMatrix />
+                      <PairPriceMatrix token={pair?.token} fiat={pair?.fiat} />
                     </Tab.Panel>
                     <Tab.Panel>
                       <RecentTransactions />

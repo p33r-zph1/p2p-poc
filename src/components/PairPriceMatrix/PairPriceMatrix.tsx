@@ -2,7 +2,11 @@ import { useState } from 'react';
 import { Tab } from '@headlessui/react';
 
 import { classNames } from '@/utils';
+import { Token } from '@/constants/tokens';
+import { Currency } from '@/constants/currency';
+
 import MarketChart, { PairDataTimeWindowEnum } from './MarketChart';
+import { InlineErrorDisplay } from '../shared';
 
 const tabs = [
   { label: '24h', value: PairDataTimeWindowEnum.DAY },
@@ -11,15 +15,21 @@ const tabs = [
   { label: '1y', value: PairDataTimeWindowEnum.YEAR },
 ];
 
-function PairPriceMatrix() {
-  const [coinId] = useState('tether');
-  const [currency] = useState('eth');
+interface Props {
+  token: Token | undefined;
+  fiat: Currency | undefined;
+}
+
+function PairPriceMatrix({ token, fiat }: Props) {
   const [days, setDays] = useState(PairDataTimeWindowEnum.DAY);
+
+  if (!token || !fiat)
+    return <InlineErrorDisplay show error="No prices available" />;
 
   return (
     <div className="mt-5 h-full px-2 pb-5 md:px-5 lg:px-10">
       <h3 className="text-xl font-bold uppercase md:text-2xl">
-        {coinId} / {currency}
+        {token.symbol} / {fiat.symbol}
       </h3>
 
       <div className="mt-3 bg-white">
@@ -52,7 +62,7 @@ function PairPriceMatrix() {
           <Tab.Panels className="mt-2">
             {tabs.map(tab => (
               <Tab.Panel key={tab.label} className="h-[600px]">
-                <MarketChart coinId={coinId} currency={currency} days={days} />
+                <MarketChart coinId={token.id} currency={fiat.id} days={days} />
               </Tab.Panel>
             ))}
           </Tab.Panels>

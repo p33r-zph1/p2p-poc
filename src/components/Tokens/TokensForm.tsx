@@ -3,8 +3,12 @@ import { Address } from 'wagmi';
 
 import { classNames } from '@/utils';
 import { BankInfo } from '@/hooks/useOnboarding';
+import { Currency } from '@/constants/currency';
+import { Token } from '@/constants/tokens';
+
 import BuyTokens from './BuyTokens';
 import SellTokens from './SellTokens';
+import { Dispatch, SetStateAction } from 'react';
 
 const tabs = ['Buy', 'Sell'];
 
@@ -14,6 +18,14 @@ interface Props {
   connected: boolean;
   isConnecting: boolean;
   connectWallet(): void;
+  setPair: Dispatch<
+    SetStateAction<
+      Partial<{
+        token: Token;
+        fiat: Currency;
+      }>
+    >
+  >;
 }
 
 function TokensForm({
@@ -22,6 +34,7 @@ function TokensForm({
   connected,
   connectWallet,
   isConnecting,
+  setPair,
 }: Props) {
   return (
     <Tab.Group
@@ -60,6 +73,7 @@ function TokensForm({
             bankInfo={bankInfo}
             connected={connected}
             connectWallet={connectWallet}
+            setPair={setPair}
           />
         </Tab.Panel>
         <Tab.Panel>
@@ -69,6 +83,7 @@ function TokensForm({
             bankInfo={bankInfo}
             connected={connected}
             connectWallet={connectWallet}
+            setPair={setPair}
           />
         </Tab.Panel>
       </Tab.Panels>

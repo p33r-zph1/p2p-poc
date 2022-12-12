@@ -1,5 +1,7 @@
 import {
+  Dispatch,
   FormEvent,
+  SetStateAction,
   useCallback,
   useEffect,
   useMemo,
@@ -35,6 +37,14 @@ interface Props {
   connected: boolean;
   isConnecting: boolean;
   connectWallet(): void;
+  setPair: Dispatch<
+    SetStateAction<
+      Partial<{
+        token: Token;
+        fiat: Currency;
+      }>
+    >
+  >;
 }
 
 function BuyTokens({
@@ -43,6 +53,7 @@ function BuyTokens({
   connected,
   connectWallet,
   isConnecting,
+  setPair,
 }: Props) {
   const {
     selectedToken,
@@ -162,6 +173,10 @@ function BuyTokens({
 
     reader.readAsDataURL(imageFile);
   }, [confirmBuyTransaction, imageFile]);
+
+  useEffect(() => {
+    setPair({ token: selectedToken, fiat: selectedFiat });
+  }, [selectedFiat, selectedToken, setPair]);
 
   if (!selectedToken) {
     return <InlineErrorDisplay show error="Service currently not available" />;
