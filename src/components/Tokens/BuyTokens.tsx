@@ -16,6 +16,8 @@ import {
 import { Address } from 'wagmi';
 
 import { BankInfo } from '@/hooks/useOnboarding';
+import useBuyTokens from '@/hooks/useBuyTokens';
+import { getErrorMessage } from '@/utils/isError';
 import { classNames } from '@/utils';
 import { Token } from '@/constants/tokens';
 import fiatCurrencies, { Currency } from '@/constants/currency';
@@ -24,8 +26,6 @@ import CurrencySelector from './CurrencySelector';
 import { InlineErrorDisplay } from '../shared';
 import { MatchedIcon, MatchingIcon } from '../icons';
 import ConfirmationModal from './ConfirmationModal';
-import useBuyTokens from '@/hooks/useBuyTokens';
-import { getErrorMessage } from '@/utils/isError';
 
 interface Props {
   bankInfo: BankInfo | undefined;
@@ -70,15 +70,18 @@ function BuyTokens({
     // useCreateTransaction
     findingPairStatus,
     setFindingPairStatus,
-    createBuyTransaction,
-    createBuyTransactionSuccess,
+    createTransaction,
+    createTransactionData,
+    createTransactionSuccess,
     createTransactionError,
+    isCreatingTransaction,
 
     // confirmTransaction
-    isConfirmingBuyTransaction,
-    confirmBuyTransaction,
-    confirmBuyTransactionSuccess,
-    confirmBuyError,
+    confirmTransaction,
+    confirmTransactionData,
+    confirmTransactionSuccess,
+    confirmTransactionError,
+    isConfirmingTransaction,
 
     // payment image
     setPaymentImage,
@@ -105,17 +108,17 @@ function BuyTokens({
         return;
       }
 
-      createBuyTransaction();
+      createTransaction();
     },
-    [bankInfo, createBuyTransaction]
+    [bankInfo, createTransaction]
   );
 
   useEffect(() => {
     if (!imagePreview) return;
 
-    confirmBuyTransaction();
+    confirmTransaction();
     setIsConfirmModalOpen(true);
-  }, [confirmBuyTransaction, imagePreview]);
+  }, [confirmTransaction, imagePreview]);
 
   useEffect(() => {
     setPair({ token: selectedToken, fiat: selectedFiat });
@@ -373,7 +376,7 @@ function BuyTokens({
         isOpen={isConfirmModalOpen}
         image={imagePreview}
         close={() => {
-          if (!isConfirmingBuyTransaction) {
+          if (!isConfirmingTransaction) {
             setIsConfirmModalOpen(false);
           }
         }}
@@ -384,9 +387,9 @@ function BuyTokens({
           receiveCurrency: selectedToken.symbol,
         }}
         transferSuccessful={false}
-        showError={Boolean(confirmBuyError)}
-        transfering={isConfirmingBuyTransaction}
-        error={getErrorMessage(confirmBuyError)}
+        showError={Boolean(confirmTransactionError)}
+        transfering={isConfirmingTransaction}
+        error={getErrorMessage(confirmTransactionError)}
       />
     </>
   );

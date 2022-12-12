@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Address, useNetwork } from 'wagmi';
 
 import { onlyNumbers } from '@/utils';
@@ -8,6 +8,7 @@ import useCreateTransaction, {
 } from '@/hooks/useCreateTransaction';
 import useConfirmTransaction from '@/hooks/useConfirmTransaction';
 import { getCustomChainId } from '@/constants/chains';
+
 import { BankInfo } from './useOnboarding';
 
 interface Props {
@@ -50,11 +51,11 @@ function useBuyTokens({ walletAddress, bankInfo }: Props) {
   const {
     findingPairStatus,
     setFindingPairStatus,
-    refetch: createBuyTransaction,
-    isFetching: isCreatingTransaction,
-    data: buyCreateTransaction,
-    isSuccess: createBuyTransactionSuccess,
+    refetch: createTransaction,
+    data: createTransactionData,
+    isSuccess: createTransactionSuccess,
     error: createTransactionError,
+    isFetching: isCreatingTransaction,
   } = useCreateTransaction({
     type: 'BUY',
     createTransaction: {
@@ -66,15 +67,16 @@ function useBuyTokens({ walletAddress, bankInfo }: Props) {
   });
 
   const {
-    refetch: confirmBuyTransaction,
-    isFetching: isConfirmingBuyTransaction,
-    isSuccess: confirmBuyTransactionSuccess,
-    error: confirmBuyError,
+    refetch: confirmTransaction,
+    data: confirmTransactionData,
+    isSuccess: confirmTransactionSuccess,
+    error: confirmTransactionError,
+    isFetching: isConfirmingTransaction,
   } = useConfirmTransaction({
     type: 'BUY',
     confirmTransaction: {
       walletAddress,
-      referenceId: buyCreateTransaction?.referenceId,
+      referenceId: createTransactionData?.referenceId,
       base64Image: imagePreview,
     },
   });
@@ -117,16 +119,18 @@ function useBuyTokens({ walletAddress, bankInfo }: Props) {
     // useCreateTransaction
     findingPairStatus,
     setFindingPairStatus,
-    isCreatingTransaction,
-    createBuyTransaction,
-    createBuyTransactionSuccess,
+    createTransaction,
+    createTransactionData,
+    createTransactionSuccess,
     createTransactionError,
+    isCreatingTransaction,
 
     // confirmTransaction
-    isConfirmingBuyTransaction,
-    confirmBuyTransaction,
-    confirmBuyTransactionSuccess,
-    confirmBuyError,
+    confirmTransaction,
+    confirmTransactionData,
+    confirmTransactionSuccess,
+    confirmTransactionError,
+    isConfirmingTransaction,
 
     // payment image
     setPaymentImage,

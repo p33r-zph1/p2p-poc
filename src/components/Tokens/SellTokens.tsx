@@ -13,18 +13,14 @@ import {
   CurrencyDollarIcon,
 } from '@heroicons/react/20/solid';
 import { useDebounce } from 'use-debounce';
-import { Address, useNetwork } from 'wagmi';
+import { Address } from 'wagmi';
 
 import { BankInfo } from '@/hooks/useOnboarding';
-import { classNames, errorWithReason, onlyNumbers } from '@/utils';
+import useSellTokens from '@/hooks/useSellTokens';
 import useTokenTransfer from '@/hooks/useTokenTransfer';
+import { classNames, errorWithReason } from '@/utils';
 import { Token } from '@/constants/tokens';
-import useTokens from '@/hooks/useTokens';
-import useCreateTransaction, {
-  Transaction,
-} from '@/hooks/useCreateTransaction';
 import fiatCurrencies, { Currency } from '@/constants/currency';
-import { getCustomChainId } from '@/constants/chains';
 
 import CurrencySelector from './CurrencySelector';
 import { InlineErrorDisplay } from '../shared';
@@ -56,6 +52,7 @@ function SellTokens({
   setPair,
 }: Props) {
   const {
+    // useToken
     selectedToken,
     selectedFiat,
     setSelectedToken,
@@ -68,10 +65,20 @@ function SellTokens({
     isLoadingPairPrice,
     tokenBalance,
     computedBalance,
+    refetchTokenBalance,
     computedPlatformFee,
     tokens,
-    error: tokenError,
-  } = useTokens({ type: 'SELL' });
+    tokenError,
+
+    // useCreateTransaction
+    findingPairStatus,
+    setFindingPairStatus,
+    createTransaction,
+    createTransactionData,
+    createTransactionSuccess,
+    createTransactionError,
+    isCreatingTransaction,
+  } = useSellTokens({ walletAddress, bankInfo });
 
   const [debouncedTokenAmount] = useDebounce(tokenAmount, 500);
 
@@ -98,38 +105,18 @@ function SellTokens({
     [bankInfo, tokenError, transferPreparation.error, tokenAmount]
   );
 
-  const transaction = useMemo((): Transaction | undefined => {
-    if (!selectedToken) return undefined;
-    if (!selectedFiat) return undefined;
-    if (!tokenAmount) return undefined;
-    if (isTransferError) return undefined;
+  const transferFunds = useCallback(() => {
+    if (!transfer) return;
 
-    return {
-      order: {
-        currency: selectedFiat.symbol,
-      },
-      payment: {
-        currency: selectedToken.symbol,
-        amount: Number(onlyNumbers(tokenAmount)),
-      },
-    };
-  }, [isTransferError, selectedFiat, selectedToken, tokenAmount]);
+    setIsConfirmModalOpen(true);
+    transfer();
+  }, [transfer]);
 
-  const { chain } = useNetwork();
+  useEffect(() => {
+    if (!transferData) return;
 
-  const {
-    findingPairStatus,
-    setFindingPairStatus,
-    refetch: createSellTransaction,
-  } = useCreateTransaction({
-    type: 'SELL',
-    createTransaction: {
-      transaction,
-      walletAddress,
-      bankInfo,
-      customChainId: getCustomChainId(chain),
-    },
-  });
+    console.log(transferData.hash);
+  }, [transferData]);
 
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [error, setError] = useState('');
@@ -144,24 +131,10 @@ function SellTokens({
         return;
       }
 
-      createSellTransaction();
+      createTransaction();
     },
-    [bankInfo, createSellTransaction]
+    [bankInfo, createTransaction]
   );
-
-  const transferFunds = useCallback(() => {
-    if (!transfer) return;
-
-    setIsConfirmModalOpen(true);
-    transfer();
-  }, [transfer]);
-
-  useEffect(() => {
-    if (!transferData) return;
-
-    console.log(transferData.hash);
-  }, [transferData]);
-
   useEffect(() => {
     setPair({ token: selectedToken, fiat: selectedFiat });
   }, [selectedFiat, selectedToken, setPair]);
