@@ -199,7 +199,7 @@ function BuyTokens({
                 </span>
               </div>
 
-              {computedBalance && (
+              {/* {computedBalance && (
                 <div className="flex items-center justify-between pl-14 pr-4 lg:pr-10">
                   <div className="absolute left-6 -ml-px h-5 w-5 rounded-full bg-[#E7E9EB] p-1">
                     <CurrencyDollarIcon
@@ -214,7 +214,7 @@ function BuyTokens({
                     Balance
                   </span>
                 </div>
-              )}
+              )} */}
             </div>
           </div>
 
