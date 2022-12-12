@@ -27,7 +27,7 @@ function RecentTransactions({ walletAddress }: Props) {
             href="/transactions"
             className="text-sm text-brand hover:underline focus:underline focus:outline-none"
           >
-            Sell all
+            View all
           </Link>
         </div>
       </div>
