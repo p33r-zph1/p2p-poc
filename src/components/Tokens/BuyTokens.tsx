@@ -387,8 +387,8 @@ function BuyTokens({
           receiveCurrency: selectedToken.symbol,
         }}
         transferSuccessful={false}
-        showError={Boolean(confirmTransactionError)}
         transfering={isConfirmingTransaction}
+        showError={Boolean(confirmTransactionError)}
         error={getErrorMessage(confirmTransactionError)}
       />
     </>

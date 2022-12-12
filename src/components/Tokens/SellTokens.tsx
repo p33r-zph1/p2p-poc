@@ -19,6 +19,7 @@ import { BankInfo } from '@/hooks/useOnboarding';
 import useSellTokens from '@/hooks/useSellTokens';
 import useTokenTransfer from '@/hooks/useTokenTransfer';
 import { classNames, errorWithReason } from '@/utils';
+import { getErrorMessage } from '@/utils/isError';
 import { Token } from '@/constants/tokens';
 import fiatCurrencies, { Currency } from '@/constants/currency';
 
@@ -78,6 +79,13 @@ function SellTokens({
     createTransactionSuccess,
     createTransactionError,
     isCreatingTransaction,
+
+    // confirmTransaction
+    confirmTransaction,
+    confirmTransactionData,
+    confirmTransactionSuccess,
+    confirmTransactionError,
+    isConfirmingTransaction,
   } = useSellTokens({ walletAddress, bankInfo });
 
   const [debouncedTokenAmount] = useDebounce(tokenAmount, 500);
@@ -112,12 +120,6 @@ function SellTokens({
     transfer();
   }, [transfer]);
 
-  useEffect(() => {
-    if (!transferData) return;
-
-    console.log(transferData.hash);
-  }, [transferData]);
-
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [error, setError] = useState('');
 
@@ -135,6 +137,17 @@ function SellTokens({
     },
     [bankInfo, createTransaction]
   );
+
+  useEffect(() => {
+    if (!transferData) return;
+
+    confirmTransaction();
+    // setIsConfirmModalOpen(true);
+    // TODO(Dennis): make a different state for modal.
+    // 1. For transfering tokens via MetaMask
+    // 2. When the confirmTransaction() is called
+  }, [confirmTransaction, transferData]);
+
   useEffect(() => {
     setPair({ token: selectedToken, fiat: selectedFiat });
   }, [selectedFiat, selectedToken, setPair]);
@@ -269,12 +282,20 @@ function SellTokens({
           </div>
         </div>
 
-        <InlineErrorDisplay show={Boolean(error)} error={error} />
-        <InlineErrorDisplay show={Boolean(tokenError)} error={tokenError} />
-
         {errorWithReason(transferPreparation.error) && (
           <InlineErrorDisplay show error={transferPreparation.error.reason} />
         )}
+
+        <InlineErrorDisplay show={Boolean(error)} error={error} />
+        <InlineErrorDisplay show={Boolean(tokenError)} error={tokenError} />
+        <InlineErrorDisplay
+          show={Boolean(createTransactionError)}
+          error={getErrorMessage(createTransactionError)}
+        />
+        <InlineErrorDisplay
+          show={Boolean(confirmTransactionError)}
+          error={getErrorMessage(confirmTransactionError)}
+        />
 
         {connected && findingPairStatus !== 'idle' && (
           <div className="flex flex-col items-center justify-center">
@@ -374,8 +395,8 @@ function SellTokens({
           receiveCurrency: selectedFiat.symbol,
         }}
         transferSuccessful={isSuccess}
-        showError={isError}
         transfering={isLoading}
+        showError={isError}
         // TODO(Dennis, Karim): improve error handling
         error={
           transferError

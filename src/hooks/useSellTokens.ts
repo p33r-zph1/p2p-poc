@@ -9,6 +9,7 @@ import useCreateTransaction, {
 import { getCustomChainId } from '@/constants/chains';
 
 import { BankInfo } from './useOnboarding';
+import useConfirmTransaction from './useConfirmTransaction';
 
 interface Props {
   walletAddress: Address | undefined;
@@ -61,6 +62,20 @@ function useSellTokens({ walletAddress, bankInfo }: Props) {
     },
   });
 
+  const {
+    refetch: confirmTransaction,
+    data: confirmTransactionData,
+    isSuccess: confirmTransactionSuccess,
+    error: confirmTransactionError,
+    isFetching: isConfirmingTransaction,
+  } = useConfirmTransaction({
+    type: 'SELL',
+    confirmTransaction: {
+      walletAddress,
+      referenceId: createTransactionData?.referenceId,
+    },
+  });
+
   return {
     // useToken
     selectedToken,
@@ -77,6 +92,13 @@ function useSellTokens({ walletAddress, bankInfo }: Props) {
     createTransactionSuccess,
     createTransactionError,
     isCreatingTransaction,
+
+    // confirmTransaction
+    confirmTransaction,
+    confirmTransactionData,
+    confirmTransactionSuccess,
+    confirmTransactionError,
+    isConfirmingTransaction,
   };
 }
 
