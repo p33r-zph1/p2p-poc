@@ -5,7 +5,6 @@ export interface PHBankDetails {
   bankName: string;
   accountName: string;
   accountNumber: string;
-  city: string;
 }
 
 type SGBankDetails = {

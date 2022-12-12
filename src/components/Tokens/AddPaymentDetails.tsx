@@ -51,11 +51,6 @@ const paymentCountries: PaymentDetails[] = [
         label: 'Account/Mobile Number (InstaPay)',
         value: '',
       },
-      {
-        id: 'city',
-        label: 'City',
-        value: '',
-      },
     ],
   },
   {
@@ -143,14 +138,6 @@ function AddPaymentDetails({
             ...state,
             fields: fieldsHandler(field, state.fields),
           }));
-
-          field = paymentCountries[0].fields[3];
-          field.value = qrData?.city || '';
-
-          setPaymentDetails(state => ({
-            ...state,
-            fields: fieldsHandler(field, state.fields),
-          }));
         }
 
         setQrPreview(result);
@@ -200,7 +187,6 @@ function AddPaymentDetails({
             bankName: paymentDetails.fields[0]?.value,
             accountName: paymentDetails.fields[1]?.value,
             accountNumber: paymentDetails.fields[2]?.value,
-            city: paymentDetails.fields[3]?.value,
           },
         });
         setIsOpen(true);
