@@ -92,11 +92,11 @@ function SellTokens({
 
   const {
     transfer,
-    isLoading,
-    error: transferError,
-    isError,
-    isSuccess,
-    data: transferData,
+    isLoading: isTransferingToken,
+    error: transferTokenError,
+    isError: isTransferTokenError,
+    isSuccess: isTransferTokenSuccess,
+    data: transferTokenData,
     transferPreparation,
   } = useTokenTransfer({
     amount: debouncedTokenAmount ? debouncedTokenAmount : '0',
@@ -139,14 +139,10 @@ function SellTokens({
   );
 
   useEffect(() => {
-    if (!transferData) return;
+    if (!transferTokenData) return;
 
     confirmTransaction();
-    // setIsConfirmModalOpen(true);
-    // TODO(Dennis): make a different state for modal.
-    // 1. For transfering tokens via MetaMask
-    // 2. When the confirmTransaction() is called
-  }, [confirmTransaction, transferData]);
+  }, [confirmTransaction, transferTokenData]);
 
   useEffect(() => {
     setPair({ token: selectedToken, fiat: selectedFiat });
@@ -383,22 +379,23 @@ function SellTokens({
       <SellConfirmationModal
         isOpen={isConfirmModalOpen}
         close={() => {
-          if (!isLoading) {
+          if (!isTransferingToken) {
             setIsConfirmModalOpen(false);
           }
         }}
+        closeable={isTransferTokenError || isTransferTokenSuccess}
         transferDetails={{
           payAmount: tokenAmount,
           payCurrency: selectedToken.symbol,
           receiveAmount: fiatAmount,
           receiveCurrency: selectedFiat.symbol,
         }}
-        transferSuccessful={isSuccess}
-        isTransfering={isLoading}
-        isError={isError}
+        transferSuccessful={isTransferTokenSuccess}
+        isTransfering={isTransferingToken}
+        isError={isTransferTokenError}
         error={
-          errorWithReason(transferError)
-            ? transferError.reason
+          errorWithReason(transferTokenError)
+            ? transferTokenError.reason
             : 'Tranasaction failed with unknown error'
         }
       />
