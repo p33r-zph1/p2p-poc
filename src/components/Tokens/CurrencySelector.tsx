@@ -8,7 +8,7 @@ import { Currency } from '@/constants/currency';
 
 interface Props<T> {
   currencies: T[];
-  selected?: T;
+  selected: T | undefined;
   disabled?: boolean;
   onChange: (currency: T) => void;
 }

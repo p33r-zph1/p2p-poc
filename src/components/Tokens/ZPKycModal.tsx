@@ -13,8 +13,8 @@ interface Props {
   isOpen: boolean;
   close(): void;
   saveBankInfo(bankInfo: BankInfo): Promise<BankInfo>;
-  bankInfo?: BankInfo;
-  walletAddress?: Address;
+  bankInfo: BankInfo | undefined;
+  walletAddress: Address | undefined;
 }
 
 type Status =

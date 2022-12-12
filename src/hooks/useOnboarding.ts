@@ -22,7 +22,7 @@ export interface OnboardingResponse {
   copyright: string;
 }
 
-export async function getUser(walletAddress?: Address) {
+export async function getUser(walletAddress: Address | undefined) {
   if (!walletAddress) {
     throw new Error('Wallet address is required');
   }
@@ -39,7 +39,10 @@ export async function getUser(walletAddress?: Address) {
   return getUserResponse.data;
 }
 
-export async function saveUser(walletAddress?: Address, bankInfo?: BankInfo) {
+export async function saveUser(
+  walletAddress: Address | undefined,
+  bankInfo: BankInfo | undefined
+) {
   if (!walletAddress || !bankInfo) {
     throw new Error('Bank details and wallet address is required');
   }
@@ -63,7 +66,10 @@ export async function saveUser(walletAddress?: Address, bankInfo?: BankInfo) {
   return saveUserResponse.data;
 }
 
-export function useGetUser(connected: boolean, walletAddress?: Address) {
+export function useGetUser(
+  connected: boolean,
+  walletAddress: Address | undefined
+) {
   return useQuery({
     queryKey: [walletAddress],
     queryFn: async () => getUser(walletAddress),
@@ -75,13 +81,13 @@ export function useGetUser(connected: boolean, walletAddress?: Address) {
 
 export function useSaveUser(
   connected: boolean,
-  walletAddress?: Address,
-  bankInfo?: BankInfo
+  walletAddress: Address | undefined,
+  bankInfo: BankInfo | undefined
 ) {
   return useQuery({
     queryKey: [],
     queryFn: async () => saveUser(walletAddress, bankInfo),
-    enabled: Boolean(walletAddress) && Boolean(bankInfo) && connected,
+    enabled: false,
     retry: false,
     refetchOnWindowFocus: false,
   });

@@ -32,8 +32,8 @@ import { MatchedIcon, MatchingIcon } from '../icons';
 import ConfirmationModal from './ConfirmationModal';
 
 interface Props {
-  bankInfo?: BankInfo;
-  walletAddress?: Address;
+  bankInfo: BankInfo | undefined;
+  walletAddress: Address | undefined;
   connected: boolean;
   isConnecting: boolean;
   connectWallet(): void;

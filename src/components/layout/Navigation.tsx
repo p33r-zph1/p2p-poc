@@ -9,7 +9,7 @@ import { NetworkSwitcher } from '../Network';
 interface Props {
   connected: boolean;
   isConnecting: boolean;
-  walletAddress?: Address;
+  walletAddress: Address | undefined;
   connectWallet(): void;
   disconnectWallet(): void;
 }

@@ -171,7 +171,7 @@ export const fallbackTokens: Tokens = {
   ],
 };
 
-export function fromChain(chain?: Chain): Token[] {
+export function fromChain(chain: Chain | undefined): Token[] {
   if (!chain) return fallbackTokens.tokens;
 
   if (chain.id === ethereumTokens.chainId) return ethereumTokens.tokens;

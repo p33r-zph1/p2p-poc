@@ -9,7 +9,7 @@ import {
 } from 'wagmi';
 
 interface Props {
-  contractAddress?: Address;
+  contractAddress: Address | undefined;
   recipient: Address;
   amount: string;
 }

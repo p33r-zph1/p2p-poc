@@ -14,7 +14,7 @@ import ZPKycModal from './ZPKycModal';
 interface Props {
   saveBankInfo(bankInfo: BankInfo): Promise<BankInfo>;
   refectchBankInfo: () => void;
-  walletAddress?: Address;
+  walletAddress: Address | undefined;
 }
 
 type PaymentField = {

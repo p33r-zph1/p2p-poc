@@ -8,7 +8,10 @@ export interface PairPrice {
   [tokenId: string]: Rate;
 }
 
-export async function getPairPrice(pair1?: string, pair2?: string) {
+export async function getPairPrice(
+  pair1: string | undefined,
+  pair2: string | undefined
+) {
   if (!pair1 || !pair2) {
     throw new Error('Invalid pair was provided');
   }
@@ -24,7 +27,7 @@ export async function getPairPrice(pair1?: string, pair2?: string) {
   return pairPrice[pair1][pair2];
 }
 
-function usePairPrice(pair1?: string, pair2?: string) {
+function usePairPrice(pair1: string | undefined, pair2: string | undefined) {
   return useQuery({
     queryKey: [pair1, pair2],
     queryFn: async () => getPairPrice(pair1, pair2),
