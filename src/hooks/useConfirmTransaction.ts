@@ -53,8 +53,11 @@ export async function confirmTransaction({ type, confirmTransaction }: Props) {
 
   const confirmedTransaction = (await response.json()) as TransactionResponse;
 
-  if (!response.ok || !confirmedTransaction) {
-    throw new Error(`Failed to create confirm ${type} transaction`);
+  if (!response.ok) {
+    throw new Error(
+      confirmedTransaction?.message ||
+        `Failed to create confirm ${type} transaction`
+    );
   }
 
   return true;

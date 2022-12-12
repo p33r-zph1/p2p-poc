@@ -13,27 +13,23 @@ import {
   MinusIcon,
   XMarkIcon,
 } from '@heroicons/react/20/solid';
-import { Address, useNetwork } from 'wagmi';
+import { Address } from 'wagmi';
 
 import { BankInfo } from '@/hooks/useOnboarding';
-import { classNames, onlyNumbers } from '@/utils';
-import useTokens from '@/hooks/useTokens';
-import useCreateTransaction, {
-  Transaction,
-} from '@/hooks/useCreateTransaction';
-import useConfirmTransaction from '@/hooks/useConfirmTransaction';
+import { classNames } from '@/utils';
 import { Token } from '@/constants/tokens';
 import fiatCurrencies, { Currency } from '@/constants/currency';
-import { getCustomChainId } from '@/constants/chains';
 
 import CurrencySelector from './CurrencySelector';
 import { InlineErrorDisplay } from '../shared';
 import { MatchedIcon, MatchingIcon } from '../icons';
 import ConfirmationModal from './ConfirmationModal';
+import useBuyTokens from '@/hooks/useBuyTokens';
+import { getErrorMessage } from '@/utils/isError';
 
 interface Props {
-  bankInfo?: BankInfo;
-  walletAddress?: Address;
+  bankInfo: BankInfo | undefined;
+  walletAddress: Address | undefined;
   connected: boolean;
   isConnecting: boolean;
   connectWallet(): void;
@@ -56,6 +52,7 @@ function BuyTokens({
   setPair,
 }: Props) {
   const {
+    // useToken
     selectedToken,
     selectedFiat,
     setSelectedToken,
@@ -65,67 +62,35 @@ function BuyTokens({
     fiatAmountHandler,
     tokenAmountHandler,
     pairPrice,
-    tokenBalance,
     computedBalance,
     computedPlatformFee,
     tokens,
-    error: tokenError,
-  } = useTokens({ type: 'BUY' });
+    tokenError,
+
+    // useCreateTransaction
+    findingPairStatus,
+    setFindingPairStatus,
+    createBuyTransaction,
+    createTransactionError,
+
+    // confirmTransaction
+    isConfirmingBuyTransaction,
+    confirmBuyTransaction,
+    confirmBuyTransactionSuccess,
+    confirmBuyError,
+
+    // payment image
+    setPaymentImage,
+    imagePreview,
+    ImageError,
+  } = useBuyTokens({ walletAddress, bankInfo });
 
   const isTransferError = useMemo(
     () => !Boolean(bankInfo) || Boolean(tokenError) || Number(fiatAmount) <= 0,
     [bankInfo, tokenError, fiatAmount]
   );
 
-  const transaction = useMemo((): Transaction | undefined => {
-    if (!selectedToken) return undefined;
-    if (!selectedFiat) return undefined;
-    if (!tokenAmount) return undefined;
-    if (isTransferError) return undefined;
-
-    return {
-      order: {
-        currency: selectedToken.symbol,
-      },
-      payment: {
-        currency: selectedFiat.symbol,
-        amount: Number(onlyNumbers(fiatAmount)),
-      },
-    };
-  }, [fiatAmount, isTransferError, selectedFiat, selectedToken, tokenAmount]);
-
-  const { chain } = useNetwork();
-
-  const {
-    findingPairStatus,
-    setFindingPairStatus,
-    refetch: createBuyTransaction,
-    data: buyTransaction,
-  } = useCreateTransaction({
-    type: 'BUY',
-    createTransaction: {
-      transaction,
-      walletAddress,
-      bankInfo,
-      customChainId: getCustomChainId(chain),
-    },
-  });
-
-  const [imageFile, setImageFile] = useState<File>();
-  const [imagePreview, setImagePreview] = useState<string>();
-
-  const {
-    refetch: confirmBuyTransaction,
-    isFetching: isFetchingBuyTransaction,
-  } = useConfirmTransaction({
-    type: 'BUY',
-    confirmTransaction: {
-      walletAddress,
-      referenceId: buyTransaction?.referenceId,
-      base64Image: imagePreview,
-    },
-  });
-
+  const inputRef = useRef<HTMLInputElement>(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [error, setError] = useState('');
 
@@ -144,35 +109,12 @@ function BuyTokens({
     [bankInfo, createBuyTransaction]
   );
 
-  const inputRef = useRef<HTMLInputElement>(null);
-
   useEffect(() => {
-    if (!imageFile) {
-      setImagePreview(undefined);
-      return;
-    }
+    if (!imagePreview) return;
 
-    const reader = new FileReader();
-
-    reader.onloadend = async () => {
-      try {
-        setError('');
-
-        const result = reader.result;
-        if (typeof result !== 'string') throw {};
-
-        confirmBuyTransaction();
-        setIsConfirmModalOpen(true);
-        setImagePreview(result);
-      } catch (error) {
-        setError('Failed to read the image');
-        setImagePreview(undefined);
-        console.error({ error });
-      }
-    };
-
-    reader.readAsDataURL(imageFile);
-  }, [confirmBuyTransaction, imageFile]);
+    confirmBuyTransaction();
+    setIsConfirmModalOpen(true);
+  }, [confirmBuyTransaction, imagePreview]);
 
   useEffect(() => {
     setPair({ token: selectedToken, fiat: selectedFiat });
@@ -309,6 +251,11 @@ function BuyTokens({
 
         <InlineErrorDisplay show={Boolean(error)} error={error} />
         <InlineErrorDisplay show={Boolean(tokenError)} error={tokenError} />
+        <InlineErrorDisplay show={Boolean(ImageError)} error={ImageError} />
+        <InlineErrorDisplay
+          show={Boolean(createTransactionError)}
+          error={getErrorMessage(createTransactionError)}
+        />
 
         {connected && findingPairStatus !== 'idle' && (
           <div className="flex flex-col items-center justify-center">
@@ -410,8 +357,9 @@ function BuyTokens({
         ref={inputRef}
         onChange={event => {
           const file = event.target.files?.[0];
-          if (file && file.type.substring(0, 5) === 'image') setImageFile(file);
-          else setImageFile(undefined);
+          if (file && file.type.substring(0, 5) === 'image')
+            setPaymentImage(file);
+          else setPaymentImage(undefined);
 
           // this line right below will reset the
           // input field so if you removed it you can re-add the same file
@@ -424,7 +372,7 @@ function BuyTokens({
         isOpen={isConfirmModalOpen}
         image={imagePreview}
         close={() => {
-          if (!isFetchingBuyTransaction) {
+          if (!isConfirmingBuyTransaction) {
             setIsConfirmModalOpen(false);
           }
         }}
@@ -435,10 +383,9 @@ function BuyTokens({
           receiveCurrency: selectedToken.symbol,
         }}
         transferSuccessful={false}
-        showError={false}
-        transfering={isFetchingBuyTransaction}
-        // TODO(Dennis, Karim): improve error handling
-        error=""
+        showError={Boolean(confirmBuyError)}
+        transfering={isConfirmingBuyTransaction}
+        error={getErrorMessage(confirmBuyError)}
       />
     </>
   );
