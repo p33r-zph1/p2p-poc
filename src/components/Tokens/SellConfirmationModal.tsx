@@ -124,6 +124,12 @@ function ConfirmationModal({
                 </button>
               )}
 
+              {(transferSuccessful || isError) && (
+                <button className="mt-2 w-full text-sm text-sleep-100">
+                  Dispute transaction
+                </button>
+              )}
+
               <InlineErrorDisplay show={isError} error={error} />
             </div>
           </Dialog.Panel>
