@@ -1,13 +1,13 @@
 import { Address, Chain } from 'wagmi';
 
 import {
-  ethereum,
+  mainnet as ethereum,
   goerli,
   bsc,
-  bscTest,
+  bscTestnet,
   // polygon,
   // polygonMumbai,
-} from './chains';
+} from 'wagmi/chains';
 
 export type Token = {
   contractAddress: Address | undefined; // explicitly specify type
@@ -94,7 +94,7 @@ export const bscTokens: Tokens = {
 };
 
 export const bscTestTokens: Tokens = {
-  chainId: bscTest.id,
+  chainId: bscTestnet.id,
   tokens: [
     {
       contractAddress: '0x99D572B6B04ae564A9a61239A6dc744A573FFb4D',
