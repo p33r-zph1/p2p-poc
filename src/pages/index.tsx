@@ -1,54 +1,37 @@
-import { useCallback, useState } from 'react';
+import { Tab } from '@headlessui/react';
+import { useState } from 'react';
 
 import { Navigation } from '@/components/layout';
-import { useConnect, useDisconnect } from 'wagmi';
-import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
-
 import { AddPaymentDetails, TokensForm } from '@/components/Tokens';
 import { RecentTransactions } from '@/components/Transactions';
 import { PairPriceMatrix } from '@/components/PairPriceMatrix';
 import { classNames } from '@/utils';
 import useMountedAccount from '@/hooks/useMountedAccount';
 import useIsMounted from '@/hooks/useIsMounted';
-import chains from '@/constants/chains';
-import { Tab } from '@headlessui/react';
-
-export type PaymentField = {
-  label: string;
-  id: string;
-  value: string;
-};
-
-export type PaymentDetails = {
-  name: string;
-  fields: PaymentField[];
-};
+import useAuth from '@/hooks/useAuth';
+import { saveUser, useGetUser } from '@/hooks/useOnboarding';
+import { Token } from '@/constants/tokens';
+import { Currency } from '@/constants/currency';
 
 const tabs = ['Market prices', 'Transactions'];
 
 function Home() {
-  const { connect, isLoading: isConnecting } = useConnect({
-    // Manually setting up the connector to only use MetaMask
-    // If we want to support other wallets, use the connectors prop from useConnect() hook and remove the connector below)
-    // https://wagmi.sh/examples/connect-wallet
-    connector: new MetaMaskConnector({
-      chains,
-    }),
-  });
-  const { disconnect } = useDisconnect();
+  const { connect, disconnect, connectProps } = useAuth();
   const { isConnected, address } = useMountedAccount();
+  const {
+    data: bankInfo,
+    isLoading: isLoadingUser,
+    refetch: refetchBankInfo,
+  } = useGetUser(isConnected, address);
+
+  const [pair, setPair] = useState<
+    Partial<{
+      token: Token;
+      fiat: Currency;
+    }>
+  >({});
 
   const mounted = useIsMounted();
-
-  const [paymentDetails, setPaymentDetails] = useState<PaymentDetails>();
-
-  const connectWallet = useCallback(() => {
-    if (typeof window.ethereum === 'undefined') {
-      window.open('https://metamask.io/', '_blank', 'noopener,noreferrer');
-    }
-
-    connect();
-  }, [connect]);
 
   if (!mounted) return null; // TODO(dennis): display loading indicator while wagmi is hydrating
 
@@ -56,9 +39,9 @@ function Home() {
     <div className="mx-auto flex min-h-screen max-w-7xl flex-col">
       <Navigation
         connected={isConnected}
-        isConnecting={isConnecting}
-        walletAddress={address as string}
-        connectWallet={connectWallet}
+        isConnecting={connectProps.isLoading}
+        walletAddress={address}
+        connectWallet={connect}
         disconnectWallet={disconnect}
       />
 
@@ -71,55 +54,71 @@ function Home() {
         >
           <div className="col-span-2">
             <TokensForm
-              isConnecting={isConnecting}
-              paymentDetails={paymentDetails}
+              isConnecting={connectProps.isLoading}
+              walletAddress={address}
+              bankInfo={bankInfo}
               connected={isConnected}
-              connectWallet={connectWallet}
+              connectWallet={connect}
+              setPair={setPair}
             />
           </div>
 
           <div className="col-span-3">
-            {isConnected && paymentDetails && (
-              <Tab.Group
-                as="div"
-                className="flex w-full flex-col overflow-hidden rounded-xl"
-              >
-                <Tab.List className="flex space-x-1 bg-[#E7E9EB]">
-                  {tabs.map(tabName => (
-                    <Tab
-                      key={tabName}
-                      className={({ selected }) =>
-                        classNames(
-                          'w-full p-5 text-xl font-bold leading-5 sm:text-2xl',
-                          'focus:text-slate-300 focus:outline-none',
-                          selected
-                            ? 'rounded-tl-xl rounded-tr-xl bg-white text-body'
-                            : 'text-sleep-200 hover:bg-white/[0.12] hover:text-white'
-                        )
-                      }
-                    >
-                      {tabName}
-                    </Tab>
-                  ))}
-                </Tab.List>
+            {(() => {
+              if (!isConnected) return;
 
-                <Tab.Panels className="rounded-b-xl bg-white ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2">
-                  <Tab.Panel>
-                    <PairPriceMatrix />
-                  </Tab.Panel>
-                  <Tab.Panel>
-                    <RecentTransactions />
-                  </Tab.Panel>
-                </Tab.Panels>
-              </Tab.Group>
-            )}
+              // TODO(dennis): check for error - return a JSX
 
-            {!paymentDetails && isConnected && (
-              <AddPaymentDetails
-                addPaymentDetails={setPaymentDetails}
-                walletAddress={address}
-              />
-            )}
+              // TODO(dennis): improve loading feedback
+              if (isLoadingUser) {
+                return <p>Please wait...</p>;
+              }
+
+              if (!bankInfo) {
+                return (
+                  <AddPaymentDetails
+                    saveBankInfo={bankInfo => saveUser(address, bankInfo)}
+                    refectchBankInfo={refetchBankInfo}
+                    walletAddress={address}
+                  />
+                );
+              }
+
+              return (
+                <Tab.Group
+                  as="div"
+                  className="flex w-full flex-col overflow-hidden rounded-xl"
+                >
+                  <Tab.List className="flex space-x-1 bg-[#E7E9EB]">
+                    {tabs.map(tabName => (
+                      <Tab
+                        key={tabName}
+                        className={({ selected }) =>
+                          classNames(
+                            'w-full p-5 text-xl font-bold leading-5 sm:text-2xl',
+                            'focus:text-slate-300 focus:outline-none',
+                            selected
+                              ? 'rounded-tl-xl rounded-tr-xl bg-white text-body'
+                              : 'text-sleep-200 hover:bg-white/[0.12] hover:text-white'
+                          )
+                        }
+                      >
+                        {tabName}
+                      </Tab>
+                    ))}
+                  </Tab.List>
+
+                  <Tab.Panels className="rounded-b-xl bg-white ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2">
+                    <Tab.Panel>
+                      <PairPriceMatrix token={pair.token} fiat={pair.fiat} />
+                    </Tab.Panel>
+                    <Tab.Panel>
+                      <RecentTransactions walletAddress={address} />
+                    </Tab.Panel>
+                  </Tab.Panels>
+                </Tab.Group>
+              );
+            })()}
           </div>
         </div>
       </main>

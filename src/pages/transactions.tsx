@@ -1,47 +1,16 @@
-import { useCallback } from 'react';
-import { useConnect, useDisconnect } from 'wagmi';
-import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
-
 import { Navigation } from '@/components/layout';
 import { Transactions } from '@/components/Transactions';
 import useMountedAccount from '@/hooks/useMountedAccount';
 import useIsMounted from '@/hooks/useIsMounted';
-import chains from '@/constants/chains';
-import useTransactions from '@/hooks/useTransactions';
-
-export type PaymentField = {
-  label: string;
-  id: string;
-  value: string;
-};
-
-export type PaymentDetails = {
-  name: string;
-  fields: PaymentField[];
-};
+import useTransactions from '@/hooks/useTransactionList';
+import useAuth from '@/hooks/useAuth';
 
 function TransactionsPage() {
-  const { connect, isLoading: isConnecting } = useConnect({
-    // Manually setting up the connector to only use MetaMask
-    // If we want to support other wallets, use the connectors prop from useConnect() hook and remove the connector below)
-    // https://wagmi.sh/examples/connect-wallet
-    connector: new MetaMaskConnector({
-      chains,
-    }),
-  });
-  const { disconnect } = useDisconnect();
+  const { connect, disconnect, connectProps } = useAuth();
   const { isConnected, address } = useMountedAccount();
-  const { data, isFetching } = useTransactions();
+  const { data, isFetching } = useTransactions({ walletAddress: address });
 
   const mounted = useIsMounted();
-
-  const connectWallet = useCallback(() => {
-    if (typeof window.ethereum === 'undefined') {
-      window.open('https://metamask.io/', '_blank', 'noopener,noreferrer');
-    }
-
-    connect();
-  }, [connect]);
 
   if (!mounted) return null; // TODO(dennis): display loading indicator while wagmi is hydrating
 
@@ -49,9 +18,9 @@ function TransactionsPage() {
     <div className="mx-auto flex min-h-screen max-w-7xl flex-col">
       <Navigation
         connected={isConnected}
-        isConnecting={isConnecting}
-        walletAddress={address as string}
-        connectWallet={connectWallet}
+        isConnecting={connectProps.isLoading}
+        walletAddress={address}
+        connectWallet={connect}
         disconnectWallet={disconnect}
       />
 
@@ -75,7 +44,7 @@ function TransactionsPage() {
                 </div>
 
                 <div className="my-5">
-                  <Transactions />
+                  <Transactions walletAddress={address} />
                 </div>
               </>
             ) : (
@@ -87,10 +56,10 @@ function TransactionsPage() {
                 <button
                   type="button"
                   className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
-                  disabled={isConnecting}
-                  onClick={connectWallet}
+                  disabled={connectProps.isLoading}
+                  onClick={connect}
                 >
-                  {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+                  {connectProps.isLoading ? 'Connecting...' : 'Connect Wallet'}
                 </button>
               </div>
             )}

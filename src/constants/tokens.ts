@@ -1,16 +1,16 @@
-import { Chain } from 'wagmi';
+import { Address, Chain } from 'wagmi';
 
 import {
-  ethereum,
+  mainnet as ethereum,
   goerli,
   bsc,
-  bscTest,
-  polygon,
-  polygonMumbai,
-} from './chains';
+  bscTestnet,
+  // polygon,
+  // polygonMumbai,
+} from 'wagmi/chains';
 
 export type Token = {
-  contractAddress: `0x${string}`;
+  contractAddress: Address | undefined; // explicitly specify type
   symbol: string;
   icon: string;
   id: string;
@@ -94,7 +94,7 @@ export const bscTokens: Tokens = {
 };
 
 export const bscTestTokens: Tokens = {
-  chainId: bscTest.id,
+  chainId: bscTestnet.id,
   tokens: [
     {
       contractAddress: '0x99D572B6B04ae564A9a61239A6dc744A573FFb4D',
@@ -117,47 +117,69 @@ export const bscTestTokens: Tokens = {
   ],
 };
 
-export const polygonTokens: Tokens = {
-  chainId: polygon.id,
+// export const polygonTokens: Tokens = {
+//   chainId: polygon.id,
+//   tokens: [
+//     {
+//       contractAddress: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f',
+//       symbol: 'USDT',
+//       icon: '/images/polygon.svg',
+//       id: 'tether',
+//     },
+//     {
+//       contractAddress: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+//       symbol: 'USDC',
+//       icon: '/images/polygon.svg',
+//       id: 'usd-coin',
+//     },
+//     {
+//       contractAddress: '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063',
+//       symbol: 'DAI',
+//       icon: '/images/polygon.svg',
+//       id: 'dai',
+//     },
+//   ],
+// };
+
+// export const mumbaiTokens: Tokens = {
+//   chainId: polygonMumbai.id,
+//   tokens: [],
+// };
+
+// default/fallback tokens with undefined contract address
+export const fallbackTokens: Tokens = {
+  chainId: -1,
   tokens: [
     {
-      contractAddress: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f',
+      contractAddress: undefined,
       symbol: 'USDT',
-      icon: '/images/polygon.svg',
+      icon: '/images/ethereum.svg',
       id: 'tether',
     },
     {
-      contractAddress: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+      contractAddress: undefined,
       symbol: 'USDC',
-      icon: '/images/polygon.svg',
+      icon: '/images/ethereum.svg',
       id: 'usd-coin',
     },
     {
-      contractAddress: '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063',
+      contractAddress: undefined,
       symbol: 'DAI',
-      icon: '/images/polygon.svg',
+      icon: '/images/ethereum.svg',
       id: 'dai',
     },
   ],
 };
 
-export const mumbaiTokens: Tokens = {
-  chainId: polygonMumbai.id,
-  tokens: [],
-};
-
-// default/fallback to ethereum mainnet
-export const fallbackTokens = ethereumTokens.tokens;
-
-export function fromChain(chain?: Chain): Token[] {
-  if (!chain) return fallbackTokens;
+export function fromChain(chain: Chain | undefined): Token[] {
+  if (!chain) return fallbackTokens.tokens;
 
   if (chain.id === ethereumTokens.chainId) return ethereumTokens.tokens;
   if (chain.id === goerliTokens.chainId) return goerliTokens.tokens;
   if (chain.id === bscTokens.chainId) return bscTokens.tokens;
   if (chain.id === bscTestTokens.chainId) return bscTestTokens.tokens;
-  if (chain.id === polygonTokens.chainId) return polygonTokens.tokens;
-  if (chain.id === mumbaiTokens.chainId) return mumbaiTokens.tokens;
+  // if (chain.id === polygonTokens.chainId) return polygonTokens.tokens;
+  // if (chain.id === mumbaiTokens.chainId) return mumbaiTokens.tokens;
 
-  return fallbackTokens;
+  return fallbackTokens.tokens;
 }

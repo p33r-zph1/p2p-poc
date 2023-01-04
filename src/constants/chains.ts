@@ -1,62 +1,30 @@
 import {
   mainnet as ethereum,
   goerli,
-  polygon,
-  polygonMumbai,
+  bsc,
+  bscTestnet,
+  // polygon,
+  // polygonMumbai,
 } from 'wagmi/chains';
 import type { Chain } from 'wagmi';
 
 import { buildConfig } from './build';
 
-const bsc: Chain = {
-  id: 56,
-  name: 'BNB Smart Chain',
-  network: 'bsc',
-  rpcUrls: {
-    public: 'https://bsc-dataseed1.binance.org',
-    default: 'https://bsc-dataseed1.binance.org',
-  },
-  blockExplorers: {
-    default: { name: 'BscScan', url: 'https://bscscan.com' },
-    etherscan: { name: 'BscScan', url: 'https://bscscan.com' },
-  },
-  nativeCurrency: {
-    name: 'Binance Chain Native Token',
-    symbol: 'BNB',
-    decimals: 18,
-  },
-  multicall: {
-    address: '0xcA11bde05977b3631167028862bE2a173976CA11',
-    blockCreated: 15921452,
-  },
-};
+const ethChains = [ethereum, goerli];
+const bnbChains = [bsc, bscTestnet];
+// const maticChains = [polygon, polygonMumbai];
 
-const bscTest: Chain = {
-  id: 97,
-  name: 'BNB Smart Chain Testnet',
-  network: 'bsc-testnet',
-  nativeCurrency: {
-    decimals: 18,
-    name: 'Binance Chain Native Token',
-    symbol: 'tBNB',
-  },
-  rpcUrls: {
-    public: 'https://data-seed-prebsc-1-s3.binance.org:8545',
-    default: 'https://data-seed-prebsc-1-s3.binance.org:8545',
-  },
-  blockExplorers: {
-    default: { name: 'BscScan', url: 'https://testnet.bscscan.com' },
-  },
-  multicall: {
-    address: '0xcA11bde05977b3631167028862bE2a173976CA11',
-    blockCreated: 17422483,
-  },
-  testnet: true,
-};
+const mainnetChains = [ethereum, bsc /* polygon */];
+const testnetChains = [goerli, bscTestnet /* polygonMumbai */];
 
-export { ethereum, goerli, bsc, bscTest, polygon, polygonMumbai };
+export function getCustomChainId(chain: Chain | undefined) {
+  if (!chain) return undefined;
 
-const mainnetChains = [ethereum, bsc, polygon];
-const testnetChains = [goerli, bscTest, polygonMumbai];
+  if (ethChains.some(c => c.id === chain.id)) return 'eth';
+  if (bnbChains.some(c => c.id === chain.id)) return 'bnb';
+  // if (maticChains.some(c => c.id === chain.id)) return 'matic';
+
+  return undefined;
+}
 
 export default buildConfig.isProdOrStaging ? mainnetChains : testnetChains;

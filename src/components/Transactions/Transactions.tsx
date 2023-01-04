@@ -1,13 +1,20 @@
+import { Address } from 'wagmi';
+import { Transition } from '@headlessui/react';
+
+import { classNames } from '@/utils';
+import useTransactions from '@/hooks/useTransactionList';
+
 import { InlineErrorDisplay } from '../shared';
 import TransactionSkeleton from './TransactionSkeleton';
 import Transaction from './Transation';
-import { classNames } from '@/utils';
-import { Transition } from '@headlessui/react';
-import useTransactions from '@/hooks/useTransactions';
 
-function Transactions() {
+interface Props {
+  walletAddress: Address | undefined;
+}
+
+function Transactions({ walletAddress }: Props) {
   const { data, error, isError, isLoading, isFetching, isSuccess } =
-    useTransactions();
+    useTransactions({ walletAddress });
 
   if (isLoading) {
     return (

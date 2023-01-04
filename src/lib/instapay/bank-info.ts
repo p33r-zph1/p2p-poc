@@ -1,15 +1,30 @@
-export type BankInfo = Record<string, [string, RegExp]>;
+export type BankInfo = [string, RegExp];
 
 /**
  * @description Bank names from https://bank-code.net/swift-code/[SWIFT_CODE].html
  */
-const BANK_INFO: BankInfo = {
-  BNORPHMMXXX: ['BDO UNIBANK, INC.', /^\d{1,12}$/],
-  BOPIPHMMXXX: ['BANK OF THE PHILIPPINE ISLANDS', /^(\d{10}|\d{14})$/],
-  DCPHPHM1XXX: ['DCPAY PHILIPPINES, INC', /^\d{11}$/],
-  GXCHPHM2XXX: ['G-XCHANGE, INC.', /^\d{11}$/],
-  PAPHPHM1XXX: ['PAYMAYA PHILIPPINES INC.', /^\d{12}$/],
-  UBPHPHMMXXX: ['UNION BANK OF THE PHILIPPINES', /^\d{12}$/],
+
+const BNORPHMMXXX: BankInfo = ['BDO UNIBANK, INC.', /^\d{1,12}$/];
+const DCPHPHM1XXX: BankInfo = ['DCPAY PHILIPPINES, INC', /^\d{11}$/];
+const GXCHPHM2XXX: BankInfo = ['G-XCHANGE, INC.', /^\d{11}$/];
+const PAPHPHM1XXX: BankInfo = ['PAYMAYA PHILIPPINES INC.', /^\d{12}$/];
+const UBPHPHMMXXX: BankInfo = ['UNION BANK OF THE PHILIPPINES', /^\d{12}$/];
+const BOPIPHMMXXX: BankInfo = [
+  'BANK OF THE PHILIPPINE ISLANDS',
+  /^(\d{10}|\d{14})$/,
+];
+
+const BANK_INFO: Record<string, BankInfo> = {
+  PAPHPHM1XXX,
+  UBPHPHMMXXX,
+  BOPIPHMMXXX,
 };
+
+export function bankInfoToArray() {
+  const values = Object.values(BANK_INFO);
+  const bankNames = values.map(v => v[0]);
+
+  return bankNames;
+}
 
 export default BANK_INFO;

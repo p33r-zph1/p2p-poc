@@ -1,7 +1,7 @@
 export interface Currency {
   symbol: string;
   id: string;
-  icon?: string;
+  icon: string | undefined;
 }
 
 const fiatCurrencies: Currency[] = [

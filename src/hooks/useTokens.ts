@@ -17,7 +17,7 @@ interface Props {
   type: ServiceType;
 }
 
-export default function useTokens({ type }: Props) {
+function useTokens({ type }: Props) {
   const { address } = useMountedAccount();
   const { chain } = useNetwork();
 
@@ -207,3 +207,5 @@ export default function useTokens({ type }: Props) {
     error,
   };
 }
+
+export default useTokens;

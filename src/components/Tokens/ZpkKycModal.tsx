@@ -1,18 +1,20 @@
 import { Fragment, useEffect, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { UserIcon } from '@heroicons/react/20/solid';
+import { XCircleIcon, UserIcon } from '@heroicons/react/20/solid';
+import { Address } from 'wagmi';
 
-import { PaymentDetails } from '@/pages';
+import { BankInfo } from '@/hooks/useOnboarding';
+import { classNames } from '@/utils';
+
 import { InlineErrorDisplay } from '../shared';
 import { BankIcon, WalletIcon } from '../icons';
-import { classNames } from '@/utils';
 
 interface Props {
   isOpen: boolean;
   close(): void;
-  onValidated(paymentDetails: PaymentDetails): void;
-  paymentDetails?: PaymentDetails;
-  walletAddress?: string;
+  saveBankInfo(bankInfo: BankInfo): Promise<BankInfo>;
+  bankInfo: BankInfo | undefined;
+  walletAddress: Address | undefined;
 }
 
 type Status =
@@ -85,16 +87,16 @@ function StatusIndicator({ status }: StatusIndicatorProps) {
   );
 }
 
-function ZPKycModal({
+function ZpkKycModal({
   close,
   isOpen,
-  onValidated,
+  saveBankInfo,
   walletAddress,
-  paymentDetails,
+  bankInfo,
 }: Props) {
   const [status, setStatus] = useState<Status>('idle');
 
-  // Start mock validation
+  // Start validation
   useEffect(() => {
     if (isOpen && status === 'idle') {
       setStatus('validatingWallet');
@@ -140,36 +142,23 @@ function ZPKycModal({
     }
   }, [isOpen, status, walletAddress]);
 
-  // Mock validating payment details
+  // Validating payment details
   useEffect(() => {
     if (isOpen && status === 'validatingBank') {
-      let ignore = false;
+      if (!bankInfo) {
+        setStatus('rejected');
+        return;
+      }
 
-      const id = setTimeout(() => {
-        if (!ignore) {
-          // console.log({ paymentDetails });
-          setStatus('validated');
-        }
-      }, 2000);
-
-      return () => {
-        ignore = true;
-        clearTimeout(id);
-      };
+      saveBankInfo(bankInfo)
+        .then(() => setStatus('validated'))
+        .catch(() => setStatus('rejected'));
     }
-  }, [isOpen, paymentDetails, status]);
+  }, [isOpen, bankInfo, status, saveBankInfo]);
 
   return (
     <Transition show={isOpen} as={Fragment}>
-      <Dialog
-        onClose={() => {
-          if (status === 'validated' && paymentDetails) {
-            onValidated(paymentDetails);
-          }
-
-          close();
-        }}
-      >
+      <Dialog onClose={() => null}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -193,34 +182,42 @@ function ZPKycModal({
           leaveTo="opacity-0 scale-95"
           className="fixed inset-0 flex items-center justify-center p-4"
         >
-          <Dialog.Panel className="w-full max-w-sm rounded-xl bg-white p-10">
-            <StatusIndicator status={status} />
+          <Dialog.Panel className="w-full max-w-sm rounded-xl bg-white p-2">
+            {(status === 'validated' || status === 'rejected') && (
+              <button onClick={close} className="relative w-full">
+                <XCircleIcon className="absolute right-0 mr-4 h-7 w-7" />
+              </button>
+            )}
 
-            <Dialog.Title className="mt-10 text-center font-sans text-xl font-semibold md:text-2xl">
-              ZPKyc
-            </Dialog.Title>
-            <Dialog.Description
-              className={classNames(
-                status !== 'validated' ? 'animate-pulse' : '',
-                'text-center text-sm text-sleep-100'
-              )}
-            >
-              {status === 'idle' && 'Idle'}
+            <div className="p-8">
+              <StatusIndicator status={status} />
 
-              {status === 'validatingWallet' &&
-                'Validating your wallet address...'}
+              <Dialog.Title className="mt-10 text-center font-sans text-xl font-semibold md:text-2xl">
+                ZPK Kyc
+              </Dialog.Title>
+              <Dialog.Description
+                className={classNames(
+                  status !== 'validated' ? 'animate-pulse' : '',
+                  'text-center text-sm text-sleep-100'
+                )}
+              >
+                {status === 'idle' && 'Idle'}
 
-              {status === 'validatingBank' &&
-                'Validating bank account details...'}
+                {status === 'validatingWallet' &&
+                  'Validating your wallet address...'}
 
-              {status === 'validated' &&
-                'Validation complete. You may now transact!'}
+                {status === 'validatingBank' &&
+                  'Validating bank account details...'}
 
-              <InlineErrorDisplay
-                show={status === 'rejected'}
-                error="Failed to validate payment details"
-              />
-            </Dialog.Description>
+                {status === 'validated' &&
+                  'Validation complete. You may now transact!'}
+
+                <InlineErrorDisplay
+                  show={status === 'rejected'}
+                  error="Failed to validate payment details"
+                />
+              </Dialog.Description>
+            </div>
           </Dialog.Panel>
         </Transition.Child>
       </Dialog>
@@ -228,4 +225,4 @@ function ZPKycModal({
   );
 }
 
-export default ZPKycModal;
+export default ZpkKycModal;

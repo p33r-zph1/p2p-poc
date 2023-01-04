@@ -1,10 +1,15 @@
 import Link from 'next/link';
+import { Address } from 'wagmi';
 
 import Transactions from './Transactions';
-import useTransactions from '@/hooks/useTransactions';
+import useTransactions from '@/hooks/useTransactionList';
 
-function RecentTransactions() {
-  const { data, isFetching } = useTransactions();
+interface Props {
+  walletAddress: Address | undefined;
+}
+
+function RecentTransactions({ walletAddress }: Props) {
+  const { data, isFetching } = useTransactions({ walletAddress });
 
   return (
     <div className="mt-5">
@@ -22,12 +27,12 @@ function RecentTransactions() {
             href="/transactions"
             className="text-sm text-brand hover:underline focus:underline focus:outline-none"
           >
-            Sell all
+            View all
           </Link>
         </div>
       </div>
 
-      <Transactions />
+      <Transactions walletAddress={walletAddress} />
     </div>
   );
 }

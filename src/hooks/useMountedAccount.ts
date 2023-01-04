@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useAccount } from 'wagmi';
 import useIsMounted from './useIsMounted';
 
-export default function useMountedAccount() {
+function useMountedAccount() {
   const { isConnected: connected, ...otherProps } = useAccount();
 
   const isMounted = useIsMounted();
@@ -17,3 +17,5 @@ export default function useMountedAccount() {
     ...otherProps,
   };
 }
+
+export default useMountedAccount;

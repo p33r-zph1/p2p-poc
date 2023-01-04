@@ -1,39 +1,59 @@
-import { FormEvent, useState } from 'react';
+import {
+  Dispatch,
+  FormEvent,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {
   XMarkIcon,
   MinusIcon,
   CurrencyDollarIcon,
 } from '@heroicons/react/20/solid';
 import { useDebounce } from 'use-debounce';
+import { Address } from 'wagmi';
 
-import { PaymentDetails } from '@/pages';
-import { classNames, errorWithReason } from '@/utils';
+import { BankInfo } from '@/hooks/useOnboarding';
+import useSellTokens from '@/hooks/useSellTokens';
 import useTokenTransfer from '@/hooks/useTokenTransfer';
+import { classNames, errorWithReason } from '@/utils';
+import { getErrorMessage } from '@/utils/isError';
 import { Token } from '@/constants/tokens';
-import useTokens from '@/hooks/useTokens';
 import fiatCurrencies, { Currency } from '@/constants/currency';
 
 import CurrencySelector from './CurrencySelector';
 import { InlineErrorDisplay } from '../shared';
 import { MatchedIcon, MatchingIcon } from '../icons';
-import ConfirmationModal from './ConfirmationModal';
+import SellConfirmationModal from './SellConfirmationModal';
 
 interface Props {
-  paymentDetails?: PaymentDetails;
+  bankInfo: BankInfo | undefined;
+  walletAddress: Address | undefined;
   connected: boolean;
   isConnecting: boolean;
   connectWallet(): void;
+  setPair: Dispatch<
+    SetStateAction<
+      Partial<{
+        token: Token;
+        fiat: Currency;
+      }>
+    >
+  >;
 }
 
-type FindingPairStatus = 'idle' | 'findingPair' | 'pairFound' | 'pairNotFound';
-
 function SellTokens({
-  paymentDetails,
+  bankInfo,
+  walletAddress,
   connected,
   connectWallet,
   isConnecting,
+  setPair,
 }: Props) {
   const {
+    // useToken
     selectedToken,
     selectedFiat,
     setSelectedToken,
@@ -46,56 +66,87 @@ function SellTokens({
     isLoadingPairPrice,
     tokenBalance,
     computedBalance,
+    refetchTokenBalance,
     computedPlatformFee,
     tokens,
-    error: tokenError,
-  } = useTokens({ type: 'SELL' });
+    tokenError,
+
+    // useCreateTransaction
+    findingPairStatus,
+    setFindingPairStatus,
+    createTransaction,
+    createTransactionData,
+    createTransactionSuccess,
+    createTransactionError,
+    isCreatingTransaction,
+
+    // confirmTransaction
+    confirmTransaction,
+    confirmTransactionData,
+    confirmTransactionSuccess,
+    confirmTransactionError,
+    isConfirmingTransaction,
+  } = useSellTokens({ walletAddress, bankInfo });
 
   const [debouncedTokenAmount] = useDebounce(tokenAmount, 500);
 
   const {
     transfer,
-    isLoading,
-    error: transferError,
-    preparationError: transferPreparationError,
-    isError,
-    isSuccess,
+    isLoading: isTransferingToken,
+    error: transferTokenError,
+    isError: isTransferTokenError,
+    isSuccess: isTransferTokenSuccess,
+    data: transferTokenData,
+    transferPreparation,
   } = useTokenTransfer({
     amount: debouncedTokenAmount ? debouncedTokenAmount : '0',
     contractAddress: selectedToken?.contractAddress,
     recipient: '0xDc1ACdb071490A6fd66f449Db98F977a8B60FfC6', // TODO(dennis): make dynamic
   });
 
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [error, setError] = useState('');
+  const isTransferError = useMemo(
+    () =>
+      !Boolean(bankInfo) ||
+      Boolean(tokenError) ||
+      Boolean(transferPreparation.error) ||
+      Number(tokenAmount) <= 0,
+    [bankInfo, tokenError, transferPreparation.error, tokenAmount]
+  );
 
-  const [findingPairStatus, setFindingPairStatus] =
-    useState<FindingPairStatus>('idle');
-
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError('');
-
-    if (!paymentDetails) {
-      setError('Provide your payment details to transact.');
-      return;
-    }
-  };
-
-  const findPair = () => {
-    setFindingPairStatus('findingPair');
-
-    setTimeout(() => {
-      setFindingPairStatus('pairFound');
-    }, 2000);
-  };
-
-  const transferFunds = () => {
+  const transferFunds = useCallback(() => {
     if (!transfer) return;
 
     setIsConfirmModalOpen(true);
     transfer();
-  };
+  }, [transfer]);
+
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [error, setError] = useState('');
+
+  const onSubmit = useCallback(
+    (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      setError('');
+
+      if (!bankInfo) {
+        setError('Provide your bank information to transact.');
+        return;
+      }
+
+      createTransaction();
+    },
+    [bankInfo, createTransaction]
+  );
+
+  useEffect(() => {
+    if (!transferTokenData) return;
+
+    confirmTransaction();
+  }, [confirmTransaction, transferTokenData]);
+
+  useEffect(() => {
+    setPair({ token: selectedToken, fiat: selectedFiat });
+  }, [selectedFiat, selectedToken, setPair]);
 
   if (!selectedToken) {
     return <InlineErrorDisplay show error="Service currently not available" />;
@@ -113,14 +164,28 @@ function SellTokens({
               type="text"
               className="w-full rounded-full border-brand pl-8 pt-7 pb-3 pr-36 text-lg"
               placeholder="0.00"
+              disabled={
+                findingPairStatus === 'findingPair' ||
+                findingPairStatus === 'waitingForEscrow'
+              }
               value={tokenAmount}
-              onChange={e => tokenAmountHandler(e.target.value)}
+              onChange={e => {
+                tokenAmountHandler(e.target.value);
+                setFindingPairStatus('idle');
+              }}
             />
             <div className="absolute inset-y-0 right-0 flex items-center border-l">
               <CurrencySelector<Token>
                 selected={selectedToken}
                 currencies={tokens}
-                onChange={setSelectedToken}
+                disabled={
+                  findingPairStatus === 'findingPair' ||
+                  findingPairStatus === 'waitingForEscrow'
+                }
+                onChange={token => {
+                  setSelectedToken(token);
+                  setFindingPairStatus('idle');
+                }}
               />
             </div>
           </div>
@@ -129,23 +194,6 @@ function SellTokens({
             <div className="absolute inset-y-0 left-8 w-0.5 bg-[#E7E9EB]" />
 
             <div className="space-y-6 py-6">
-              {computedBalance && (
-                <div className="flex items-center justify-between pl-14 pr-4 lg:pr-10">
-                  <div className="absolute left-6 -ml-px h-5 w-5 rounded-full bg-[#E7E9EB] p-1">
-                    <CurrencyDollarIcon
-                      className="h-full w-full text-sleep-200"
-                      strokeWidth={2}
-                    />
-                  </div>
-                  <span className="text-sm font-semibold text-sleep-100">
-                    {computedBalance}
-                  </span>
-                  <span className="text-sm font-semibold text-sleep-200">
-                    Balance
-                  </span>
-                </div>
-              )}
-
               <div className="flex items-center justify-between pl-14 pr-4 lg:pr-10">
                 <div className="absolute left-6 -ml-px h-5 w-5 rounded-full bg-[#E7E9EB] p-1">
                   <XMarkIcon
@@ -175,6 +223,23 @@ function SellTokens({
                   Platform fee
                 </span>
               </div>
+
+              {computedBalance && (
+                <div className="flex items-center justify-between pl-14 pr-4 lg:pr-10">
+                  <div className="absolute left-6 -ml-px h-5 w-5 rounded-full bg-[#E7E9EB] p-1">
+                    <CurrencyDollarIcon
+                      className="h-full w-full text-sleep-200"
+                      strokeWidth={2}
+                    />
+                  </div>
+                  <span className="text-sm font-semibold text-sleep-100">
+                    {computedBalance}
+                  </span>
+                  <span className="text-sm font-semibold text-sleep-200">
+                    Balance
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -186,26 +251,47 @@ function SellTokens({
               type="text"
               className="w-full rounded-full border-brand pl-8 pt-7 pb-3 pr-36 text-lg"
               placeholder="0.00"
-              disabled={!pairPrice || isLoadingPairPrice}
+              disabled={
+                findingPairStatus === 'findingPair' ||
+                findingPairStatus === 'waitingForEscrow'
+              }
               value={fiatAmount}
-              onChange={e => fiatAmountHandler(e.target.value)}
+              onChange={e => {
+                fiatAmountHandler(e.target.value);
+                setFindingPairStatus('idle');
+              }}
             />
             <div className="absolute inset-y-0 right-0 flex items-center border-l">
               <CurrencySelector<Currency>
                 selected={selectedFiat}
                 currencies={fiatCurrencies}
-                onChange={setSelectedFiat}
+                disabled={
+                  findingPairStatus === 'findingPair' ||
+                  findingPairStatus === 'waitingForEscrow'
+                }
+                onChange={fiat => {
+                  setSelectedFiat(fiat);
+                  setFindingPairStatus('idle');
+                }}
               />
             </div>
           </div>
         </div>
 
+        {errorWithReason(transferPreparation.error) && (
+          <InlineErrorDisplay show error={transferPreparation.error.reason} />
+        )}
+
         <InlineErrorDisplay show={Boolean(error)} error={error} />
         <InlineErrorDisplay show={Boolean(tokenError)} error={tokenError} />
-
-        {errorWithReason(transferPreparationError) && (
-          <InlineErrorDisplay show error={transferPreparationError.reason} />
-        )}
+        <InlineErrorDisplay
+          show={Boolean(createTransactionError)}
+          error={getErrorMessage(createTransactionError)}
+        />
+        <InlineErrorDisplay
+          show={Boolean(confirmTransactionError)}
+          error={getErrorMessage(confirmTransactionError)}
+        />
 
         {connected && findingPairStatus !== 'idle' && (
           <div className="flex flex-col items-center justify-center">
@@ -242,7 +328,8 @@ function SellTokens({
 
         {connected && findingPairStatus === 'pairFound' && (
           <button
-            type="submit"
+            type="button"
+            disabled={isTransferError}
             onClick={transferFunds}
             className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
           >
@@ -254,25 +341,24 @@ function SellTokens({
           findingPairStatus !== 'idle' &&
           findingPairStatus !== 'pairFound' && (
             <button
-              type="submit"
-              disabled={findingPairStatus === 'findingPair'}
+              type="button"
+              disabled={
+                findingPairStatus === 'findingPair' ||
+                findingPairStatus === 'pairNotFound'
+              }
               className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
             >
-              Processing
+              {findingPairStatus === 'findingPair'
+                ? 'Processing'
+                : 'No pairs available'}
             </button>
           )}
 
         {connected && findingPairStatus === 'idle' && (
           <button
             type="submit"
-            disabled={
-              !Boolean(paymentDetails) ||
-              Boolean(transferPreparationError) ||
-              Boolean(tokenError) ||
-              Number(tokenAmount) <= 0
-            }
+            disabled={isTransferError}
             className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
-            onClick={findPair}
           >
             Confirm
           </button>
@@ -290,28 +376,29 @@ function SellTokens({
         )}
       </form>
 
-      <ConfirmationModal
+      <SellConfirmationModal
         isOpen={isConfirmModalOpen}
-        close={() => {
-          if (!isLoading) {
+        onClose={() => {
+          if (!isTransferingToken) {
+            setFindingPairStatus('idle');
+            tokenAmountHandler('');
             setIsConfirmModalOpen(false);
           }
         }}
+        closeable={isTransferTokenError || isTransferTokenSuccess}
         transferDetails={{
           payAmount: tokenAmount,
           payCurrency: selectedToken.symbol,
           receiveAmount: fiatAmount,
           receiveCurrency: selectedFiat.symbol,
         }}
-        transferSuccessful={isSuccess}
-        showError={isError}
-        transfering={isLoading}
-        // TODO(Dennis, Karim): improve error handling
+        transferSuccessful={isTransferTokenSuccess}
+        isTransfering={isTransferingToken}
+        isError={isTransferTokenError}
         error={
-          transferError
-            ? // @ts-ignore
-              transferError.reason || 'Tranasaction failed'
-            : ''
+          errorWithReason(transferTokenError)
+            ? transferTokenError.reason
+            : 'Tranasaction failed with unknown error'
         }
       />
     </>

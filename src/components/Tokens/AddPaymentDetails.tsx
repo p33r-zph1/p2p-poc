@@ -2,28 +2,52 @@ import { FormEvent, useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { ArrowDownTrayIcon } from '@heroicons/react/20/solid';
 import QrScanner from 'qr-scanner';
+import { Address } from 'wagmi';
 
-import { PaymentDetails, PaymentField } from '@/pages';
+import { BankInfo } from '@/hooks/useOnboarding';
 import { extractQrData, getErrors, parseQrData } from '@/lib/instapay';
+import { bankInfoToArray } from '@/lib/instapay/bank-info';
+
 import { InlineErrorDisplay } from '../shared';
-import ZPKycModal from './ZPKycModal';
+import ZpkKycModal from './ZpkKycModal';
 
 interface Props {
-  addPaymentDetails(paymentDetails: PaymentDetails): void;
-  walletAddress?: string;
+  saveBankInfo(bankInfo: BankInfo): Promise<BankInfo>;
+  refectchBankInfo: () => void;
+  walletAddress: Address | undefined;
 }
+
+type PaymentField = {
+  label: string;
+  id: string;
+  value: string;
+  options?: string[];
+};
+
+type PaymentDetails = {
+  name: string;
+  countryCode: string;
+  fields: PaymentField[];
+};
 
 const paymentCountries: PaymentDetails[] = [
   {
     name: 'Philippines',
+    countryCode: 'ph',
     fields: [
       {
-        id: 'accountName',
+        id: 'bank-name',
+        label: 'Bank Name',
+        options: bankInfoToArray(),
+        value: bankInfoToArray()[0],
+      },
+      {
+        id: 'account-name',
         label: 'Account Name',
         value: '',
       },
       {
-        id: 'account-mobileNumber',
+        id: 'account-number',
         label: 'Account/Mobile Number (InstaPay)',
         value: '',
       },
@@ -31,9 +55,10 @@ const paymentCountries: PaymentDetails[] = [
   },
   {
     name: 'Singapore',
+    countryCode: 'sg',
     fields: [
       {
-        id: 'mobileNumber',
+        id: 'mobile-number',
         label: 'Mobile Number (PayNow)',
         value: '',
       },
@@ -41,10 +66,15 @@ const paymentCountries: PaymentDetails[] = [
   },
 ];
 
-function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
+function AddPaymentDetails({
+  saveBankInfo,
+  refectchBankInfo,
+  walletAddress,
+}: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState('');
   const [paymentDetails, setPaymentDetails] = useState(paymentCountries[0]);
+  const [bankInfo, setBankInfo] = useState<BankInfo>();
   const [imageFile, setImageFile] = useState<File>();
   const [qrPreview, setQrPreview] = useState<string>();
 
@@ -63,6 +93,7 @@ function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
   useEffect(() => {
     if (!imageFile) {
       setQrPreview(undefined);
+      setBankInfo(undefined);
       setPaymentDetails(paymentCountries[0]);
       return;
     }
@@ -84,31 +115,36 @@ function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
         // TODO(dennis): display errors
 
         if (qrData?.countryCode === 'PH') {
-          if (qrData?.name) {
-            const field = paymentCountries[0].fields[0];
-            field.value = qrData.name;
+          let field = paymentCountries[0].fields[0];
 
-            setPaymentDetails(state => ({
-              ...state,
-              fields: fieldsHandler(field, state.fields),
-            }));
-          }
+          field.value = qrData?.bankName || '';
+          setPaymentDetails(state => ({
+            ...state,
+            fields: fieldsHandler(field, state.fields),
+          }));
 
-          if (qrData?.accountNumber) {
-            const field = paymentCountries[0].fields[1];
-            field.value = qrData.accountNumber;
+          field = paymentCountries[0].fields[1];
+          field.value = qrData?.name || '';
 
-            setPaymentDetails(state => ({
-              ...state,
-              fields: fieldsHandler(field, state.fields),
-            }));
-          }
+          setPaymentDetails(state => ({
+            ...state,
+            fields: fieldsHandler(field, state.fields),
+          }));
+
+          field = paymentCountries[0].fields[2];
+          field.value = qrData?.accountNumber || '';
+
+          setPaymentDetails(state => ({
+            ...state,
+            fields: fieldsHandler(field, state.fields),
+          }));
         }
 
         setQrPreview(result);
       } catch (error) {
         setError('Failed to read the Qr Code');
         setQrPreview(undefined);
+        setBankInfo(undefined);
         setPaymentDetails(paymentCountries[0]);
         console.error({ error });
       }
@@ -117,30 +153,49 @@ function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
     reader.readAsDataURL(imageFile);
   }, [fieldsHandler, imageFile]);
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError('');
+  const onSubmit = useCallback(
+    async (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      setError('');
 
-    const valid = paymentDetails.fields.every(field => {
-      const isValid = Boolean(field.value.trim());
-      if (!isValid) {
-        setError(`${field.label} is required`);
+      const valid = paymentDetails.fields.every(field => {
+        const isValid = Boolean(field.value.trim());
+        if (!isValid) {
+          setError(`${field.label} is required`);
+        }
+
+        return isValid;
+      });
+
+      if (!valid) return;
+
+      if (paymentDetails.countryCode === 'sg') {
+        setBankInfo({
+          bankDetails: {
+            countryCode: paymentDetails.countryCode,
+            mobileNumber: paymentDetails.fields[0]?.value,
+          },
+        });
+        setIsOpen(true);
         return;
       }
 
-      return isValid;
-    });
+      if (paymentDetails.countryCode === 'ph') {
+        setBankInfo({
+          bankDetails: {
+            countryCode: paymentDetails.countryCode,
+            bankName: paymentDetails.fields[0]?.value,
+            accountName: paymentDetails.fields[1]?.value,
+            accountNumber: paymentDetails.fields[2]?.value,
+          },
+        });
+        setIsOpen(true);
+        return;
+      }
 
-    if (!valid) return;
-
-    setIsOpen(true);
-  };
-
-  const onValidated = useCallback(
-    (details: PaymentDetails) => {
-      addPaymentDetails(details);
+      setError('Unhandled country was proccessed');
     },
-    [addPaymentDetails]
+    [paymentDetails.countryCode, paymentDetails.fields]
   );
 
   return (
@@ -150,12 +205,15 @@ function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
         Provide your bank account details or upload a QR code below.
       </p>
 
-      <ZPKycModal
+      <ZpkKycModal
         isOpen={isOpen}
-        close={() => setIsOpen(false)}
-        paymentDetails={paymentDetails}
+        close={() => {
+          setIsOpen(false);
+          refectchBankInfo();
+        }}
+        bankInfo={bankInfo}
         walletAddress={walletAddress}
-        onValidated={onValidated}
+        saveBankInfo={saveBankInfo}
       />
 
       <form onSubmit={onSubmit}>
@@ -178,16 +236,18 @@ function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
                 onChange={e => {
                   const country = e.target.value;
                   const paymentDetails = paymentCountries.find(
-                    ctrs => ctrs.name === country
+                    ctrs => ctrs.countryCode === country
                   );
 
                   if (!paymentDetails) return;
                   setPaymentDetails(paymentDetails);
                 }}
-                value={paymentDetails.name}
+                value={paymentDetails.countryCode}
               >
                 {paymentCountries.map(ctrs => (
-                  <option key={ctrs.name}>{ctrs.name}</option>
+                  <option key={ctrs.countryCode} value={ctrs.countryCode}>
+                    {ctrs.name}
+                  </option>
                 ))}
               </select>
             </div>
@@ -200,23 +260,48 @@ function AddPaymentDetails({ addPaymentDetails, walletAddress }: Props) {
                 >
                   {field.label}
                 </label>
-                <input
-                  type="text"
-                  name="mobileNumber"
-                  id={field.id}
-                  autoComplete={field.id}
-                  className="mt-1 block w-full rounded-md border-[#E7E9EB] text-sleep-100 shadow-sm focus:border-brand focus:ring-brand sm:text-sm"
-                  onChange={e => {
-                    const fieldValue = e.target.value;
-                    field.value = fieldValue;
+                {field.options ? (
+                  <select
+                    id={field.id}
+                    name={field.label}
+                    autoComplete={field.label}
+                    className="mt-1 block w-full rounded-md border border-[#E7E9EB] bg-white  py-2 px-3 text-sleep-100 shadow-sm focus:border-brand focus:outline-none focus:ring-brand sm:text-sm"
+                    onChange={e => {
+                      const fieldValue = e.target.value;
+                      field.value = fieldValue;
 
-                    setPaymentDetails(state => ({
-                      ...state,
-                      fields: fieldsHandler(field, state.fields),
-                    }));
-                  }}
-                  value={field.value}
-                />
+                      setPaymentDetails(state => ({
+                        ...state,
+                        fields: fieldsHandler(field, state.fields),
+                      }));
+                    }}
+                    value={field.value}
+                  >
+                    {field.options.map(option => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    name="mobileNumber"
+                    id={field.id}
+                    autoComplete={field.id}
+                    className="mt-1 block w-full rounded-md border-[#E7E9EB] text-sleep-100 shadow-sm focus:border-brand focus:ring-brand sm:text-sm"
+                    onChange={e => {
+                      const fieldValue = e.target.value;
+                      field.value = fieldValue;
+
+                      setPaymentDetails(state => ({
+                        ...state,
+                        fields: fieldsHandler(field, state.fields),
+                      }));
+                    }}
+                    value={field.value}
+                  />
+                )}
               </div>
             ))}
           </div>

@@ -2,7 +2,7 @@ import { MouseEventHandler, useState } from 'react';
 import { Disclosure, Transition } from '@headlessui/react';
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
 
-import { ITransaction } from '@/hooks/useTransactions';
+import { ITransaction } from '@/hooks/useTransactionList';
 import { classNames } from '@/utils';
 import SuccessfulTransactionModal from './SuccessfulTransactionModal';
 
@@ -72,7 +72,18 @@ function StatusBadge({ status, onConfirmReciept }: StatusBadgeProps) {
 function Transation({ transaction, lastItem = true }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const { details, status } = transaction;
+  const {
+    type,
+    order,
+    payment,
+    referenceId,
+    status,
+    offChainStatus,
+    onChainStatus,
+    created,
+    updated,
+    confirmed,
+  } = transaction;
 
   const confirmReceipt: MouseEventHandler<HTMLButtonElement> = e => {
     e.stopPropagation();
@@ -90,17 +101,15 @@ function Transation({ transaction, lastItem = true }: Props) {
             <Disclosure.Button className="flex w-full justify-between px-4 py-2 text-left text-sm focus:outline-none focus-visible:ring focus-visible:ring-brand focus-visible:ring-opacity-75">
               <div className="space-y-2">
                 <p className="text-xs font-semibold sm:text-sm md:text-lg">
-                  {details.payment.amount} {details.payment.currency}
+                  {payment.amount} {payment.currency}
                 </p>
                 <p className="flex items-center space-x-2 text-sleep-100">
-                  <span>
-                    {details.type === 'buy' ? 'Buy crypto' : 'Sell crypto'}
-                  </span>
+                  <span>{type === 'buy' ? 'Buy crypto' : 'Sell crypto'}</span>
                   <span
                     className="block h-1 w-1 rounded-full bg-sleep-100"
                     aria-hidden
                   />
-                  <span>Nov 25, 2022 10:12pm</span>
+                  <span>{new Date(created).toLocaleString('en')}</span>
                 </p>
               </div>
 
@@ -127,10 +136,23 @@ function Transation({ transaction, lastItem = true }: Props) {
               leave="transition duration-75 ease-out"
               leaveFrom="transform scale-100 opacity-100"
               leaveTo="transform scale-95 opacity-0"
+              className="m-4"
             >
-              <Disclosure.Panel className="p-5 text-gray-500">
-                transaction details
+              <Disclosure.Panel className="p-1 text-gray-500">
+                Reference Id: {referenceId}
               </Disclosure.Panel>
+
+              {updated && (
+                <Disclosure.Panel className="p-1 text-gray-500">
+                  Uppated: {updated}
+                </Disclosure.Panel>
+              )}
+
+              {confirmed && (
+                <Disclosure.Panel className="p-1 text-gray-500">
+                  Confirmed: {confirmed}
+                </Disclosure.Panel>
+              )}
             </Transition>
           </div>
         )}
@@ -139,7 +161,7 @@ function Transation({ transaction, lastItem = true }: Props) {
       <SuccessfulTransactionModal
         isOpen={isOpen}
         close={() => setIsOpen(false)}
-        transaction={{ details, status }}
+        transaction={transaction}
       />
     </div>
   );
