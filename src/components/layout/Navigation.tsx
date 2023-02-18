@@ -29,7 +29,7 @@ function Navigation({
         className="focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80"
       >
         <Logo className="hidden sm:block" />
-        <LogoIcon className="rounded-md bg-brand text-white sm:hidden" />
+        <LogoIcon className="rounded text-white sm:hidden" />
       </Link>
 
       {!connected || !walletAddress ? (
