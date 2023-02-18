@@ -19,7 +19,7 @@ function AccountDetails({ walletAddress, disconnectWallet }: Props) {
         inline-flex items-center justify-center rounded-4xl border border-[#E7E9EB] px-4 py-2 font-bold text-sleep-100
         hover:border-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-opacity-75"
       >
-        <WalletIcon className="mr-2 text-white" fill="#0284FE" />
+        <WalletIcon className="mr-2 text-white" fill="#61F3E1" />
         <span className="text-xs sm:text-sm">
           {shortenAddress(walletAddress)}
         </span>
