@@ -17,7 +17,7 @@ module.exports = {
         'sleep-300': '#B3B3B3',
       },
       fontFamily: {
-        sans: ['var(--font-inter)', ...fontFamily.sans],
+        sans: ['var(--font-play)', ...fontFamily.sans],
       },
       borderRadius: {
         '4xl': '2rem',
