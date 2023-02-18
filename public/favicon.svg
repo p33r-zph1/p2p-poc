@@ -1,11 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.com/svgjs" width="32" height="32"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M32 2.60908V29.3909C32 30.8363 30.8363 32 29.3909 32H2.60913C1.16367 32 0 30.8363 0 29.3909V2.60908C0 1.16361 1.16367 0 2.60913 0H29.3909C30.8363 0 32 1.16361 32 2.60908Z" fill="url(#paint0_linear_2048_23401)"></path>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M17.5261 3.20081L20.4408 6.11553L9.93584 16.6205C8.32608 15.0108 8.32608 12.4009 9.93584 10.7911L17.5261 3.20081ZM17.5235 10.5821L20.4382 13.4968L13.5807 20.3543L10.666 17.4396L17.5235 10.5821ZM21.2881 20.0282C22.8979 18.4184 22.8979 15.8085 21.2881 14.1987L10.667 24.8199L13.5817 27.7346L21.2881 20.0282Z" fill="white"></path>
-<defs>
-<linearGradient id="SvgjsLinearGradient1000" x1="32" y1="-1.90735e-06" x2="-1.90735e-06" y2="32" gradientUnits="userSpaceOnUse">
-<stop stop-color="#319BFF"></stop>
-<stop offset="0.536153" stop-color="#0084FF"></stop>
-</linearGradient>
-</defs>
-</svg><style>@media (prefers-color-scheme: light) { :root { filter: none; } }
-</style></svg>
+<svg width="47" height="40" viewBox="0 0 47 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path
+    d="M46.5508 34.396C46.5508 37.1574 44.3122 39.396 41.5508 39.396H25.3446V35.3589C25.3446 33.7021 26.6878 32.3589 28.3446 32.3589H46.5508V34.396Z"
+    fill="#61F3E1" />
+  <path d="M0 11.0703H41.5501C44.3115 11.0703 46.5501 13.3089 46.5501 16.0703V18.1074H0V11.0703Z" fill="#61F3E1" />
+  <path
+    d="M0 5.60401C0 2.84258 2.23858 0.604004 5 0.604004H21.2062V4.64105C21.2062 6.29791 19.863 7.64106 18.2062 7.64106H0V5.60401Z"
+    fill="#61F3E1" />
+  <path d="M0 21.5366H46.5501V28.5737H5.00001C2.23858 28.5737 0 26.3351 0 23.5737V21.5366Z" fill="#61F3E1" />
+</svg>
