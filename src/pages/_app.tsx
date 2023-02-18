@@ -1,6 +1,6 @@
 import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
-import { Inter } from '@next/font/google';
+import { Play } from '@next/font/google';
 import { WagmiConfig, createClient, configureChains } from 'wagmi';
 import { publicProvider } from 'wagmi/providers/public';
 import { InjectedConnector } from 'wagmi/connectors/injected';
@@ -39,15 +39,15 @@ const wagmiClient = createClient({
 
 const queryClient = new QueryClient();
 
-const inter = Inter({
+const play = Play({
   subsets: ['latin'],
-  weight: ['400', '600', '700'],
-  variable: '--font-inter',
+  weight: ['400', '700'],
+  variable: '--font-play',
 });
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <div className={classNames(inter.variable, 'bg-paper font-sans text-body')}>
+    <div className={classNames(play.variable, 'bg-paper font-sans text-body')}>
       <Head>
         <title>P33R POC</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />

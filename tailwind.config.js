@@ -7,7 +7,7 @@ module.exports = {
     extend: {
       colors: {
         paper: '#F9F9FA',
-        brand: '#0284FE',
+        brand: '#61F3E1',
         body: '#111827',
         calm: '#FAEBEB',
         mad: '#D74E47',
@@ -17,7 +17,7 @@ module.exports = {
         'sleep-300': '#B3B3B3',
       },
       fontFamily: {
-        sans: ['var(--font-inter)', ...fontFamily.sans],
+        sans: ['var(--font-play)', ...fontFamily.sans],
       },
       borderRadius: {
         '4xl': '2rem',
