@@ -77,17 +77,17 @@ function TokensForm({
         )}
       >
         <Tab.Panel>
+          <Tab.Panel>
+            <SellTokens
+              isConnecting={isConnecting}
+              walletAddress={walletAddress}
+              bankInfo={bankInfo}
+              connected={connected}
+              connectWallet={connectWallet}
+              setPair={setPair}
+            />
+          </Tab.Panel>
           <BuyTokens
-            isConnecting={isConnecting}
-            walletAddress={walletAddress}
-            bankInfo={bankInfo}
-            connected={connected}
-            connectWallet={connectWallet}
-            setPair={setPair}
-          />
-        </Tab.Panel>
-        <Tab.Panel>
-          <SellTokens
             isConnecting={isConnecting}
             walletAddress={walletAddress}
             bankInfo={bankInfo}
