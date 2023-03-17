@@ -47,7 +47,7 @@ function AccountDetails({ walletAddress, disconnectWallet }: Props) {
                   </Link>
                 )}
               </Menu.Item>
-              <Menu.Item>
+              {/* <Menu.Item>
                 {({ active }) => (
                   <Link
                     className={classNames(active ? 'text-brand' : '', 'block')}
@@ -56,7 +56,7 @@ function AccountDetails({ walletAddress, disconnectWallet }: Props) {
                     Account Settings
                   </Link>
                 )}
-              </Menu.Item>
+              </Menu.Item> */}
             </div>
 
             <div className="space-y-2 px-3 py-2">

@@ -10,7 +10,16 @@ import BuyTokens from './BuyTokens';
 import SellTokens from './SellTokens';
 import { Dispatch, SetStateAction } from 'react';
 
-const tabs = ['Buy', 'Sell'];
+const tabs = [
+  {
+    key: 'Sell',
+    disabled: false,
+  },
+  {
+    key: 'Buy',
+    disabled: true,
+  },
+];
 
 interface Props {
   bankInfo: BankInfo | undefined;
@@ -42,9 +51,10 @@ function TokensForm({
       className="flex w-full flex-col overflow-hidden rounded-xl md:max-w-md"
     >
       <Tab.List className="flex space-x-1 bg-[#E7E9EB]">
-        {tabs.map(tabName => (
+        {tabs.map(tab => (
           <Tab
-            key={tabName}
+            key={tab.key}
+            disabled={tab.disabled}
             className={({ selected }) =>
               classNames(
                 'w-full p-5 text-xl font-bold leading-5 sm:text-2xl',
@@ -55,7 +65,7 @@ function TokensForm({
               )
             }
           >
-            {tabName}
+            {tab.key}
           </Tab>
         ))}
       </Tab.List>

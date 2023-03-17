@@ -13,7 +13,7 @@ import { saveUser, useGetUser } from '@/hooks/useOnboarding';
 import { Token } from '@/constants/tokens';
 import { Currency } from '@/constants/currency';
 
-const tabs = ['Market prices', 'Transactions'];
+const tabs = ['Transactions', 'Market prices'];
 
 function Home() {
   const { connect, disconnect, connectProps } = useAuth();
