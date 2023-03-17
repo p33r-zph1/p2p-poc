@@ -110,10 +110,10 @@ function Home() {
 
                   <Tab.Panels className="rounded-b-xl bg-white ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2">
                     <Tab.Panel>
-                      <PairPriceMatrix token={pair.token} fiat={pair.fiat} />
+                      <RecentTransactions walletAddress={address} />
                     </Tab.Panel>
                     <Tab.Panel>
-                      <RecentTransactions walletAddress={address} />
+                      <PairPriceMatrix token={pair.token} fiat={pair.fiat} />
                     </Tab.Panel>
                   </Tab.Panels>
                 </Tab.Group>
