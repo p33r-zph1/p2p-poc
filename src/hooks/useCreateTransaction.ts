@@ -75,54 +75,15 @@ export async function createTransaction({ type, createTransaction }: Props) {
   return createdTransaction.data;
 }
 
-type FindingPairStatus =
-  | 'idle'
-  | 'findingPair'
-  | 'waitingForEscrow'
-  | 'pairFound'
-  | 'pairNotFound';
-
 function useCreateTransaction(props: Props) {
-  const [findingPairStatus, setFindingPairStatus] =
-    useState<FindingPairStatus>('idle');
-
-  const { isFetching, ...rest } = useQuery({
+  return useQuery({
     queryKey: [props],
     queryFn: async () => createTransaction(props),
-    onSuccess() {
-      if (props.type === 'BUY') setFindingPairStatus('waitingForEscrow');
-      else setFindingPairStatus('pairFound');
-    },
-    onError() {
-      setFindingPairStatus('pairNotFound');
-    },
+
     enabled: false,
     retry: false,
     refetchOnWindowFocus: false,
   });
-
-  useEffect(() => {
-    if (isFetching) setFindingPairStatus('findingPair');
-  }, [isFetching]);
-
-  useEffect(() => {
-    if (findingPairStatus !== 'waitingForEscrow') return;
-
-    const interval = setTimeout(() => {
-      setFindingPairStatus('pairFound');
-    }, 10000);
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, [findingPairStatus]);
-
-  return {
-    ...rest,
-    isFetching,
-    findingPairStatus,
-    setFindingPairStatus,
-  };
 }
 
 export default useCreateTransaction;

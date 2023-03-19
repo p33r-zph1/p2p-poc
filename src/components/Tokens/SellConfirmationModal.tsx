@@ -21,6 +21,9 @@ interface Props {
     receiveCurrency: string;
     receiveAmount: string;
   };
+  confirmReceipt: () => void;
+  disputeTransaction: () => void;
+  isConfirmingOrDisputing: boolean;
 }
 
 function ConfirmationModal({
@@ -32,16 +35,12 @@ function ConfirmationModal({
   isError,
   transferDetails,
   transferSuccessful,
+  confirmReceipt,
+  disputeTransaction,
+  isConfirmingOrDisputing,
 }: Props) {
   const { payAmount, payCurrency, receiveAmount, receiveCurrency } =
     transferDetails;
-
-  const confirmReceipt = () => {
-    // TODO(Denis): add functionality for confirmation
-    setTimeout(() => {
-      onClose();
-    }, 1000);
-  };
 
   return (
     <Transition show={isOpen} as={Fragment}>
@@ -114,20 +113,35 @@ function ConfirmationModal({
                 </Dialog.Description>
               )}
 
-              {transferSuccessful && (
-                <button
-                  type="submit"
-                  className="mt-8 w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
-                  onClick={confirmReceipt}
+              {isConfirmingOrDisputing ? (
+                <Dialog.Description
+                  className={
+                    'mt-2 animate-pulse text-center text-sm text-sleep-100'
+                  }
                 >
-                  Confirm receipt
-                </button>
-              )}
+                  Please wait...
+                </Dialog.Description>
+              ) : (
+                <>
+                  {transferSuccessful && (
+                    <button
+                      type="submit"
+                      className="mt-8 w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
+                      onClick={confirmReceipt}
+                    >
+                      Confirm receipt
+                    </button>
+                  )}
 
-              {(transferSuccessful || isError) && (
-                <button className="mt-2 w-full text-sm text-sleep-100">
-                  Dispute transaction
-                </button>
+                  {(transferSuccessful || isError) && (
+                    <button
+                      className="mt-2 w-full text-sm text-sleep-100"
+                      onClick={disputeTransaction}
+                    >
+                      Dispute transaction
+                    </button>
+                  )}
+                </>
               )}
 
               <InlineErrorDisplay show={isError} error={error} />

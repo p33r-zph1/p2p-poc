@@ -11,18 +11,18 @@ interface Order {
 }
 
 export interface ITransaction {
-  status:
-    | 'matching'
-    | 'buyer_found'
-    | 'waiting_for_crypto_payment'
-    | 'crypto_escrow_confirm'
-    | 'seller_found'
-    | 'waiting_for_escrow'
-    | 'waiting_for_fiat_payment'
-    | 'send_fiat_payment_proof'
-    | 'success'
-    | 'failed';
-  transactionStatus: string; // TODO(Dennis, Jasper) declare the type
+  // status:
+  //   | 'matching'
+  //   | 'buyer_found'
+  //   | 'waiting_for_crypto_payment'
+  //   | 'crypto_escrow_confirm'
+  //   | 'seller_found'
+  //   | 'waiting_for_escrow'
+  //   | 'waiting_for_fiat_payment'
+  //   | 'send_fiat_payment_proof'
+  //   | 'success'
+  //   | 'failed';
+  // transactionStatus: string;
   onChainStatus: string;
   offChainStatus: string;
   referenceId: string;

@@ -17,7 +17,7 @@ import { Address } from 'wagmi';
 
 import { BankInfo } from '@/hooks/useOnboarding';
 import useSellTokens from '@/hooks/useSellTokens';
-import useTokenTransfer from '@/hooks/useTokenTransfer';
+import { useTokenApprove } from '@/hooks/useERC20Token';
 import { classNames, errorWithReason } from '@/utils';
 import { getErrorMessage } from '@/utils/isError';
 import { Token } from '@/constants/tokens';
@@ -27,6 +27,7 @@ import CurrencySelector from './CurrencySelector';
 import { InlineErrorDisplay } from '../shared';
 import { MatchedIcon, MatchingIcon } from '../icons';
 import SellConfirmationModal from './SellConfirmationModal';
+import useEscrow from '@/hooks/useGetEscrow';
 
 interface Props {
   bankInfo: BankInfo | undefined;
@@ -71,21 +72,32 @@ function SellTokens({
     tokens,
     tokenError,
 
-    // useCreateTransaction
+    // useEscrow
+    escrowData,
+    fetchEscrow,
     findingPairStatus,
     setFindingPairStatus,
+
+    // useCreateTransaction
     createTransaction,
     createTransactionData,
     createTransactionSuccess,
     createTransactionError,
     isCreatingTransaction,
 
-    // confirmTransaction
+    // useConfirmTransaction
     confirmTransaction,
     confirmTransactionData,
     confirmTransactionSuccess,
     confirmTransactionError,
     isConfirmingTransaction,
+
+    // useDisputeTransaction
+    disputeTransaction,
+    disputeTransactionData,
+    disputeTransactionSuccess,
+    disputeTransactionError,
+    isDisputingTransaction,
   } = useSellTokens({ walletAddress, bankInfo });
 
   const [debouncedTokenAmount] = useDebounce(tokenAmount, 500);
@@ -98,10 +110,10 @@ function SellTokens({
     isSuccess: isTransferTokenSuccess,
     data: transferTokenData,
     transferPreparation,
-  } = useTokenTransfer({
+  } = useTokenApprove({
     amount: debouncedTokenAmount ? debouncedTokenAmount : '0',
-    contractAddress: selectedToken?.contractAddress,
-    recipient: '0xDc1ACdb071490A6fd66f449Db98F977a8B60FfC6', // TODO(dennis): make dynamic
+    tokenAddress: selectedToken?.contractAddress,
+    spenderAddress: escrowData?.sell,
   });
 
   const isTransferError = useMemo(
@@ -133,16 +145,23 @@ function SellTokens({
         return;
       }
 
-      createTransaction();
+      fetchEscrow();
     },
-    [bankInfo, createTransaction]
+    [bankInfo, fetchEscrow]
   );
 
+  // can be refactored
   useEffect(() => {
-    if (!transferTokenData) return;
+    if (isTransferTokenSuccess) {
+      createTransaction();
+    }
+  }, [createTransaction, isTransferTokenSuccess]);
 
-    confirmTransaction();
-  }, [confirmTransaction, transferTokenData]);
+  // useEffect(() => {
+  //   if (!transferTokenData) return;
+
+  //   confirmTransaction();
+  // }, [confirmTransaction, transferTokenData]);
 
   useEffect(() => {
     setPair({ token: selectedToken, fiat: selectedFiat });
@@ -379,26 +398,44 @@ function SellTokens({
       <SellConfirmationModal
         isOpen={isConfirmModalOpen}
         onClose={() => {
-          if (!isTransferingToken) {
+          if (!isCreatingTransaction) {
             setFindingPairStatus('idle');
             tokenAmountHandler('');
             setIsConfirmModalOpen(false);
           }
         }}
-        closeable={isTransferTokenError || isTransferTokenSuccess}
+        // closeable={isTransferTokenError || createTransactionSuccess}
+        closeable={isTransferTokenError}
         transferDetails={{
           payAmount: tokenAmount,
           payCurrency: selectedToken.symbol,
           receiveAmount: fiatAmount,
           receiveCurrency: selectedFiat.symbol,
         }}
-        transferSuccessful={isTransferTokenSuccess}
-        isTransfering={isTransferingToken}
         isError={isTransferTokenError}
         error={
           errorWithReason(transferTokenError)
             ? transferTokenError.reason
             : 'Tranasaction failed with unknown error'
+        }
+        isTransfering={isCreatingTransaction}
+        transferSuccessful={createTransactionSuccess}
+        confirmReceipt={async () => {
+          // always happy path - needs refactor
+          await confirmTransaction();
+          setFindingPairStatus('idle');
+          tokenAmountHandler('');
+          setIsConfirmModalOpen(false);
+        }}
+        disputeTransaction={async () => {
+          // always happy path - needs refactor
+          await disputeTransaction();
+          setFindingPairStatus('idle');
+          tokenAmountHandler('');
+          setIsConfirmModalOpen(false);
+        }}
+        isConfirmingOrDisputing={
+          isConfirmingTransaction || isDisputingTransaction
         }
       />
     </>

@@ -23,32 +23,59 @@ interface Props {
   confirmTransaction: ConfirmTransaction | BuyConfirmTransaction;
 }
 
+// export async function confirmTransaction({ type, confirmTransaction }: Props) {
+//   const { referenceId, walletAddress } = confirmTransaction;
+
+//   let body: {} | null = null;
+
+//   if (type === 'BUY') {
+//     if (!('base64Image' in confirmTransaction)) {
+//       throw new Error('Image is required');
+//     }
+
+//     body = { image: confirmTransaction.base64Image };
+//   }
+
+//   if (!referenceId) throw new Error('Reference Id is required');
+//   if (!walletAddress) throw new Error('Wallet address is required');
+
+//   const url = `https://tmbtem7z94.execute-api.ap-southeast-1.amazonaws.com/develop/transaction/${referenceId}/${
+//     type === 'BUY' ? 'sell/receipt' : 'buy/confirm'
+//   }`;
+//   const response = await fetch(url, {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json',
+//       walletAddress,
+//     },
+//     body: JSON.stringify(body),
+//   });
+
+//   const confirmedTransaction = (await response.json()) as TransactionResponse;
+
+//   if (!response.ok) {
+//     throw new Error(
+//       confirmedTransaction?.message ||
+//         `Failed to create confirm ${type} transaction`
+//     );
+//   }
+
+//   return true;
+// }
+
 export async function confirmTransaction({ type, confirmTransaction }: Props) {
   const { referenceId, walletAddress } = confirmTransaction;
-
-  let body: {} | null = null;
-
-  if (type === 'BUY') {
-    if (!('base64Image' in confirmTransaction)) {
-      throw new Error('Image is required');
-    }
-
-    body = { image: confirmTransaction.base64Image };
-  }
 
   if (!referenceId) throw new Error('Reference Id is required');
   if (!walletAddress) throw new Error('Wallet address is required');
 
-  const url = `https://tmbtem7z94.execute-api.ap-southeast-1.amazonaws.com/develop/transaction/${referenceId}/${
-    type === 'BUY' ? 'sell/receipt' : 'buy/confirm'
-  }`;
+  const url = `https://tmbtem7z94.execute-api.ap-southeast-1.amazonaws.com/develop/transaction/${referenceId}/sell/confirm`;
   const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       walletAddress,
     },
-    body: JSON.stringify(body),
   });
 
   const confirmedTransaction = (await response.json()) as TransactionResponse;
