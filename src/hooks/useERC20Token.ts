@@ -8,22 +8,26 @@ import {
   Address,
 } from 'wagmi';
 
-interface Props {
-  contractAddress: Address | undefined;
-  recipient: Address;
+interface TokenApproval {
+  tokenAddress: Address | undefined;
+  spenderAddress: Address | undefined;
   amount: string;
 }
 
-function useTokenTransfer({ contractAddress, recipient, amount }: Props) {
+export function useTokenApprove({
+  tokenAddress,
+  spenderAddress,
+  amount,
+}: TokenApproval) {
   const { chain } = useNetwork();
 
   const { config, ...transferPreparation } = usePrepareContractWrite({
-    address: contractAddress,
+    address: tokenAddress,
     abi: erc20ABI,
-    functionName: 'transfer',
-    args: [recipient, utils.parseEther(onlyNumbers(amount))],
+    functionName: 'approve',
+    args: [spenderAddress!, utils.parseEther(onlyNumbers(amount))],
     chainId: chain?.id,
-    enabled: Boolean(contractAddress) && Boolean(chain),
+    enabled: Boolean(tokenAddress) && Boolean(spenderAddress) && Boolean(chain),
   });
 
   const { write, ...rest } = useContractWrite(config);
@@ -35,4 +39,4 @@ function useTokenTransfer({ contractAddress, recipient, amount }: Props) {
   };
 }
 
-export default useTokenTransfer;
+// other erc20 token functions

@@ -12,48 +12,69 @@ interface Props {
 }
 
 interface StatusBadgeProps {
-  status: ITransaction['status'];
+  offChainStatus: ITransaction['offChainStatus'];
+  onChainStatus: ITransaction['onChainStatus'];
   onConfirmReciept: MouseEventHandler<HTMLButtonElement>;
 }
 
-function StatusBadge({ status, onConfirmReciept }: StatusBadgeProps) {
-  if (status === 'crypto_escrow_confirm') {
-    return (
-      <>
-        <button
-          className="hidden rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300 md:block"
-          onClick={onConfirmReciept}
-        >
-          Please confirm Fiat receipt
-        </button>
+function StatusBadge({
+  offChainStatus,
+  onChainStatus,
+  onConfirmReciept,
+}: StatusBadgeProps) {
+  // if (status === 'crypto_escrow_confirm') {
+  //   return (
+  //     <>
+  //       <button
+  //         className="hidden rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300 md:block"
+  //         onClick={onConfirmReciept}
+  //       >
+  //         Please confirm Fiat receipt
+  //       </button>
 
-        <button
-          className="rounded-2xl bg-brand px-3 py-2 text-xs font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300 md:hidden"
-          onClick={onConfirmReciept}
-        >
-          Confirm receipt
-        </button>
-      </>
-    );
-  }
+  //       <button
+  //         className="rounded-2xl bg-brand px-3 py-2 text-xs font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300 md:hidden"
+  //         onClick={onConfirmReciept}
+  //       >
+  //         Confirm receipt
+  //       </button>
+  //     </>
+  //   );
+  // }
 
-  if (status === 'matching') {
+  // if (status === 'matching') {
+  //   return (
+  //     <div className="rounded-full bg-[#EBFAF0] px-4 py-2 font-bold">
+  //       <p className="text-sm text-[#4FA355]">Pending</p>
+  //     </div>
+  //   );
+  // }
+
+  // if (status === 'success') {
+  //   return (
+  //     <div className="rounded-full bg-[#FFF6E6] px-4 py-2 font-bold">
+  //       <p className="text-sm text-[#FFAD0D]">Successful</p>
+  //     </div>
+  //   );
+  // }
+
+  // if (status === 'failed') {
+  //   return (
+  //     <div className="rounded-full bg-[#FAEBEB] px-4 py-2 font-bold">
+  //       <p className="text-sm text-[#D74E47]">Failed</p>
+  //     </div>
+  //   );
+  // }
+
+  if (offChainStatus === 'success' && onChainStatus === 'success') {
     return (
       <div className="rounded-full bg-[#EBFAF0] px-4 py-2 font-bold">
-        <p className="text-sm text-[#4FA355]">Pending</p>
+        <p className="text-sm text-[#4FA355]">Successful</p>
       </div>
     );
   }
 
-  if (status === 'success') {
-    return (
-      <div className="rounded-full bg-[#FFF6E6] px-4 py-2 font-bold">
-        <p className="text-sm text-[#FFAD0D]">Successful</p>
-      </div>
-    );
-  }
-
-  if (status === 'failed') {
+  if (offChainStatus === 'failed' || onChainStatus === 'failed') {
     return (
       <div className="rounded-full bg-[#FAEBEB] px-4 py-2 font-bold">
         <p className="text-sm text-[#D74E47]">Failed</p>
@@ -61,10 +82,9 @@ function StatusBadge({ status, onConfirmReciept }: StatusBadgeProps) {
     );
   }
 
-  // TODO(karim) getting
   return (
-    <div className="rounded-full bg-[#EBFAF0] px-4 py-2 font-bold">
-      <p className="text-sm text-[#4FA355]">Pending</p>
+    <div className="rounded-full bg-[#FFF6E6] px-4 py-2 font-bold">
+      <p className="text-sm text-[#FFAD0D]">Pending</p>
     </div>
   );
 }
@@ -77,7 +97,6 @@ function Transation({ transaction, lastItem = true }: Props) {
     order,
     payment,
     referenceId,
-    status,
     offChainStatus,
     onChainStatus,
     created,
@@ -115,7 +134,8 @@ function Transation({ transaction, lastItem = true }: Props) {
 
               <div className="flex items-center space-x-4">
                 <StatusBadge
-                  status={status}
+                  offChainStatus={offChainStatus}
+                  onChainStatus={onChainStatus}
                   onConfirmReciept={confirmReceipt}
                 />
 
@@ -142,15 +162,21 @@ function Transation({ transaction, lastItem = true }: Props) {
                 Reference Id: {referenceId}
               </Disclosure.Panel>
 
+              <Disclosure.Panel className="p-1 text-gray-500">
+                Off chain status: {offChainStatus}
+                {` <> `}
+                On chain status: {onChainStatus}
+              </Disclosure.Panel>
+
               {updated && (
                 <Disclosure.Panel className="p-1 text-gray-500">
-                  Uppated: {updated}
+                  Uppated: {new Date(updated).toLocaleString('en')}
                 </Disclosure.Panel>
               )}
 
               {confirmed && (
                 <Disclosure.Panel className="p-1 text-gray-500">
-                  Confirmed: {confirmed}
+                  Confirmed: {new Date(confirmed).toLocaleString('en')}
                 </Disclosure.Panel>
               )}
             </Transition>
