@@ -10,6 +10,8 @@ import { getCustomChainId } from '@/constants/chains';
 
 import { BankInfo } from './useOnboarding';
 import useConfirmTransaction from './useConfirmTransaction';
+import useEscrow from './useGetEscrow';
+import useDisputeTransaction from './useDisputeTransaction';
 
 interface Props {
   walletAddress: Address | undefined;
@@ -45,8 +47,13 @@ function useSellTokens({ walletAddress, bankInfo }: Props) {
   }, [selectedFiat, selectedToken, tokenAmount, tokenError]);
 
   const {
+    data: escrowData,
+    refetch: fetchEscrow,
     findingPairStatus,
     setFindingPairStatus,
+  } = useEscrow();
+
+  const {
     refetch: createTransaction,
     data: createTransactionData,
     isSuccess: createTransactionSuccess,
@@ -76,6 +83,20 @@ function useSellTokens({ walletAddress, bankInfo }: Props) {
     },
   });
 
+  const {
+    refetch: disputeTransaction,
+    data: disputeTransactionData,
+    isSuccess: disputeTransactionSuccess,
+    error: disputeTransactionError,
+    isFetching: isDisputingTransaction,
+  } = useDisputeTransaction({
+    // type: 'SELL',
+    disputeTransaction: {
+      walletAddress,
+      referenceId: createTransactionData?.referenceId,
+    },
+  });
+
   return {
     // useToken
     selectedToken,
@@ -84,21 +105,32 @@ function useSellTokens({ walletAddress, bankInfo }: Props) {
     tokenError,
     ...restOfTokens,
 
-    // useCreateTransaction
+    // useEscrow
+    escrowData,
+    fetchEscrow,
     findingPairStatus,
     setFindingPairStatus,
+
+    // useCreateTransaction
     createTransaction,
     createTransactionData,
     createTransactionSuccess,
     createTransactionError,
     isCreatingTransaction,
 
-    // confirmTransaction
+    // useConfirmTransaction
     confirmTransaction,
     confirmTransactionData,
     confirmTransactionSuccess,
     confirmTransactionError,
     isConfirmingTransaction,
+
+    // useDisputeTransaction
+    disputeTransaction,
+    disputeTransactionData,
+    disputeTransactionSuccess,
+    disputeTransactionError,
+    isDisputingTransaction,
   };
 }
 

@@ -31,6 +31,7 @@ function usePairPrice(pair1: string | undefined, pair2: string | undefined) {
   return useQuery({
     queryKey: [pair1, pair2],
     queryFn: async () => getPairPrice(pair1, pair2),
+    cacheTime: 1 * 60 * 1000, // 1 minute
   });
 }
 
