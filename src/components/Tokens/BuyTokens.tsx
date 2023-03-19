@@ -67,9 +67,13 @@ function BuyTokens({
     tokens,
     tokenError,
 
-    // useCreateTransaction
+    // useEscrow
+    escrowData, // TODO: is this needed?
+    fetchEscrow,
     findingPairStatus,
     setFindingPairStatus,
+
+    // useCreateTransaction
     createTransaction,
     createTransactionData,
     createTransactionSuccess,

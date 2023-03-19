@@ -63,7 +63,7 @@ function Transactions({ walletAddress }: Props) {
           <div className={classNames(isFetching ? 'animate-pulse' : '')}>
             {data.map((tx, idx) => (
               <Transaction
-                key={`${tx.status}-${idx}`}
+                key={`${tx.created}-${idx}`}
                 transaction={tx}
                 lastItem={idx === data.length - 1}
               />
