@@ -10,6 +10,7 @@ import useConfirmTransaction from '@/hooks/useConfirmTransaction';
 import { getCustomChainId } from '@/constants/chains';
 
 import { BankInfo } from './useOnboarding';
+import useEscrow from './useGetEscrow';
 
 interface Props {
   walletAddress: Address | undefined;
@@ -49,8 +50,13 @@ function useBuyTokens({ walletAddress, bankInfo }: Props) {
   }, [fiatAmount, selectedFiat, selectedToken, tokenAmount, tokenError]);
 
   const {
+    data: escrowData,
+    refetch: fetchEscrow,
     findingPairStatus,
     setFindingPairStatus,
+  } = useEscrow();
+
+  const {
     refetch: createTransaction,
     data: createTransactionData,
     isSuccess: createTransactionSuccess,
@@ -116,9 +122,13 @@ function useBuyTokens({ walletAddress, bankInfo }: Props) {
     tokenError,
     ...restOfTokens,
 
-    // useCreateTransaction
+    // useEscrow
+    escrowData,
+    fetchEscrow,
     findingPairStatus,
     setFindingPairStatus,
+
+    // useCreateTransaction
     createTransaction,
     createTransactionData,
     createTransactionSuccess,
