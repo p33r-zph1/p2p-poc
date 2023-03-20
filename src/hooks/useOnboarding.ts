@@ -27,7 +27,12 @@ export async function getUser(walletAddress: Address | undefined) {
   }
 
   const url = `https://od21v6lbu1.execute-api.ap-southeast-1.amazonaws.com/develop/${walletAddress}`;
-  const response = await fetch(url);
+  const response = await fetch(url, {
+    headers: {
+      authorization: `Bearer ${walletAddress}`,
+      'Content-Type': 'application/json',
+    },
+  });
 
   const getUserResponse = (await response.json()) as OnboardingResponse;
 
@@ -52,6 +57,7 @@ export async function saveUser(
   const response = await fetch(url, {
     method: 'POST',
     headers: {
+      authorization: `Bearer ${walletAddress}`,
       'Content-Type': 'application/json',
       walletAddress,
     },

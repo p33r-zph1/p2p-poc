@@ -73,6 +73,7 @@ export async function confirmTransaction({ type, confirmTransaction }: Props) {
   const response = await fetch(url, {
     method: 'POST',
     headers: {
+      authorization: `Bearer ${walletAddress}`,
       'Content-Type': 'application/json',
       walletAddress,
     },

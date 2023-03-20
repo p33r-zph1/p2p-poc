@@ -52,6 +52,7 @@ async function getTransactions({ walletAddress }: Props) {
     'https://tmbtem7z94.execute-api.ap-southeast-1.amazonaws.com/develop/transactions',
     {
       headers: {
+        authorization: `Bearer ${walletAddress}`,
         'Content-Type': 'application/json',
         walletAddress: walletAddress.toString(),
       },

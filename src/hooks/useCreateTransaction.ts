@@ -57,6 +57,7 @@ export async function createTransaction({ type, createTransaction }: Props) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      authorization: `Bearer ${walletAddress}`,
       country: bankInfo.bankDetails.countryCode,
       chain: customChainId,
       walletAddress,
