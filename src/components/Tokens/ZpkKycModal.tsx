@@ -130,7 +130,6 @@ function ZpkKycModal({
 
       const id = setTimeout(() => {
         if (!ignore) {
-          // console.log({ walletAddress });
           setStatus('validatingBank');
         }
       }, 2000);
