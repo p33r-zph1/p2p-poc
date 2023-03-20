@@ -128,7 +128,7 @@ function BuyTokens({
     setPair({ token: selectedToken, fiat: selectedFiat });
   }, [selectedFiat, selectedToken, setPair]);
 
-  if (!selectedToken) {
+  if (!selectedToken || !selectedFiat) {
     return <InlineErrorDisplay show error="Service currently not available" />;
   }
 
@@ -159,8 +159,9 @@ function BuyTokens({
                 selected={selectedFiat}
                 currencies={fiatCurrencies}
                 disabled={
-                  findingPairStatus === 'findingPair' ||
-                  findingPairStatus === 'waitingForEscrow'
+                  true
+                  // findingPairStatus === 'findingPair' ||
+                  // findingPairStatus === 'waitingForEscrow'
                 }
                 onChange={fiat => {
                   setSelectedFiat(fiat);

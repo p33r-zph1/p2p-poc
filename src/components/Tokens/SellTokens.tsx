@@ -157,17 +157,24 @@ function SellTokens({
     }
   }, [createTransaction, isTransferTokenSuccess]);
 
-  // useEffect(() => {
-  //   if (!transferTokenData) return;
-
-  //   confirmTransaction();
-  // }, [confirmTransaction, transferTokenData]);
+  useEffect(() => {
+    if (bankInfo?.bankDetails.countryCode) {
+      if (bankInfo.bankDetails.countryCode === 'PH') {
+        const php = fiatCurrencies.find(c => c.id === 'php');
+        setSelectedFiat(php);
+      }
+      if (bankInfo.bankDetails.countryCode === 'SG') {
+        const php = fiatCurrencies.find(c => c.id === 'sg');
+        setSelectedFiat(php);
+      }
+    }
+  }, [bankInfo?.bankDetails.countryCode, setSelectedFiat]);
 
   useEffect(() => {
     setPair({ token: selectedToken, fiat: selectedFiat });
   }, [selectedFiat, selectedToken, setPair]);
 
-  if (!selectedToken) {
+  if (!selectedToken || !selectedFiat) {
     return <InlineErrorDisplay show error="Service currently not available" />;
   }
 
@@ -285,8 +292,9 @@ function SellTokens({
                 selected={selectedFiat}
                 currencies={fiatCurrencies}
                 disabled={
-                  findingPairStatus === 'findingPair' ||
-                  findingPairStatus === 'waitingForEscrow'
+                  true
+                  // findingPairStatus === 'findingPair' ||
+                  // findingPairStatus === 'waitingForEscrow'
                 }
                 onChange={fiat => {
                   setSelectedFiat(fiat);

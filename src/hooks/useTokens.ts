@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNumericFormat } from 'react-number-format';
 import { useBalance, useNetwork } from 'wagmi';
 
-import fiatCurrencies from '@/constants/currency';
+import fiatCurrencies, { Currency } from '@/constants/currency';
 import { fromChain, type Token } from '@/constants/tokens';
 import { maxStableCoinConversion, platformFee } from '@/constants/dapp';
 import { onlyNumbers, truncateText } from '@/utils';
@@ -28,14 +28,14 @@ function useTokens({ type }: Props) {
   const [selectedToken, setSelectedToken] = useState<Token | undefined>(
     fromChain(chain)[0]
   );
-  const [selectedFiat, setSelectedFiat] = useState(fiatCurrencies[0]);
+  const [selectedFiat, setSelectedFiat] = useState<Currency | undefined>();
 
   const [tokenAmount, setTokenAmount] = useState('');
   const [fiatAmount, setFiatAmount] = useState('');
 
   const { data: pairPrice, isLoading: isLoadingPairPrice } = usePairPrice(
     selectedToken?.id,
-    selectedFiat.id
+    selectedFiat?.id
   );
 
   const { data: tokenBalance, refetch: refetchTokenBalance } = useBalance({
@@ -85,7 +85,10 @@ function useTokens({ type }: Props) {
   const tokens = useMemo(() => fromChain(chain), [chain]);
 
   const formattedPairPrice = useMemo(() => {
-    if (!pairPrice || !selectedToken || isLoadingPairPrice) return undefined;
+    if (!pairPrice) return undefined;
+    if (!selectedToken) return undefined;
+    if (!selectedFiat) return undefined;
+    if (!isLoadingPairPrice) return undefined;
 
     let price = 0;
     let currency = '-';
@@ -106,10 +109,10 @@ function useTokens({ type }: Props) {
   }, [
     pairPrice,
     selectedToken,
+    selectedFiat,
     isLoadingPairPrice,
     type,
     format,
-    selectedFiat.symbol,
   ]);
 
   const computedBalance = useMemo(() => {

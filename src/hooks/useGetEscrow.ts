@@ -27,7 +27,7 @@ export async function getEscrow({ walletAddress }: Props) {
     'https://tmbtem7z94.execute-api.ap-southeast-1.amazonaws.com/develop/escrow';
   const response = await fetch(url, {
     headers: {
-      authorization: `Bearer ${walletAddress}`,
+      Authorization: `Bearer ${walletAddress}`,
       'Content-Type': 'application/json',
     },
   });
