@@ -159,13 +159,13 @@ function SellTokens({
 
   useEffect(() => {
     if (bankInfo?.bankDetails.countryCode) {
-      if (bankInfo.bankDetails.countryCode === 'PH') {
+      if (bankInfo.bankDetails.countryCode.toUpperCase() === 'PH') {
         const php = fiatCurrencies.find(c => c.id === 'php');
         setSelectedFiat(php);
       }
-      if (bankInfo.bankDetails.countryCode === 'SG') {
-        const php = fiatCurrencies.find(c => c.id === 'sg');
-        setSelectedFiat(php);
+      if (bankInfo.bankDetails.countryCode.toUpperCase() === 'SG') {
+        const sgd = fiatCurrencies.find(c => c.id === 'sg');
+        setSelectedFiat(sgd);
       }
     }
   }, [bankInfo?.bankDetails.countryCode, setSelectedFiat]);
