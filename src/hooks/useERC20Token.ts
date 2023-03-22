@@ -21,7 +21,7 @@ export function useTokenApprove({
 }: TokenApproval) {
   const { chain } = useNetwork();
 
-  const { config, ...transferPreparation } = usePrepareContractWrite({
+  const { config, ...approvePreparation } = usePrepareContractWrite({
     address: tokenAddress,
     abi: erc20ABI,
     functionName: 'approve',
@@ -33,8 +33,8 @@ export function useTokenApprove({
   const { write, ...rest } = useContractWrite(config);
 
   return {
-    transfer: write,
-    transferPreparation,
+    approve: write,
+    approvePreparation,
     ...rest,
   };
 }
