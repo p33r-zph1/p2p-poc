@@ -174,6 +174,10 @@ function SellTokens({
     setPair({ token: selectedToken, fiat: selectedFiat });
   }, [selectedFiat, selectedToken, setPair]);
 
+  if (!bankInfo?.bankDetails) {
+    return <InlineErrorDisplay show error="Payment details is required" />;
+  }
+
   if (!selectedToken || !selectedFiat) {
     return <InlineErrorDisplay show error="Service currently not available" />;
   }
