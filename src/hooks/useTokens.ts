@@ -28,15 +28,18 @@ function useTokens({ type }: Props) {
   const [selectedToken, setSelectedToken] = useState<Token | undefined>(
     fromChain(chain)[0]
   );
-  const [selectedFiat, setSelectedFiat] = useState<Currency | undefined>();
+  const [selectedFiat, setSelectedFiat] = useState<Currency | undefined>(
+    fiatCurrencies[0]
+  );
 
   const [tokenAmount, setTokenAmount] = useState('');
   const [fiatAmount, setFiatAmount] = useState('');
 
-  const { data: pairPrice, isLoading: isLoadingPairPrice } = usePairPrice(
-    selectedToken?.id,
-    selectedFiat?.id
-  );
+  const {
+    data: pairPrice,
+    isLoading: isLoadingPairPrice,
+    isError: pairPriceError,
+  } = usePairPrice(selectedToken?.id, selectedFiat?.id);
 
   const { data: tokenBalance, refetch: refetchTokenBalance } = useBalance({
     address,
@@ -85,10 +88,11 @@ function useTokens({ type }: Props) {
   const tokens = useMemo(() => fromChain(chain), [chain]);
 
   const formattedPairPrice = useMemo(() => {
-    if (!pairPrice) return undefined;
-    if (!selectedToken) return undefined;
-    if (!selectedFiat) return undefined;
-    if (!isLoadingPairPrice) return undefined;
+    if (pairPriceError) return 'Price oracle timeout';
+    if (!pairPrice) return 'Conversion not available';
+    if (!selectedToken) return 'No token available';
+    if (!selectedFiat) return 'No fiat available';
+    // if (!isLoadingPairPrice) return undefined;
 
     let price = 0;
     let currency = '-';
@@ -106,14 +110,7 @@ function useTokens({ type }: Props) {
       startPos: 12,
       endingText: currency,
     });
-  }, [
-    pairPrice,
-    selectedToken,
-    selectedFiat,
-    isLoadingPairPrice,
-    type,
-    format,
-  ]);
+  }, [pairPrice, selectedToken, selectedFiat, pairPriceError, type, format]);
 
   const computedBalance = useMemo(() => {
     if (!tokenBalance || !selectedToken) return undefined;
@@ -201,6 +198,7 @@ function useTokens({ type }: Props) {
     fiatAmountHandler,
     tokenAmountHandler,
     pairPrice: formattedPairPrice,
+    pairPriceError,
     isLoadingPairPrice,
     tokenBalance,
     computedBalance,
