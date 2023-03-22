@@ -39,7 +39,7 @@ function useTokens({ type }: Props) {
     data: pairPrice,
     isLoading: isLoadingPairPrice,
     isError: pairPriceError,
-  } = usePairPrice(selectedToken?.id, selectedFiat?.id);
+  } = usePairPrice(selectedToken?.symbol, selectedFiat?.id);
 
   const { data: tokenBalance, refetch: refetchTokenBalance } = useBalance({
     address,
