@@ -61,9 +61,8 @@ function useTokens({ type }: Props) {
       if (!pairPrice) return;
 
       const fiatConversion = Number(tokenNumberValue) * pairPrice;
-      setFiatAmount(
-        fiatConversion <= 0 ? '' : format(fiatConversion.toString())
-      );
+      const withFees = fiatConversion * platformFee.reversePercentage;
+      setFiatAmount(withFees <= 0 ? '' : format(withFees.toString()));
     },
     [format, pairPrice]
   );
@@ -78,9 +77,8 @@ function useTokens({ type }: Props) {
       if (!pairPrice) return;
 
       const tokenConversion = Number(fiatNumberValue) / pairPrice;
-      setTokenAmount(
-        tokenConversion <= 0 ? '' : format(tokenConversion.toString())
-      );
+      const withFees = tokenConversion * platformFee.reversePercentage;
+      setTokenAmount(withFees <= 0 ? '' : format(withFees.toString()));
     },
     [format, pairPrice]
   );
