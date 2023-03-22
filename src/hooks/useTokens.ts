@@ -4,7 +4,7 @@ import { useBalance, useNetwork } from 'wagmi';
 
 import fiatCurrencies, { Currency } from '@/constants/currency';
 import { fromChain, type Token } from '@/constants/tokens';
-import { maxStableCoinConversion, platformFee } from '@/constants/dapp';
+import { phMaxFiatTransfer, platformFee } from '@/constants/dapp';
 import { onlyNumbers, truncateText } from '@/utils';
 
 import useMountedAccount from './useMountedAccount';
@@ -154,20 +154,20 @@ function useTokens({ type }: Props) {
     setSelectedToken(tokens[0]);
   }, [setSelectedToken, tokens]);
 
-  // effect for checking errors for the token amount
+  // effect for checking errors for the fiat amount
   useEffect(() => {
-    function checkTokenAmountError() {
-      if (!selectedToken) return;
+    function checkFiatAmountError() {
+      if (!selectedFiat) return;
 
       setError(
-        Number(onlyNumbers(tokenAmount)) >= maxStableCoinConversion
-          ? `Max conversion of 1,000 ${selectedToken.symbol}`
+        Number(onlyNumbers(fiatAmount)) > phMaxFiatTransfer
+          ? `Max conversion of ${phMaxFiatTransfer} ${selectedFiat.symbol}`
           : ''
       );
     }
 
-    checkTokenAmountError();
-  }, [selectedToken, tokenAmount]);
+    checkFiatAmountError();
+  }, [selectedFiat, fiatAmount]);
 
   // effect for recalculating values when the selected token/fiat changed
   useEffect(() => {
