@@ -232,7 +232,7 @@ function SellTokens({
                   />
                 </div>
                 <span className="text-sm font-semibold text-sleep-100">
-                  {pairPrice ? pairPrice : 'calculating...'}
+                  {isLoadingPairPrice ? 'calculating...' : pairPrice}
                 </span>
                 <span className="text-sm font-semibold text-sleep-200">
                   Conversion rate
