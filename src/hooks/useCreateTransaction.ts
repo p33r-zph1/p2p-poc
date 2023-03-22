@@ -4,6 +4,7 @@ import { Address } from 'wagmi';
 
 import { BankInfo } from './useOnboarding';
 import { ServiceType } from './useTokens';
+import { getTransactionsAPIRoute } from '@/lib/env';
 
 interface Payment {
   currency: string;
@@ -50,7 +51,7 @@ export async function createTransaction({ type, createTransaction }: Props) {
   if (!transaction) throw new Error('Transaction is required');
   if (!walletAddress) throw new Error('Wallet address is required');
 
-  const url = `https://tmbtem7z94.execute-api.ap-southeast-1.amazonaws.com/develop/transaction/${
+  const url = `${getTransactionsAPIRoute()}/transaction/${
     type === 'BUY' ? 'buy' : 'sell'
   }`;
   const response = await fetch(url, {
