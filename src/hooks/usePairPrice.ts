@@ -9,8 +9,10 @@ export interface PairPrice {
 }
 
 export interface PriceOracle {
-  pair: string;
-  rate: number;
+  data: {
+    pair: string;
+    rate: number;
+  };
 }
 
 export async function getPairPrice(
@@ -22,15 +24,15 @@ export async function getPairPrice(
   }
 
   // const url = `https://api.coingecko.com/api/v3/simple/price?ids=${pair1}&vs_currencies=${pair2}`;
-  const url = `https://hfl87ike8c.execute-api.ap-southeast-1.amazonaws.com/develop/${pair1}/${pair2}`
+  const url = `https://hfl87ike8c.execute-api.ap-southeast-1.amazonaws.com/develop/${pair1}/${pair2}`;
   const response = await fetch(url);
   const pairPrice = (await response.json()) as PriceOracle;
 
-  if (!response.ok || !pairPrice.rate) {
+  if (!response.ok || !pairPrice.data.rate) {
     throw new Error(`Could not retrieve price for pair ${pair1} : ${pair2}`);
   }
 
-  return pairPrice.rate;
+  return pairPrice.data.rate;
 }
 
 function usePairPrice(pair1: string | undefined, pair2: string | undefined) {
