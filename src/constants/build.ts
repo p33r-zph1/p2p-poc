@@ -21,9 +21,9 @@ export const buildConfig = {
 };
 
 export const appDomains = {
-  [BuildVariant.Development]: 'https://develop.d3mj11jj9gi41w.amplifyapp.com/',
-  [BuildVariant.Staging]: 'https://staging.d3mj11jj9gi41w.amplifyapp.com/',
-  [BuildVariant.Release]: 'https://d3mj11jj9gi41w.amplifyapp.com/',
+  [BuildVariant.Development]: 'https://dev.poc.p33r.finance/',
+  [BuildVariant.Staging]: 'https://poc.p33r.finance/',
+  [BuildVariant.Release]: 'https://poc.p33r.finance/',
 };
 
 export function getAppDomainName({
@@ -34,4 +34,11 @@ export function getAppDomainName({
   }
 
   return appDomains[BUILD_ENV];
+}
+
+export function getPrintableEnvName() {
+  if (BUILD_ENV === BuildVariant.Staging) return '';
+  if (BUILD_ENV === BuildVariant.Release) return '';
+
+  return ` | ${BUILD_ENV.toUpperCase()}`;
 }
