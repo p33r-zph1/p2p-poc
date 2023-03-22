@@ -28,7 +28,9 @@ function useTokens({ type }: Props) {
   const [selectedToken, setSelectedToken] = useState<Token | undefined>(
     fromChain(chain)[0]
   );
-  const [selectedFiat, setSelectedFiat] = useState<Currency | undefined>();
+  const [selectedFiat, setSelectedFiat] = useState<Currency | undefined>(
+    fiatCurrencies[0]
+  );
 
   const [tokenAmount, setTokenAmount] = useState('');
   const [fiatAmount, setFiatAmount] = useState('');
@@ -86,10 +88,10 @@ function useTokens({ type }: Props) {
   const tokens = useMemo(() => fromChain(chain), [chain]);
 
   const formattedPairPrice = useMemo(() => {
-    if (!pairPrice) return '-';
-    if (!selectedToken) return '-';
-    if (!selectedFiat) return '-';
     if (pairPriceError) return 'Price oracle timeout';
+    if (!pairPrice) return 'Conversion not available';
+    if (!selectedToken) return 'No token available';
+    if (!selectedFiat) return 'No fiat available';
     // if (!isLoadingPairPrice) return undefined;
 
     let price = 0;

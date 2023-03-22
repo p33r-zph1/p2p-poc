@@ -158,28 +158,39 @@ function SellTokens({
   }, [createTransaction, isTransferTokenSuccess]);
 
   useEffect(() => {
+    if (!connected) return;
+
+    let currency: Currency | undefined;
+
     if (bankInfo?.bankDetails.countryCode) {
+      // refactor me sir!
       if (bankInfo.bankDetails.countryCode.toUpperCase() === 'PH') {
-        const php = fiatCurrencies.find(c => c.id === 'php');
-        setSelectedFiat(php);
+        currency = fiatCurrencies.find(c => c.id === 'php');
       }
       if (bankInfo.bankDetails.countryCode.toUpperCase() === 'SG') {
-        const sgd = fiatCurrencies.find(c => c.id === 'sg');
-        setSelectedFiat(sgd);
+        currency = fiatCurrencies.find(c => c.id === 'sg');
       }
     }
-  }, [bankInfo?.bankDetails.countryCode, setSelectedFiat]);
+
+    if (currency) setSelectedFiat(currency);
+    else setSelectedFiat(undefined);
+  }, [bankInfo?.bankDetails.countryCode, connected, setSelectedFiat]);
 
   useEffect(() => {
     setPair({ token: selectedToken, fiat: selectedFiat });
   }, [selectedFiat, selectedToken, setPair]);
 
-  if (!bankInfo?.bankDetails) {
-    return <InlineErrorDisplay show error="Payment details is required" />;
-  }
+  // if (!bankInfo?.bankDetails) {
+  //   return <InlineErrorDisplay show error="Payment details is required." />;
+  // }
 
-  if (!selectedToken || !selectedFiat) {
-    return <InlineErrorDisplay show error="Service currently not available" />;
+  if (!selectedToken) {
+    return (
+      <InlineErrorDisplay
+        show
+        error="Service currently not available, please try again later."
+      />
+    );
   }
 
   return (
@@ -422,7 +433,7 @@ function SellTokens({
           payAmount: tokenAmount,
           payCurrency: selectedToken.symbol,
           receiveAmount: fiatAmount,
-          receiveCurrency: selectedFiat.symbol,
+          receiveCurrency: selectedFiat?.symbol || '-',
         }}
         isError={isTransferTokenError}
         error={
