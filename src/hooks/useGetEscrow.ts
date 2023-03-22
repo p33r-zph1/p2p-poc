@@ -1,3 +1,4 @@
+import { getTransactionsAPIRoute } from '@/lib/env';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { Address } from 'wagmi';
@@ -23,8 +24,7 @@ type FindingPairStatus =
   | 'pairNotFound';
 
 export async function getEscrow({ walletAddress }: Props) {
-  const url =
-    'https://tmbtem7z94.execute-api.ap-southeast-1.amazonaws.com/develop/escrow';
+  const url = `${getTransactionsAPIRoute()}/escrow`;
   const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${walletAddress}`,

@@ -8,9 +8,14 @@ function checkEnv(env: string | undefined, name: string) {
   return env;
 }
 
-export function getAPIRoute() {
-  const value = process.env.NEXT_PUBLIC_API_ROUTE;
-  return checkEnv(value, 'NEXT_PUBLIC_API_ROUTE');
+export function getTransactionsAPIRoute() {
+  const value = process.env.NEXT_PUBLIC_API_ROUTE_TRANSACTIONS;
+  return checkEnv(value, 'NEXT_PUBLIC_API_ROUTE_TRANSACTIONS');
+}
+
+export function getOnboardingAPIRoute() {
+  const value = process.env.NEXT_PUBLIC_API_ROUTE_ONBOARDING;
+  return checkEnv(value, 'NEXT_PUBLIC_API_ROUTE_ONBOARDING');
 }
 
 export function getBuildENV() {
