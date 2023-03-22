@@ -18,7 +18,8 @@ import { Address } from 'wagmi';
 import { BankInfo } from '@/hooks/useOnboarding';
 import useSellTokens from '@/hooks/useSellTokens';
 import { useTokenApprove } from '@/hooks/useERC20Token';
-import { classNames, errorWithReason } from '@/utils';
+import { classNames, errorWithReason, onlyNumbers } from '@/utils';
+import { parseEther } from 'ethers/lib/utils.js';
 import { getErrorMessage } from '@/utils/isError';
 import { Token } from '@/constants/tokens';
 import fiatCurrencies, { Currency } from '@/constants/currency';
@@ -103,13 +104,13 @@ function SellTokens({
   const [debouncedTokenAmount] = useDebounce(tokenAmount, 500);
 
   const {
-    transfer,
+    approve,
     isLoading: isTransferingToken,
     error: transferTokenError,
     isError: isTransferTokenError,
     isSuccess: isTransferTokenSuccess,
     data: transferTokenData,
-    transferPreparation,
+    // approvePreparation,
   } = useTokenApprove({
     amount: debouncedTokenAmount ? debouncedTokenAmount : '0',
     tokenAddress: selectedToken?.contractAddress,
@@ -120,17 +121,18 @@ function SellTokens({
     () =>
       !Boolean(bankInfo) ||
       Boolean(tokenError) ||
-      Boolean(transferPreparation.error) ||
-      Number(tokenAmount) <= 0,
-    [bankInfo, tokenError, transferPreparation.error, tokenAmount]
+      // Boolean(approvePreparation.error) ||
+      Number(tokenAmount) <= 0 ||
+      tokenBalance?.value.lt(parseEther(onlyNumbers(tokenAmount || '0'))), // converts tokenAmount to Wei for it to be compared to tokenBalance(BigNumber)
+    [bankInfo, tokenError, tokenAmount, tokenBalance]
   );
 
-  const transferFunds = useCallback(() => {
-    if (!transfer) return;
+  const approveFunds = useCallback(() => {
+    if (!approve) return;
 
     setIsConfirmModalOpen(true);
-    transfer();
-  }, [transfer]);
+    approve();
+  }, [approve]);
 
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [error, setError] = useState('');
@@ -320,9 +322,9 @@ function SellTokens({
           </div>
         </div>
 
-        {errorWithReason(transferPreparation.error) && (
-          <InlineErrorDisplay show error={transferPreparation.error.reason} />
-        )}
+        {tokenBalance?.value.lt(
+          parseEther(onlyNumbers(tokenAmount || '0'))
+        ) && <InlineErrorDisplay show error="Insufficient funds" />}
 
         <InlineErrorDisplay show={Boolean(error)} error={error} />
         <InlineErrorDisplay show={Boolean(tokenError)} error={tokenError} />
@@ -372,7 +374,7 @@ function SellTokens({
           <button
             type="button"
             disabled={isTransferError}
-            onClick={transferFunds}
+            onClick={approveFunds}
             className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
           >
             Send Crypto
