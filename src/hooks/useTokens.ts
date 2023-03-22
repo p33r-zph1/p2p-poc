@@ -48,7 +48,7 @@ function useTokens({ type }: Props) {
 
   const { format } = useNumericFormat({
     thousandSeparator: ',',
-    decimalScale: 3,
+    decimalScale: 2,
   });
 
   const tokenAmountHandler = useCallback(
@@ -77,8 +77,9 @@ function useTokens({ type }: Props) {
       if (!pairPrice) return;
 
       const tokenConversion = Number(fiatNumberValue) / pairPrice;
-      const withFees = tokenConversion * platformFee.reversePercentage;
-      setTokenAmount(withFees <= 0 ? '' : format(withFees.toString()));
+      setTokenAmount(
+        tokenConversion <= 0 ? '' : format(tokenConversion.toString())
+      );
     },
     [format, pairPrice]
   );

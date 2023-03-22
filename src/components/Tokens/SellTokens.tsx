@@ -295,8 +295,9 @@ function SellTokens({
               className="w-full rounded-full border-brand pl-8 pt-7 pb-3 pr-36 text-lg"
               placeholder="0.00"
               disabled={
-                findingPairStatus === 'findingPair' ||
-                findingPairStatus === 'waitingForEscrow'
+                // findingPairStatus === 'findingPair' ||
+                // findingPairStatus === 'waitingForEscrow'
+                true
               }
               value={fiatAmount}
               onChange={e => {
