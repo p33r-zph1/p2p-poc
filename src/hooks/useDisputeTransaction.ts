@@ -1,3 +1,4 @@
+import { getTransactionsAPIRoute } from '@/lib/env';
 import { useQuery } from '@tanstack/react-query';
 import { Address } from 'wagmi';
 
@@ -25,12 +26,13 @@ export async function disputeTransaction({ disputeTransaction }: Props) {
   if (!referenceId) throw new Error('Reference Id is required');
   if (!walletAddress) throw new Error('Wallet address is required');
 
-  const url = `https://tmbtem7z94.execute-api.ap-southeast-1.amazonaws.com/develop/transaction/${referenceId}/sell/dispute`;
+  const url = `${getTransactionsAPIRoute()}/transaction/${referenceId}/sell/dispute`;
   const response = await fetch(url, {
     method: 'POST',
     headers: {
+      Authorization: `Bearer ${walletAddress}`,
       'Content-Type': 'application/json',
-      walletAddress,
+      walletaddress: walletAddress,
     },
   });
 

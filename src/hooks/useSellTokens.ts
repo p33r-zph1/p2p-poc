@@ -51,7 +51,9 @@ function useSellTokens({ walletAddress, bankInfo }: Props) {
     refetch: fetchEscrow,
     findingPairStatus,
     setFindingPairStatus,
-  } = useEscrow();
+  } = useEscrow({
+    walletAddress,
+  });
 
   const {
     refetch: createTransaction,

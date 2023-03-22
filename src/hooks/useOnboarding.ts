@@ -1,3 +1,4 @@
+import { getOnboardingAPIRoute } from '@/lib/env';
 import { useQuery } from '@tanstack/react-query';
 import { Address } from 'wagmi';
 
@@ -26,8 +27,13 @@ export async function getUser(walletAddress: Address | undefined) {
     throw new Error('Wallet address is required');
   }
 
-  const url = `https://od21v6lbu1.execute-api.ap-southeast-1.amazonaws.com/develop/${walletAddress}`;
-  const response = await fetch(url);
+  const url = `${getOnboardingAPIRoute()}/${walletAddress}`;
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${walletAddress}`,
+      'Content-Type': 'application/json',
+    },
+  });
 
   const getUserResponse = (await response.json()) as OnboardingResponse;
 
@@ -48,12 +54,13 @@ export async function saveUser(
     throw new Error('Bank details and wallet address is required');
   }
 
-  const url = `https://od21v6lbu1.execute-api.ap-southeast-1.amazonaws.com/develop`;
+  const url = getOnboardingAPIRoute();
   const response = await fetch(url, {
     method: 'POST',
     headers: {
+      Authorization: `Bearer ${walletAddress}`,
       'Content-Type': 'application/json',
-      walletAddress,
+      walletaddress: walletAddress,
     },
     body: JSON.stringify(bankInfo),
   });

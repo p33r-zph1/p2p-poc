@@ -1,6 +1,8 @@
 import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
+import Head from 'next/head';
 import { Play } from '@next/font/google';
+import { useMemo } from 'react';
 import { WagmiConfig, createClient, configureChains } from 'wagmi';
 import { publicProvider } from 'wagmi/providers/public';
 import { InjectedConnector } from 'wagmi/connectors/injected';
@@ -8,7 +10,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { classNames } from '@/utils';
 import chainList from '@/constants/chains';
-import Head from 'next/head';
+import { getPrintableEnvName } from '@/constants/build';
 
 /** @see https://wagmi.sh/examples/connect-wallet#step-1-configuring-connectors */
 const { chains, provider, webSocketProvider } = configureChains(chainList, [
@@ -46,10 +48,12 @@ const play = Play({
 });
 
 export default function App({ Component, pageProps }: AppProps) {
+  const appTitle = useMemo(() => `P33R POC ${getPrintableEnvName()}`, []);
+
   return (
     <div className={classNames(play.variable, 'bg-paper font-sans text-body')}>
       <Head>
-        <title>P33R POC</title>
+        <title>{appTitle}</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
         <link rel="shortcut icon" href="/favicon.ico" />
       </Head>

@@ -1,3 +1,4 @@
+import { getTransactionsAPIRoute } from '@/lib/env';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { Address } from 'wagmi';
@@ -11,6 +12,10 @@ interface Escrow {
   copyright: string;
 }
 
+interface Props {
+  walletAddress: Address | undefined;
+}
+
 type FindingPairStatus =
   | 'idle'
   | 'findingPair'
@@ -18,10 +23,14 @@ type FindingPairStatus =
   | 'pairFound'
   | 'pairNotFound';
 
-export async function getEscrow() {
-  const url =
-    'https://tmbtem7z94.execute-api.ap-southeast-1.amazonaws.com/develop/escrow';
-  const response = await fetch(url);
+export async function getEscrow({ walletAddress }: Props) {
+  const url = `${getTransactionsAPIRoute()}/escrow`;
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${walletAddress}`,
+      'Content-Type': 'application/json',
+    },
+  });
   const escrow = (await response.json()) as Escrow;
 
   if (!response.ok || !escrow.data) {
@@ -31,13 +40,13 @@ export async function getEscrow() {
   return escrow.data;
 }
 
-function useEscrow() {
+function useEscrow(props: Props) {
   const [findingPairStatus, setFindingPairStatus] =
     useState<FindingPairStatus>('idle');
 
   const { isFetching, ...rest } = useQuery({
     queryKey: [],
-    queryFn: async () => getEscrow(),
+    queryFn: async () => getEscrow(props),
     onSuccess() {
       // if (props.type === 'BUY') setFindingPairStatus('waitingForEscrow');
       // else setFindingPairStatus('pairFound');

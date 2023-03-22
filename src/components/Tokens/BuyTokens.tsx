@@ -62,6 +62,7 @@ function BuyTokens({
     fiatAmountHandler,
     tokenAmountHandler,
     pairPrice,
+    isLoadingPairPrice,
     computedBalance,
     computedPlatformFee,
     tokens,
@@ -124,12 +125,40 @@ function BuyTokens({
     setIsConfirmModalOpen(true);
   }, [confirmTransaction, imagePreview]);
 
+  // useEffect(() => {
+  //   if (!connected) return;
+
+  //   let currency: Currency | undefined;
+
+  //   if (bankInfo?.bankDetails.countryCode) {
+  //     // refactor me sir!
+  //     if (bankInfo.bankDetails.countryCode.toUpperCase() === 'PH') {
+  //       currency = fiatCurrencies.find(c => c.id === 'php');
+  //     }
+  //     if (bankInfo.bankDetails.countryCode.toUpperCase() === 'SG') {
+  //       currency = fiatCurrencies.find(c => c.id === 'sg');
+  //     }
+  //   }
+
+  //   if (currency) setSelectedFiat(currency);
+  //   else setSelectedFiat(undefined);
+  // }, [bankInfo?.bankDetails.countryCode, connected, setSelectedFiat]);
+
   useEffect(() => {
     setPair({ token: selectedToken, fiat: selectedFiat });
   }, [selectedFiat, selectedToken, setPair]);
 
+  // if (!bankInfo?.bankDetails) {
+  //   return <InlineErrorDisplay show error="Payment details is required." />;
+  // }
+
   if (!selectedToken) {
-    return <InlineErrorDisplay show error="Service currently not available" />;
+    return (
+      <InlineErrorDisplay
+        show
+        error="Service currently not available, please try again later."
+      />
+    );
   }
 
   return (
@@ -159,8 +188,9 @@ function BuyTokens({
                 selected={selectedFiat}
                 currencies={fiatCurrencies}
                 disabled={
-                  findingPairStatus === 'findingPair' ||
-                  findingPairStatus === 'waitingForEscrow'
+                  true
+                  // findingPairStatus === 'findingPair' ||
+                  // findingPairStatus === 'waitingForEscrow'
                 }
                 onChange={fiat => {
                   setSelectedFiat(fiat);
@@ -196,7 +226,7 @@ function BuyTokens({
                   />
                 </div>
                 <span className="text-sm font-semibold text-sleep-100">
-                  {pairPrice ? pairPrice : 'calculating...'}
+                  {isLoadingPairPrice ? 'calculating...' : pairPrice}
                 </span>
                 <span className="text-sm font-semibold text-sleep-200">
                   Conversion rate
@@ -389,7 +419,7 @@ function BuyTokens({
         closeable={!isConfirmingTransaction} // TODO(Dennis): closeable only when success or error
         transferDetails={{
           payAmount: fiatAmount,
-          payCurrency: selectedFiat.symbol,
+          payCurrency: selectedFiat?.symbol || '-',
           receiveAmount: tokenAmount,
           receiveCurrency: selectedToken.symbol,
         }}

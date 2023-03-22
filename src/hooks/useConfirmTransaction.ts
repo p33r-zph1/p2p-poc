@@ -1,3 +1,4 @@
+import { getTransactionsAPIRoute } from '@/lib/env';
 import { useQuery } from '@tanstack/react-query';
 import { Address } from 'wagmi';
 
@@ -39,17 +40,17 @@ interface Props {
 //   if (!referenceId) throw new Error('Reference Id is required');
 //   if (!walletAddress) throw new Error('Wallet address is required');
 
-//   const url = `https://tmbtem7z94.execute-api.ap-southeast-1.amazonaws.com/develop/transaction/${referenceId}/${
-//     type === 'BUY' ? 'sell/receipt' : 'buy/confirm'
-//   }`;
-//   const response = await fetch(url, {
-//     method: 'POST',
-//     headers: {
-//       'Content-Type': 'application/json',
-//       walletAddress,
-//     },
-//     body: JSON.stringify(body),
-//   });
+// const url = `${getTransactionsAPIRoute()}/transaction/${referenceId}/${
+//   type === 'BUY' ? 'sell/receipt' : 'buy/confirm'
+// }`;
+// const response = await fetch(url, {
+//   method: 'POST',
+//   headers: {
+//     'Content-Type': 'application/json',
+//     walletAddress,
+//   },
+//   body: JSON.stringify(body),
+// });
 
 //   const confirmedTransaction = (await response.json()) as TransactionResponse;
 
@@ -69,12 +70,13 @@ export async function confirmTransaction({ type, confirmTransaction }: Props) {
   if (!referenceId) throw new Error('Reference Id is required');
   if (!walletAddress) throw new Error('Wallet address is required');
 
-  const url = `https://tmbtem7z94.execute-api.ap-southeast-1.amazonaws.com/develop/transaction/${referenceId}/sell/confirm`;
+  const url = `${getTransactionsAPIRoute()}/transaction/${referenceId}/sell/confirm`;
   const response = await fetch(url, {
     method: 'POST',
     headers: {
+      Authorization: `Bearer ${walletAddress}`,
       'Content-Type': 'application/json',
-      walletAddress,
+      walletaddress: walletAddress,
     },
   });
 

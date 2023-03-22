@@ -2,9 +2,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNumericFormat } from 'react-number-format';
 import { useBalance, useNetwork } from 'wagmi';
 
-import fiatCurrencies from '@/constants/currency';
+import fiatCurrencies, { Currency } from '@/constants/currency';
 import { fromChain, type Token } from '@/constants/tokens';
-import { maxStableCoinConversion, platformFee } from '@/constants/dapp';
+import { phMaxFiatTransfer, platformFee } from '@/constants/dapp';
 import { onlyNumbers, truncateText } from '@/utils';
 
 import useMountedAccount from './useMountedAccount';
@@ -28,15 +28,18 @@ function useTokens({ type }: Props) {
   const [selectedToken, setSelectedToken] = useState<Token | undefined>(
     fromChain(chain)[0]
   );
-  const [selectedFiat, setSelectedFiat] = useState(fiatCurrencies[0]);
+  const [selectedFiat, setSelectedFiat] = useState<Currency | undefined>(
+    fiatCurrencies[0]
+  );
 
   const [tokenAmount, setTokenAmount] = useState('');
   const [fiatAmount, setFiatAmount] = useState('');
 
-  const { data: pairPrice, isLoading: isLoadingPairPrice } = usePairPrice(
-    selectedToken?.id,
-    selectedFiat.id
-  );
+  const {
+    data: pairPrice,
+    isLoading: isLoadingPairPrice,
+    isError: pairPriceError,
+  } = usePairPrice(selectedToken?.id, selectedFiat?.id);
 
   const { data: tokenBalance, refetch: refetchTokenBalance } = useBalance({
     address,
@@ -85,7 +88,11 @@ function useTokens({ type }: Props) {
   const tokens = useMemo(() => fromChain(chain), [chain]);
 
   const formattedPairPrice = useMemo(() => {
-    if (!pairPrice || !selectedToken || isLoadingPairPrice) return undefined;
+    if (pairPriceError) return 'Price oracle timeout';
+    if (!pairPrice) return 'Conversion not available';
+    if (!selectedToken) return 'No token available';
+    if (!selectedFiat) return 'No fiat available';
+    // if (!isLoadingPairPrice) return undefined;
 
     let price = 0;
     let currency = '-';
@@ -103,14 +110,7 @@ function useTokens({ type }: Props) {
       startPos: 12,
       endingText: currency,
     });
-  }, [
-    pairPrice,
-    selectedToken,
-    isLoadingPairPrice,
-    type,
-    format,
-    selectedFiat.symbol,
-  ]);
+  }, [pairPrice, selectedToken, selectedFiat, pairPriceError, type, format]);
 
   const computedBalance = useMemo(() => {
     if (!tokenBalance || !selectedToken) return undefined;
@@ -154,20 +154,20 @@ function useTokens({ type }: Props) {
     setSelectedToken(tokens[0]);
   }, [setSelectedToken, tokens]);
 
-  // effect for checking errors for the token amount
+  // effect for checking errors for the fiat amount
   useEffect(() => {
-    function checkTokenAmountError() {
-      if (!selectedToken) return;
+    function checkFiatAmountError() {
+      if (!selectedFiat) return;
 
       setError(
-        Number(onlyNumbers(tokenAmount)) >= maxStableCoinConversion
-          ? `Max conversion of 1,000 ${selectedToken.symbol}`
+        Number(onlyNumbers(fiatAmount)) > phMaxFiatTransfer
+          ? `Max conversion of ${phMaxFiatTransfer} ${selectedFiat.symbol}`
           : ''
       );
     }
 
-    checkTokenAmountError();
-  }, [selectedToken, tokenAmount]);
+    checkFiatAmountError();
+  }, [selectedFiat, fiatAmount]);
 
   // effect for recalculating values when the selected token/fiat changed
   useEffect(() => {
@@ -198,6 +198,7 @@ function useTokens({ type }: Props) {
     fiatAmountHandler,
     tokenAmountHandler,
     pairPrice: formattedPairPrice,
+    pairPriceError,
     isLoadingPairPrice,
     tokenBalance,
     computedBalance,

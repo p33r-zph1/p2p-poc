@@ -1,3 +1,4 @@
+import { getTransactionsAPIRoute } from '@/lib/env';
 import { useQuery } from '@tanstack/react-query';
 import { Address } from 'wagmi';
 
@@ -48,15 +49,13 @@ interface Props {
 async function getTransactions({ walletAddress }: Props) {
   if (!walletAddress) throw new Error('Wallet address is required');
 
-  const response = await fetch(
-    'https://tmbtem7z94.execute-api.ap-southeast-1.amazonaws.com/develop/transactions',
-    {
-      headers: {
-        'Content-Type': 'application/json',
-        walletAddress: walletAddress.toString(),
-      },
-    }
-  );
+  const response = await fetch(`${getTransactionsAPIRoute()}/transactions`, {
+    headers: {
+      Authorization: `Bearer ${walletAddress}`,
+      'Content-Type': 'application/json',
+      walletaddress: walletAddress,
+    },
+  });
 
   const data = (await response.json()) as TransactionsResponse;
 
