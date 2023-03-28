@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Address } from 'wagmi';
+
+import useTransactions from '@/hooks/useTransactionList';
 
 import { BankInfo } from './useOnboarding';
 import { ServiceType } from './useTokens';
@@ -78,13 +79,19 @@ export async function createTransaction({ type, createTransaction }: Props) {
 }
 
 function useCreateTransaction(props: Props) {
+  const { refetch } = useTransactions({
+    walletAddress: props?.createTransaction?.walletAddress,
+  });
+
   return useQuery({
     queryKey: [props],
     queryFn: async () => createTransaction(props),
-
     enabled: false,
     retry: false,
     refetchOnWindowFocus: false,
+    onSuccess() {
+      refetch();
+    },
   });
 }
 

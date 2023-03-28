@@ -2,6 +2,8 @@ import { getTransactionsAPIRoute } from '@/lib/env';
 import { useQuery } from '@tanstack/react-query';
 import { Address } from 'wagmi';
 
+import useTransactions from '@/hooks/useTransactionList';
+
 import { ServiceType } from './useTokens';
 
 interface TransactionResponse {
@@ -93,12 +95,19 @@ export async function confirmTransaction({ type, confirmTransaction }: Props) {
 }
 
 function useConfirmTransaction(props: Props) {
+  const { refetch } = useTransactions({
+    walletAddress: props?.confirmTransaction?.walletAddress,
+  });
+
   return useQuery({
     queryKey: [props],
     queryFn: async () => confirmTransaction(props),
     enabled: false,
     retry: false,
     refetchOnWindowFocus: false,
+    onSuccess() {
+      refetch();
+    },
   });
 }
 
