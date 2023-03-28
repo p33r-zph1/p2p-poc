@@ -6,70 +6,27 @@ import { Address } from 'wagmi';
 
 import { BankInfo } from '@/hooks/useOnboarding';
 import { extractQrData, getErrors, parseQrData } from '@/lib/instapay';
-import { bankInfoToArray } from '@/lib/instapay/bank-info';
 
 import { InlineErrorDisplay } from '../shared';
 import ZpkKycModal from './ZpkKycModal';
+import {
+  paymentCountries,
+  PaymentDetails,
+  PaymentField,
+} from '@/constants/payment';
 
 interface Props {
+  setCountryFallback: (paymentDetails: PaymentDetails) => void;
   saveBankInfo(bankInfo: BankInfo): Promise<BankInfo>;
   refectchBankInfo: () => void;
   walletAddress: Address | undefined;
 }
 
-type PaymentField = {
-  label: string;
-  id: string;
-  value: string;
-  options?: string[];
-};
-
-type PaymentDetails = {
-  name: string;
-  countryCode: string;
-  fields: PaymentField[];
-};
-
-const paymentCountries: PaymentDetails[] = [
-  {
-    name: 'Philippines',
-    countryCode: 'ph',
-    fields: [
-      {
-        id: 'bank-name',
-        label: 'Bank Name',
-        options: bankInfoToArray(),
-        value: bankInfoToArray()[0],
-      },
-      {
-        id: 'account-name',
-        label: 'Account Name',
-        value: '',
-      },
-      {
-        id: 'account-number',
-        label: 'Account/Mobile Number (InstaPay)',
-        value: '',
-      },
-    ],
-  },
-  {
-    name: 'Singapore',
-    countryCode: 'sg',
-    fields: [
-      {
-        id: 'mobile-number',
-        label: 'Mobile Number (PayNow)',
-        value: '',
-      },
-    ],
-  },
-];
-
 function AddPaymentDetails({
   saveBankInfo,
   refectchBankInfo,
   walletAddress,
+  setCountryFallback,
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState('');
@@ -241,6 +198,7 @@ function AddPaymentDetails({
 
                   if (!paymentDetails) return;
                   setPaymentDetails(paymentDetails);
+                  setCountryFallback(paymentDetails);
                 }}
                 value={paymentDetails.countryCode}
               >

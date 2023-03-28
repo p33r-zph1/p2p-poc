@@ -26,6 +26,7 @@ interface Props {
   walletAddress: Address | undefined;
   connected: boolean;
   isConnecting: boolean;
+  fallbackFiatCurrency: Currency;
   connectWallet(): void;
   setPair: Dispatch<
     SetStateAction<
@@ -43,6 +44,7 @@ function TokensForm({
   connected,
   connectWallet,
   isConnecting,
+  fallbackFiatCurrency,
   setPair,
 }: Props) {
   return (
@@ -83,6 +85,7 @@ function TokensForm({
             bankInfo={bankInfo}
             connected={connected}
             connectWallet={connectWallet}
+            fallbackFiatCurrency={fallbackFiatCurrency}
             setPair={setPair}
           />
         </Tab.Panel>
@@ -93,6 +96,7 @@ function TokensForm({
             bankInfo={bankInfo}
             connected={connected}
             connectWallet={connectWallet}
+            fallbackFiatCurrency={fallbackFiatCurrency}
             setPair={setPair}
           />
         </Tab.Panel>
