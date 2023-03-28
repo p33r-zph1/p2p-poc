@@ -12,6 +12,7 @@ import useAuth from '@/hooks/useAuth';
 import { saveUser, useGetUser } from '@/hooks/useOnboarding';
 import { Token } from '@/constants/tokens';
 import { Currency } from '@/constants/currency';
+import { paymentCountries } from '@/constants/payment';
 
 const tabs = ['Transactions', 'Market prices'];
 
@@ -30,6 +31,8 @@ function Home() {
       fiat: Currency;
     }>
   >({});
+
+  const [countryFallback, setCountryFallback] = useState(paymentCountries[0]);
 
   const mounted = useIsMounted();
 
@@ -54,6 +57,7 @@ function Home() {
         >
           <div className="col-span-2">
             <TokensForm
+              fallbackFiatCurrency={countryFallback.currency}
               isConnecting={connectProps.isLoading}
               walletAddress={address}
               bankInfo={bankInfo}
@@ -77,6 +81,7 @@ function Home() {
               if (!bankInfo) {
                 return (
                   <AddPaymentDetails
+                    setCountryFallback={setCountryFallback}
                     saveBankInfo={bankInfo => saveUser(address, bankInfo)}
                     refectchBankInfo={refetchBankInfo}
                     walletAddress={address}

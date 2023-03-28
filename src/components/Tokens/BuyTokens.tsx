@@ -32,6 +32,7 @@ interface Props {
   walletAddress: Address | undefined;
   connected: boolean;
   isConnecting: boolean;
+  fallbackFiatCurrency: Currency;
   connectWallet(): void;
   setPair: Dispatch<
     SetStateAction<
@@ -49,6 +50,7 @@ function BuyTokens({
   connected,
   connectWallet,
   isConnecting,
+  fallbackFiatCurrency,
   setPair,
 }: Props) {
   const {
@@ -143,6 +145,12 @@ function BuyTokens({
   //   if (currency) setSelectedFiat(currency);
   //   else setSelectedFiat(undefined);
   // }, [bankInfo?.bankDetails.countryCode, connected, setSelectedFiat]);
+
+  useEffect(() => {
+    if (!bankInfo?.bankDetails) {
+      setSelectedFiat(fallbackFiatCurrency);
+    }
+  }, [bankInfo?.bankDetails, fallbackFiatCurrency, setSelectedFiat]);
 
   useEffect(() => {
     setPair({ token: selectedToken, fiat: selectedFiat });
