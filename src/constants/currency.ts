@@ -5,8 +5,8 @@ export interface Currency {
 }
 
 const fiatCurrencies: Currency[] = [
-  { symbol: 'SGD', id: 'sgd', icon: '/images/logo-icon.svg' },
-  { symbol: 'PHP', id: 'php', icon: '/images/logo-icon.svg' },
+  { symbol: 'SGD', id: 'sgd', icon: '/images/singapore.png' },
+  { symbol: 'PHP', id: 'php', icon: '/images/philippines.png' },
 ];
 
 export default fiatCurrencies;
