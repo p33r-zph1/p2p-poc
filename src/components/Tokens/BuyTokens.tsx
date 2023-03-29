@@ -284,9 +284,11 @@ function BuyTokens({
                 selected={selectedToken}
                 currencies={tokens}
                 disabled={
-                  findingPairStatus === 'findingPair' ||
-                  findingPairStatus === 'waitingForEscrow'
+                  true
+                  // findingPairStatus === 'findingPair' ||
+                  // findingPairStatus === 'waitingForEscrow'
                 }
+                hideChevron={true}
                 onChange={token => {
                   setSelectedToken(token);
                   setFindingPairStatus('idle');

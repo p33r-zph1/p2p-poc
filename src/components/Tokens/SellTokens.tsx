@@ -321,6 +321,7 @@ function SellTokens({
                   // findingPairStatus === 'findingPair' ||
                   // findingPairStatus === 'waitingForEscrow'
                 }
+                hideChevron={true}
                 onChange={fiat => {
                   setSelectedFiat(fiat);
                   setFindingPairStatus('idle');
