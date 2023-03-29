@@ -10,17 +10,17 @@ import type { Chain } from 'wagmi';
 
 import { buildConfig } from './build';
 
-const ethChains = [ethereum, goerli];
+// const ethChains = [ethereum, goerli];
 const bnbChains = [bsc, bscTestnet];
 // const maticChains = [polygon, polygonMumbai];
 
-const mainnetChains = [ethereum, bsc /* polygon */];
-const testnetChains = [goerli, bscTestnet /* polygonMumbai */];
+const mainnetChains = [/* ethereum */ bsc /* polygon */];
+const testnetChains = [/* goerli */ bscTestnet /* polygonMumbai */];
 
 export function getCustomChainId(chain: Chain | undefined) {
   if (!chain) return undefined;
 
-  if (ethChains.some(c => c.id === chain.id)) return 'eth';
+  // if (ethChains.some(c => c.id === chain.id)) return 'eth';
   if (bnbChains.some(c => c.id === chain.id)) return 'bnb';
   // if (maticChains.some(c => c.id === chain.id)) return 'matic';
 
