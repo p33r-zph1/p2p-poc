@@ -450,7 +450,7 @@ function SellTokens({
         error={
           errorWithReason(transferTokenError)
             ? transferTokenError.reason
-            : 'Tranasaction failed with unknown error'
+            : 'Transaction failed with unknown error'
         }
         isTransfering={isCreatingTransaction}
         transferSuccessful={createTransactionSuccess}
