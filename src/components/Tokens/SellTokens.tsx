@@ -168,11 +168,11 @@ function SellTokens({
 
     if (bankInfo?.bankDetails.countryCode) {
       // refactor me sir!
-      if (bankInfo.bankDetails.countryCode.toUpperCase() === 'PH') {
+      if (bankInfo.bankDetails.countryCode.toLowerCase() === 'ph') {
         currency = fiatCurrencies.find(c => c.id === 'php');
       }
-      if (bankInfo.bankDetails.countryCode.toUpperCase() === 'SG') {
-        currency = fiatCurrencies.find(c => c.id === 'sg');
+      if (bankInfo.bankDetails.countryCode.toLowerCase() === 'sg') {
+        currency = fiatCurrencies.find(c => c.id === 'sgd');
       }
     }
 
