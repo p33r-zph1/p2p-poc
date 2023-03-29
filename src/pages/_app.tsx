@@ -57,6 +57,13 @@ export default function App({ Component, pageProps }: AppProps) {
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
         <link rel="shortcut icon" href="/favicon.ico" />
       </Head>
+
+      <style jsx global>{`
+        :root {
+          --font-play: ${play.style.fontFamily};
+        }
+      `}</style>
+
       <QueryClientProvider client={queryClient}>
         <WagmiConfig client={wagmiClient}>
           <Component {...pageProps} />
