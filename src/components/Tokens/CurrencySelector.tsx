@@ -11,6 +11,7 @@ interface Props<T> {
   selected: T | undefined;
   disabled?: boolean;
   onChange: (currency: T) => void;
+  hideChevron?: boolean;
 }
 
 function CurrencySelector<T extends Currency>({
@@ -18,6 +19,7 @@ function CurrencySelector<T extends Currency>({
   selected,
   disabled,
   onChange,
+  hideChevron = false,
 }: Props<T>) {
   if (currencies.length === 0 || !selected) {
     return <p className="px-5 text-sleep-100">N/A</p>;
@@ -41,7 +43,11 @@ function CurrencySelector<T extends Currency>({
             />
           )}
           <span className="text-xs lg:text-sm">{selected.symbol}</span>
-          <ChevronDownIcon className="ml-2 -mr-1 h-5 w-5 text-sleep-100 hover:text-sleep-200" />
+          {hideChevron ? (
+            <span className="mr-8" />
+          ) : (
+            <ChevronDownIcon className="ml-2 -mr-1 h-5 w-5 text-sleep-100 hover:text-sleep-200" />
+          )}
         </Listbox.Button>
 
         <Transition

@@ -56,7 +56,7 @@ function Transactions({ walletAddress }: Props) {
 
       <div className="rounded-xl bg-white">
         {isSuccess && !data.length && (
-          <p className="text-center text-sleep-300">No transactions</p>
+          <p className="p-[50px] text-center text-sleep-300">No transactions</p>
         )}
 
         {data.length > 0 && (
