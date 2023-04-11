@@ -14,8 +14,8 @@ import { buildConfig } from './build';
 const bnbChains = [bsc, bscTestnet];
 // const maticChains = [polygon, polygonMumbai];
 
-const mainnetChains = [/* ethereum */ bsc /* polygon */];
-const testnetChains = [/* goerli */ bscTestnet /* polygonMumbai */];
+const mainnetChains: Chain[] = [/* ethereum */ bsc /* polygon */];
+const testnetChains: Chain[] = [/* goerli */ bscTestnet /* polygonMumbai */];
 
 export function getCustomChainId(chain: Chain | undefined) {
   if (!chain) return undefined;
