@@ -18,8 +18,8 @@ interface Props {
   transferDetails: {
     payCurrency: string;
     payAmount: string;
-    receiveCurrency: string;
-    receiveAmount: string;
+    receiveCurrency: string | undefined;
+    receiveAmount: string | undefined;
   };
   confirmReceipt: () => void;
   disputeTransaction: () => void;
@@ -95,10 +95,10 @@ function ConfirmationModal({
                     'mt-2 text-center text-sm text-sleep-100'
                   )}
                 >
-                  Please confirm receipt of FIAT payment {receiveAmount}{' '}
-                  {receiveCurrency} within the next 10 minutes, otherwise this
-                  transaction will be cancelled and your crypto payment will be
-                  refunded to your wallet.
+                  Please confirm receipt of FIAT payment {receiveAmount || '-'}{' '}
+                  {receiveCurrency || '-'} within the next 10 minutes, otherwise
+                  this transaction will be cancelled and your crypto payment
+                  will be refunded to your wallet.
                 </Dialog.Description>
               ) : (
                 <Dialog.Description
@@ -107,8 +107,10 @@ function ConfirmationModal({
                     'mt-2 text-center text-sm text-sleep-100'
                   )}
                 >
-                  Paying {payAmount} {payCurrency} for {receiveAmount}{' '}
-                  {receiveCurrency}
+                  Paying {payAmount} {payCurrency}{' '}
+                  {Boolean(receiveAmount) &&
+                    Boolean(receiveCurrency) &&
+                    `for ${receiveAmount} ${receiveCurrency}`}
                   <br /> Confirm this transaction in your wallet
                 </Dialog.Description>
               )}

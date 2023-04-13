@@ -14,6 +14,7 @@ interface Payment {
 
 interface Order {
   currency: string;
+  amount: number;
 }
 
 export interface Transaction {
@@ -23,6 +24,17 @@ export interface Transaction {
 
 interface Data {
   referenceId: string;
+  created: number;
+  onChainStatus: string;
+  offChainStatus: string;
+  payment: Order;
+  order: Order;
+  transactionStatus: string;
+  type: string;
+  chain: string;
+  walletAddress: string;
+  depositTransactionHash: string;
+  txHash: string;
 }
 
 interface TransactionResponse {
