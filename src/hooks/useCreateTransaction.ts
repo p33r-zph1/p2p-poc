@@ -19,7 +19,7 @@ interface Order {
 
 export interface Transaction {
   payment: Payment;
-  order: Order;
+  order: Omit<Order, 'amount'>;
 }
 
 interface Data {
