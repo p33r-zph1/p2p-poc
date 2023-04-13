@@ -84,9 +84,18 @@ function ConfirmationModal({
               </div>
 
               <Dialog.Title className="mt-10 text-center font-sans text-xl font-semibold md:text-2xl">
-                {transferSuccessful
-                  ? "Crypto successfully sent to P33R's secure escrow account!"
-                  : 'Waiting For Confirmation'}
+                {transferSuccessful ? (
+                  <>
+                    <span className="text-sm font-bold">
+                      (Please do not refresh the browser to avoid issues)
+                    </span>
+                    <br />
+                    Crypto successfully sent to P33R&apos; secure escrow
+                    account!
+                  </>
+                ) : (
+                  'Waiting For Confirmation'
+                )}
               </Dialog.Title>
               {transferSuccessful ? (
                 <Dialog.Description
