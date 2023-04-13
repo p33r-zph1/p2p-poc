@@ -82,20 +82,10 @@ function ConfirmationModal({
                   ellipseFill={transferSuccessful ? '#67C96C' : '#FD8B4B'}
                 />
               </div>
-
               <Dialog.Title className="mt-10 text-center font-sans text-xl font-semibold md:text-2xl">
-                {transferSuccessful ? (
-                  <>
-                    <span className="text-sm font-bold">
-                      (Please do not refresh the browser to avoid issues)
-                    </span>
-                    <br />
-                    Crypto successfully sent to P33R&apos; secure escrow
-                    account!
-                  </>
-                ) : (
-                  'Waiting For Confirmation'
-                )}
+                {transferSuccessful
+                  ? "Crypto successfully sent to P33R's secure escrow account"
+                  : 'Waiting For Confirmation'}
               </Dialog.Title>
               {transferSuccessful ? (
                 <Dialog.Description
@@ -123,7 +113,6 @@ function ConfirmationModal({
                   <br /> Confirm this transaction in your wallet
                 </Dialog.Description>
               )}
-
               {isConfirmingOrDisputing ? (
                 <Dialog.Description
                   className={
@@ -135,13 +124,20 @@ function ConfirmationModal({
               ) : (
                 <>
                   {transferSuccessful && (
-                    <button
-                      type="submit"
-                      className="mt-8 w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
-                      onClick={confirmReceipt}
-                    >
-                      Confirm receipt
-                    </button>
+                    <>
+                      <div className="mt-4 text-center text-sm font-bold text-red-500">
+                        Warning: Please do not close or refresh the browser
+                        doing so might lead to loss of funds
+                      </div>
+
+                      <button
+                        type="submit"
+                        className="mt-8 w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
+                        onClick={confirmReceipt}
+                      >
+                        Confirm receipt
+                      </button>
+                    </>
                   )}
 
                   {(transferSuccessful || isError) && (
@@ -154,7 +150,6 @@ function ConfirmationModal({
                   )}
                 </>
               )}
-
               <InlineErrorDisplay show={isError} error={error} />
             </div>
           </Dialog.Panel>
