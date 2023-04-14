@@ -15,6 +15,7 @@ const BOPIPHMMXXX: BankInfo = [
 ];
 
 const BANK_INFO: Record<string, BankInfo> = {
+  BNORPHMMXXX,
   PAPHPHM1XXX,
   UBPHPHMMXXX,
   BOPIPHMMXXX,
