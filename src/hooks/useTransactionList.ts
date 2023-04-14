@@ -9,6 +9,7 @@ interface Payment {
 
 interface Order {
   currency: string;
+  amount: number;
 }
 
 export interface ITransaction {

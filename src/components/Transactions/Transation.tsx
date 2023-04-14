@@ -120,7 +120,7 @@ function Transation({ transaction, lastItem = true }: Props) {
             <Disclosure.Button className="flex w-full justify-between px-4 py-2 text-left text-sm focus:outline-none focus-visible:ring focus-visible:ring-brand focus-visible:ring-opacity-75">
               <div className="space-y-2">
                 <p className="text-xs font-semibold sm:text-sm md:text-lg">
-                  {payment.amount} {payment.currency}
+                  {`${payment.amount} ${payment.currency} = ${order.amount} ${order.currency}`}
                 </p>
                 <p className="flex items-center space-x-2 text-sleep-100">
                   <span>{type === 'buy' ? 'Buy crypto' : 'Sell crypto'}</span>
@@ -164,16 +164,17 @@ function Transation({ transaction, lastItem = true }: Props) {
 
               <Disclosure.Panel className="p-1 text-gray-500">
                 Off chain status: {offChainStatus}
-                {` <> `}
+              </Disclosure.Panel>
+
+              <Disclosure.Panel className="p-1 text-gray-500">
                 On chain status: {onChainStatus}
               </Disclosure.Panel>
 
               {updated && (
                 <Disclosure.Panel className="p-1 text-gray-500">
-                  Uppated: {new Date(updated).toLocaleString('en')}
+                  Updated: {new Date(updated).toLocaleString('en')}
                 </Disclosure.Panel>
               )}
-
               {confirmed && (
                 <Disclosure.Panel className="p-1 text-gray-500">
                   Confirmed: {new Date(confirmed).toLocaleString('en')}
