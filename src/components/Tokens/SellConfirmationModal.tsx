@@ -127,7 +127,9 @@ function ConfirmationModal({
                     <>
                       <div className="mt-4 text-center text-sm font-bold text-red-500">
                         Warning: Please do not close or refresh the browser
-                        doing so might lead to loss of funds
+                        doing so might lead to loss of funds. Make sure you have
+                        received the funds before clicking the &quot;I have
+                        received the payment&quot; button.
                       </div>
 
                       <button
@@ -135,7 +137,7 @@ function ConfirmationModal({
                         className="mt-8 w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
                         onClick={confirmReceipt}
                       >
-                        Confirm receipt
+                        I have received the payment
                       </button>
                     </>
                   )}
