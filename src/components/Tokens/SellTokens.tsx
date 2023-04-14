@@ -443,8 +443,12 @@ function SellTokens({
         transferDetails={{
           payAmount: tokenAmount,
           payCurrency: selectedToken.symbol,
-          receiveAmount: fiatAmount,
-          receiveCurrency: selectedFiat?.symbol || '-',
+          receiveAmount: createTransactionSuccess
+            ? createTransactionData?.order?.amount.toString() || 'N/A'
+            : undefined,
+          receiveCurrency: createTransactionSuccess
+            ? createTransactionData?.order?.currency.toString() || 'N/A'
+            : undefined,
         }}
         isError={isTransferTokenError}
         error={

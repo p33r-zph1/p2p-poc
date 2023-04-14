@@ -18,8 +18,8 @@ interface Props {
   transferDetails: {
     payCurrency: string;
     payAmount: string;
-    receiveCurrency: string;
-    receiveAmount: string;
+    receiveCurrency: string | undefined;
+    receiveAmount: string | undefined;
   };
   confirmReceipt: () => void;
   disputeTransaction: () => void;
@@ -82,10 +82,9 @@ function ConfirmationModal({
                   ellipseFill={transferSuccessful ? '#67C96C' : '#FD8B4B'}
                 />
               </div>
-
               <Dialog.Title className="mt-10 text-center font-sans text-xl font-semibold md:text-2xl">
                 {transferSuccessful
-                  ? "Crypto successfully sent to P33R's secure escrow account!"
+                  ? "Crypto successfully sent to P33R's secure escrow account"
                   : 'Waiting For Confirmation'}
               </Dialog.Title>
               {transferSuccessful ? (
@@ -95,10 +94,10 @@ function ConfirmationModal({
                     'mt-2 text-center text-sm text-sleep-100'
                   )}
                 >
-                  Please confirm receipt of FIAT payment {receiveAmount}{' '}
-                  {receiveCurrency} within the next 10 minutes, otherwise this
-                  transaction will be cancelled and your crypto payment will be
-                  refunded to your wallet.
+                  Please confirm receipt of FIAT payment {receiveAmount || '-'}{' '}
+                  {receiveCurrency || '-'} within the next 10 minutes, otherwise
+                  this transaction will be cancelled and your crypto payment
+                  will be refunded to your wallet.
                 </Dialog.Description>
               ) : (
                 <Dialog.Description
@@ -107,12 +106,13 @@ function ConfirmationModal({
                     'mt-2 text-center text-sm text-sleep-100'
                   )}
                 >
-                  Paying {payAmount} {payCurrency} for {receiveAmount}{' '}
-                  {receiveCurrency}
+                  Paying {payAmount} {payCurrency}{' '}
+                  {Boolean(receiveAmount) &&
+                    Boolean(receiveCurrency) &&
+                    `for ${receiveAmount} ${receiveCurrency}`}
                   <br /> Confirm this transaction in your wallet
                 </Dialog.Description>
               )}
-
               {isConfirmingOrDisputing ? (
                 <Dialog.Description
                   className={
@@ -124,13 +124,20 @@ function ConfirmationModal({
               ) : (
                 <>
                   {transferSuccessful && (
-                    <button
-                      type="submit"
-                      className="mt-8 w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
-                      onClick={confirmReceipt}
-                    >
-                      Confirm receipt
-                    </button>
+                    <>
+                      <div className="mt-4 text-center text-sm font-bold text-red-500">
+                        Warning: Please do not close or refresh the browser
+                        doing so might lead to loss of funds
+                      </div>
+
+                      <button
+                        type="submit"
+                        className="mt-8 w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
+                        onClick={confirmReceipt}
+                      >
+                        Confirm receipt
+                      </button>
+                    </>
                   )}
 
                   {(transferSuccessful || isError) && (
@@ -143,7 +150,6 @@ function ConfirmationModal({
                   )}
                 </>
               )}
-
               <InlineErrorDisplay show={isError} error={error} />
             </div>
           </Dialog.Panel>
