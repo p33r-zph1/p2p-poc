@@ -84,7 +84,7 @@ function ConfirmationModal({
               </div>
               <Dialog.Title className="mt-10 text-center font-sans text-xl font-semibold md:text-2xl">
                 {transferSuccessful
-                  ? "Crypto successfully sent to P33R's secure escrow account"
+                  ? 'Crypto successfully secured in Escrow Smart Contract'
                   : 'Waiting For Confirmation'}
               </Dialog.Title>
               {transferSuccessful ? (
@@ -94,10 +94,10 @@ function ConfirmationModal({
                     'mt-2 text-center text-sm text-sleep-100'
                   )}
                 >
-                  Please confirm receipt of FIAT payment {receiveAmount || '-'}{' '}
-                  {receiveCurrency || '-'} within the next 10 minutes, otherwise
-                  this transaction will be cancelled and your crypto payment
-                  will be refunded to your wallet.
+                  Buyer has 10mins to send FIAT payment of{' '}
+                  {receiveAmount || '-'} {receiveCurrency || '-'} or this
+                  transaction will be automatically cancelled and your crypto
+                  will be returned to your wallet.
                 </Dialog.Description>
               ) : (
                 <Dialog.Description
@@ -142,14 +142,14 @@ function ConfirmationModal({
                     </>
                   )}
 
-                  {(transferSuccessful || isError) && (
+                  {/* {(transferSuccessful || isError) && (
                     <button
                       className="mt-2 w-full text-sm text-sleep-100"
                       onClick={disputeTransaction}
                     >
                       Dispute transaction
                     </button>
-                  )}
+                  )} */}
                 </>
               )}
               <InlineErrorDisplay show={isError} error={error} />
