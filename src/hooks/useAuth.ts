@@ -1,10 +1,12 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { isMobile } from 'react-device-detect';
 import { useConnect, useDisconnect } from 'wagmi';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 
 import { getAppDomainName } from '@/constants/build';
 import chains from '@/constants/chains';
+
+import useMountedAccount from './useMountedAccount';
 
 function useAuth() {
   const { connect, ...connectProps } = useConnect({
@@ -16,6 +18,10 @@ function useAuth() {
     }),
   });
   const { disconnect, ...disconnectProps } = useDisconnect();
+
+  const { isConnected, address } = useMountedAccount();
+
+  const [hasError, setHasError] = useState<string | undefined>();
 
   const connectWallet = useCallback(() => {
     if (typeof window.ethereum === 'undefined') {
@@ -35,11 +41,20 @@ function useAuth() {
     connect();
   }, [connect]);
 
+  useEffect(() => {
+    // clear the auth error state when address changes
+    setHasError(undefined);
+  }, [address]);
+
   return {
     connect: connectWallet,
     disconnect,
     connectProps,
     disconnectProps,
+    isConnected,
+    address,
+    hasError,
+    setHasError,
   };
 }
 

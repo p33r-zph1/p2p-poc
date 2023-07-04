@@ -18,7 +18,7 @@ function SuccessfulTransactionModal({ close, isOpen, transaction }: Props) {
     // TODO(Denis): add functionality for this
     setTimeout(() => {
       close();
-    }, 1000);
+    }, 2500);
   };
 
   return (

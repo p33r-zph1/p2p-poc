@@ -3,12 +3,14 @@ import { Address } from 'wagmi';
 
 import Transactions from './Transactions';
 import useTransactions from '@/hooks/useTransactionList';
+import { Dispatch, SetStateAction } from 'react';
 
 interface Props {
   walletAddress: Address | undefined;
+  setHasError: Dispatch<SetStateAction<string | undefined>>;
 }
 
-function RecentTransactions({ walletAddress }: Props) {
+function RecentTransactions({ walletAddress, setHasError }: Props) {
   const { data, isFetching } = useTransactions({ walletAddress });
 
   return (
@@ -32,7 +34,7 @@ function RecentTransactions({ walletAddress }: Props) {
         </div>
       </div>
 
-      <Transactions walletAddress={walletAddress} />
+      <Transactions walletAddress={walletAddress} setHasError={setHasError} />
     </div>
   );
 }
