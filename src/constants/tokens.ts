@@ -5,8 +5,8 @@ import {
   goerli,
   bsc,
   bscTestnet,
-  // polygon,
-  // polygonMumbai,
+  polygon,
+  polygonMumbai,
 } from 'wagmi/chains';
 
 export type Token = {
@@ -117,34 +117,53 @@ export const bscTestTokens: Tokens = {
   ],
 };
 
-// export const polygonTokens: Tokens = {
-//   chainId: polygon.id,
-//   tokens: [
-//     {
-//       contractAddress: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f',
-//       symbol: 'USDT',
-//       icon: '/images/usdt.svg',
-//       id: 'tether',
-//     },
-//     {
-//       contractAddress: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
-//       symbol: 'USDC',
-//       icon: '/images/usdc.svg',
-//       id: 'usd-coin',
-//     },
-//     {
-//       contractAddress: '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063',
-//       symbol: 'DAI',
-//       icon: '/images/dai.svg',
-//       id: 'dai',
-//     },
-//   ],
-// };
+export const polygonTokens: Tokens = {
+  chainId: polygon.id,
+  tokens: [
+    {
+      contractAddress: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f',
+      symbol: 'USDT',
+      icon: '/images/usdt.svg',
+      id: 'tether',
+    },
+    {
+      contractAddress: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+      symbol: 'USDC',
+      icon: '/images/usdc.svg',
+      id: 'usd-coin',
+    },
+    {
+      contractAddress: '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063',
+      symbol: 'DAI',
+      icon: '/images/dai.svg',
+      id: 'dai',
+    },
+  ],
+};
 
-// export const mumbaiTokens: Tokens = {
-//   chainId: polygonMumbai.id,
-//   tokens: [],
-// };
+export const mumbaiTokens: Tokens = {
+  chainId: polygonMumbai.id,
+  tokens: [
+    {
+      contractAddress: '0x61F21D573cF45Bfe701a4708D7Ac97516dcAf9c1',
+      symbol: 'USDT',
+      icon: '/images/usdt.svg',
+      id: 'tether',
+    },
+    {
+      contractAddress: '0x4C339e04F85DA4a4CE55Ce74e96AA3A4B49c7B62',
+      symbol: 'USDC',
+      icon: '/images/usdc.svg',
+      id: 'usd-coin',
+    },
+    {
+      contractAddress: '0x99D572B6B04ae564A9a61239A6dc744A573FFb4D',
+      symbol: 'DAI',
+      icon: '/images/dai.svg',
+      id: 'dai',
+    },
+  ],
+};
 
 // default/fallback tokens with undefined contract address
 export const fallbackTokens: Tokens = {
@@ -172,14 +191,21 @@ export const fallbackTokens: Tokens = {
 };
 
 export function fromChain(chain: Chain | undefined): Token[] {
+  console.log('checking for token and chain');
+  console.log({
+    chain,
+    mumbaiTokens: mumbaiTokens.tokens,
+    polygonTokens: polygonTokens.tokens,
+  });
+
   if (!chain) return fallbackTokens.tokens;
 
   if (chain.id === ethereumTokens.chainId) return ethereumTokens.tokens;
   if (chain.id === goerliTokens.chainId) return goerliTokens.tokens;
   if (chain.id === bscTokens.chainId) return bscTokens.tokens;
   if (chain.id === bscTestTokens.chainId) return bscTestTokens.tokens;
-  // if (chain.id === polygonTokens.chainId) return polygonTokens.tokens;
-  // if (chain.id === mumbaiTokens.chainId) return mumbaiTokens.tokens;
+  if (chain.id === polygonTokens.chainId) return polygonTokens.tokens;
+  if (chain.id === mumbaiTokens.chainId) return mumbaiTokens.tokens;
 
   return fallbackTokens.tokens;
 }
