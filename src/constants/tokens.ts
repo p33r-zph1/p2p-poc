@@ -8,6 +8,7 @@ import {
   polygon,
   polygonMumbai,
 } from 'wagmi/chains';
+import { xrplSidechain } from './custom-chains';
 
 export type Token = {
   contractAddress: Address | undefined; // explicitly specify type
@@ -165,6 +166,30 @@ export const mumbaiTokens: Tokens = {
   ],
 };
 
+export const xrplSidechainTokens: Tokens = {
+  chainId: xrplSidechain.id,
+  tokens: [
+    {
+      contractAddress: '0x3d68b51cc19B279A24d280e69C8A60Ee0E0Dfd74',
+      symbol: 'USDT',
+      icon: '/images/usdt.svg',
+      id: 'tether',
+    },
+    {
+      contractAddress: '0xb248c0Bc1C0781A882bEc20Ef36757864119F4c1',
+      symbol: 'USDC',
+      icon: '/images/usdc.svg',
+      id: 'usd-coin',
+    },
+    {
+      contractAddress: '0xD17882595618F3C652fC6B7E368f7324719b3838',
+      symbol: 'DAI',
+      icon: '/images/dai.svg',
+      id: 'dai',
+    },
+  ],
+};
+
 // default/fallback tokens with undefined contract address
 export const fallbackTokens: Tokens = {
   chainId: -1,
@@ -191,12 +216,12 @@ export const fallbackTokens: Tokens = {
 };
 
 export function fromChain(chain: Chain | undefined): Token[] {
-  console.log('checking for token and chain');
-  console.log({
-    chain,
-    mumbaiTokens: mumbaiTokens.tokens,
-    polygonTokens: polygonTokens.tokens,
-  });
+  // console.log('checking for token and chain');
+  // console.log({
+  //   chain,
+  //   mumbaiTokens: mumbaiTokens.tokens,
+  //   polygonTokens: polygonTokens.tokens,
+  // });
 
   if (!chain) return fallbackTokens.tokens;
 
@@ -206,6 +231,8 @@ export function fromChain(chain: Chain | undefined): Token[] {
   if (chain.id === bscTestTokens.chainId) return bscTestTokens.tokens;
   if (chain.id === polygonTokens.chainId) return polygonTokens.tokens;
   if (chain.id === mumbaiTokens.chainId) return mumbaiTokens.tokens;
+  if (chain.id === xrplSidechainTokens.chainId)
+    return xrplSidechainTokens.tokens;
 
   return fallbackTokens.tokens;
 }

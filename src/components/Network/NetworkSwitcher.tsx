@@ -10,6 +10,7 @@ const networksImages = [
   // { ids: [1, 5], icon: '/images/ethereum.svg' },
   { ids: [137, 80001], icon: '/images/polygon.svg' },
   { ids: [56, 97], icon: '/images/bnb.svg' },
+  { ids: [1440002], icon: '/images/xrpl.svg' },
 ];
 
 function NetworkSwitcher() {
