@@ -53,6 +53,7 @@ function useSellTokens({ walletAddress, bankInfo }: Props) {
     setFindingPairStatus,
   } = useEscrow({
     walletAddress,
+    customChainId: getCustomChainId(chain),
   });
 
   const {
