@@ -126,31 +126,41 @@ function AddPaymentDetails({
 
       if (!valid) return;
 
-      if (paymentDetails.countryCode === 'sg') {
-        setBankInfo({
-          bankDetails: {
-            countryCode: paymentDetails.countryCode,
-            mobileNumber: paymentDetails.fields[0]?.value,
-          },
-        });
-        setIsOpen(true);
-        return;
-      }
+      setBankInfo({
+        bankDetails: {
+          countryCode: paymentDetails.countryCode,
+          bankName: paymentDetails.fields[0]?.value,
+          accountName: paymentDetails.fields[1]?.value,
+          accountNumber: paymentDetails.fields[2]?.value,
+        },
+      });
+      setIsOpen(true);
 
-      if (paymentDetails.countryCode === 'ph') {
-        setBankInfo({
-          bankDetails: {
-            countryCode: paymentDetails.countryCode,
-            bankName: paymentDetails.fields[0]?.value,
-            accountName: paymentDetails.fields[1]?.value,
-            accountNumber: paymentDetails.fields[2]?.value,
-          },
-        });
-        setIsOpen(true);
-        return;
-      }
+      // if (paymentDetails.countryCode === 'sg') {
+      //   setBankInfo({
+      //     bankDetails: {
+      //       countryCode: paymentDetails.countryCode,
+      //       mobileNumber: paymentDetails.fields[0]?.value,
+      //     },
+      //   });
+      //   setIsOpen(true);
+      //   return;
+      // }
 
-      setError('Unhandled country was proccessed');
+      // if (paymentDetails.countryCode === 'ph') {
+      //   setBankInfo({
+      //     bankDetails: {
+      //       countryCode: paymentDetails.countryCode,
+      //       bankName: paymentDetails.fields[0]?.value,
+      //       accountName: paymentDetails.fields[1]?.value,
+      //       accountNumber: paymentDetails.fields[2]?.value,
+      //     },
+      //   });
+      //   setIsOpen(true);
+      //   return;
+      // }
+
+      // setError('Unhandled country was proccessed');
     },
     [paymentDetails.countryCode, paymentDetails.fields]
   );
