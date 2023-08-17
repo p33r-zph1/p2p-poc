@@ -89,18 +89,18 @@ function SellTokens({
     isCreatingTransaction,
 
     // useConfirmTransaction
-    confirmTransaction,
-    confirmTransactionData,
-    confirmTransactionSuccess,
-    confirmTransactionError,
-    isConfirmingTransaction,
+    // confirmTransaction,
+    // confirmTransactionData,
+    // confirmTransactionSuccess,
+    // confirmTransactionError,
+    // isConfirmingTransaction,
 
     // useDisputeTransaction
-    disputeTransaction,
-    disputeTransactionData,
-    disputeTransactionSuccess,
-    disputeTransactionError,
-    isDisputingTransaction,
+    // disputeTransaction,
+    // disputeTransactionData,
+    // disputeTransactionSuccess,
+    // disputeTransactionError,
+    // isDisputingTransaction,
   } = useSellTokens({ walletAddress, bankInfo });
 
   const [debouncedTokenAmount] = useDebounce(tokenAmount, 500);
@@ -188,6 +188,25 @@ function SellTokens({
   useEffect(() => {
     setPair({ token: selectedToken, fiat: selectedFiat });
   }, [selectedFiat, selectedToken, setPair]);
+
+  // remove this useEffect below if you want to show the confirm receipt modal
+  useEffect(() => {
+    if (
+      createTransactionSuccess ||
+      createTransactionError ||
+      isTransferTokenError
+    ) {
+      setFindingPairStatus('idle');
+      tokenAmountHandler('');
+      setIsConfirmModalOpen(false);
+    }
+  }, [
+    createTransactionSuccess,
+    createTransactionError,
+    isTransferTokenError,
+    setFindingPairStatus,
+    tokenAmountHandler,
+  ]);
 
   // if (!bankInfo?.bankDetails) {
   //   return <InlineErrorDisplay show error="Payment details is required." />;
@@ -341,10 +360,10 @@ function SellTokens({
           show={Boolean(createTransactionError)}
           error={getErrorMessage(createTransactionError)}
         />
-        <InlineErrorDisplay
+        {/* <InlineErrorDisplay
           show={Boolean(confirmTransactionError)}
           error={getErrorMessage(confirmTransactionError)}
-        />
+        /> */}
 
         {connected && findingPairStatus !== 'idle' && (
           <div className="flex flex-col items-center justify-center">
@@ -457,23 +476,27 @@ function SellTokens({
             : 'Transaction failed with unknown error'
         }
         isTransfering={isCreatingTransaction}
-        transferSuccessful={createTransactionSuccess}
+        // transferSuccessful={createTransactionSuccess}
+        transferSuccessful={false} // don't show confirm receipt modal step
         confirmReceipt={async () => {
           // always happy path - needs refactor
-          await confirmTransaction();
-          setFindingPairStatus('idle');
-          tokenAmountHandler('');
-          setIsConfirmModalOpen(false);
+          // ignore below for now
+          // await confirmTransaction();
+          // setFindingPairStatus('idle');
+          // tokenAmountHandler('');
+          // setIsConfirmModalOpen(false);
         }}
         disputeTransaction={async () => {
+          // ignore for now
           // always happy path - needs refactor
-          await disputeTransaction();
-          setFindingPairStatus('idle');
-          tokenAmountHandler('');
-          setIsConfirmModalOpen(false);
+          // await disputeTransaction();
+          // setFindingPairStatus('idle');
+          // tokenAmountHandler('');
+          // setIsConfirmModalOpen(false);
         }}
         isConfirmingOrDisputing={
-          isConfirmingTransaction || isDisputingTransaction
+          // isConfirmingTransaction || isDisputingTransaction
+          false
         }
       />
     </>
