@@ -33,9 +33,6 @@ function PairPriceMatrix({ token, fiat }: Props) {
       </h3>
 
       <div className="mt-3 bg-white">
-        {/* <p className="text-lg font-bold">$1,350 (-2,1%)</p> */}
-        {/* <p className="text-sm text-sleep-100">Nov 28, 2022, 10:47 AM</p> */}
-
         <Tab.Group>
           <Tab.List className="my-5 flex space-x-1 rounded-xl bg-gray-100 p-1">
             {tabs.map(tab => (
@@ -59,13 +56,9 @@ function PairPriceMatrix({ token, fiat }: Props) {
 
           <hr />
 
-          <Tab.Panels className="mt-2">
-            {tabs.map(tab => (
-              <Tab.Panel key={tab.label} className="h-[600px]">
-                <MarketChart coinId={token.id} currency={fiat.id} days={days} />
-              </Tab.Panel>
-            ))}
-          </Tab.Panels>
+          <div className="mt-2 h-[600px]">
+            <MarketChart coinId={token.id} currency={fiat.id} days={days} />
+          </div>
         </Tab.Group>
       </div>
     </div>
