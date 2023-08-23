@@ -60,13 +60,13 @@ function TransactionsPage() {
                     </h1>
 
                     <div className="my-3">
-                      {isFetching ? (
+                      {/* {isFetching ? (
                         <div className="h-2.5 w-12 animate-pulse rounded-full bg-gray-300"></div>
-                      ) : (
+                      ) : ( */}
                         <p className="text-sm text-sleep-100">
                           {data?.length} results
                         </p>
-                      )}
+                      {/* )} */}
                     </div>
 
                     <div className="my-5">

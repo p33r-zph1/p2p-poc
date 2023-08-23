@@ -50,7 +50,7 @@ function Transactions({ walletAddress, setHasError }: Props) {
 
   return (
     <>
-      <Transition
+      {/* <Transition
         show={isFetching}
         enter="transition-all duration-75"
         enterFrom="opacity-0 scale-90"
@@ -61,7 +61,7 @@ function Transactions({ walletAddress, setHasError }: Props) {
         className="fixed bottom-2 left-1/2 z-10 -translate-x-1/2 rounded-xl bg-brand px-4 py-3"
       >
         <p className="text-sm text-white">Retrieving transactions...</p>
-      </Transition>
+      </Transition> */}
 
       <div className="rounded-xl bg-white">
         {isSuccess && !data.length && (
@@ -69,7 +69,7 @@ function Transactions({ walletAddress, setHasError }: Props) {
         )}
 
         {data.length > 0 && (
-          <div className={classNames(isFetching ? 'animate-pulse' : '')}>
+          <div className={classNames(isFetching ? '' : '')}>
             {data.map((tx, idx) => (
               <Transaction
                 key={`${tx.created}-${idx}`}

@@ -20,11 +20,11 @@ function RecentTransactions({ walletAddress, setHasError }: Props) {
           Recent transactions
         </h3>
         <div className="my-3 flex items-center justify-between">
-          {isFetching ? (
+          {/* {isFetching ? (
             <div className="h-2.5 w-12 animate-pulse rounded-full bg-gray-300"></div>
-          ) : (
+          ) : ( */}
             <p className="text-sm text-sleep-100">{data?.length} results</p>
-          )}
+          {/* )} */}
           <Link
             href="/transactions"
             className="text-sm text-brand hover:underline focus:underline focus:outline-none"
