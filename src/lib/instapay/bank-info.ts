@@ -25,7 +25,7 @@ export function bankInfoToArray() {
   const values = Object.values(BANK_INFO);
   const bankNames = values.map(v => v[0]);
 
-  return bankNames;
+  return bankNames.sort();
 }
 
 export default BANK_INFO;
