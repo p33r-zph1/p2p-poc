@@ -43,7 +43,7 @@ function BuyConfirmationModal({
     // TODO(Denis): add functionality for confirmation
     setTimeout(() => {
       onClose();
-    }, 1000);
+    }, 2500);
   };
 
   return (

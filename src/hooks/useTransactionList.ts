@@ -71,6 +71,7 @@ function useTransactionList(props: Props) {
   return useQuery({
     queryKey: [props],
     queryFn: async () => getTransactions(props),
+    refetchInterval: 5000 // 5 seconds
   });
 }
 

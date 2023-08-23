@@ -14,6 +14,7 @@ interface Escrow {
 
 interface Props {
   walletAddress: Address | undefined;
+  customChainId: string | undefined;
 }
 
 type FindingPairStatus =
@@ -23,12 +24,16 @@ type FindingPairStatus =
   | 'pairFound'
   | 'pairNotFound';
 
-export async function getEscrow({ walletAddress }: Props) {
+export async function getEscrow({ walletAddress, customChainId }: Props) {
+  if (!walletAddress) throw new Error('Wallet address is required');
+  if (!customChainId) throw new Error('Custom chain id is required');
+
   const url = `${getTransactionsAPIRoute()}/escrow`;
   const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${walletAddress}`,
       'Content-Type': 'application/json',
+      chain: customChainId,
     },
   });
   const escrow = (await response.json()) as Escrow;

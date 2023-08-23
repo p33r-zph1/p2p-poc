@@ -1,5 +1,6 @@
-import { bankInfoToArray } from '@/lib/instapay/bank-info';
+import { toPhBankInfo } from '@/lib/instapay/bank-info';
 import fiatCurrencies, { Currency } from './currency';
+import { SG_BANKS } from '@/lib/sg/bank-info';
 
 export type PaymentField = {
   label: string;
@@ -24,8 +25,8 @@ export const paymentCountries: PaymentDetails[] = [
       {
         id: 'bank-name',
         label: 'Bank Name',
-        options: bankInfoToArray(),
-        value: bankInfoToArray()[0],
+        options: toPhBankInfo,
+        value: toPhBankInfo[0],
       },
       {
         id: 'account-name',
@@ -46,8 +47,19 @@ export const paymentCountries: PaymentDetails[] = [
 
     fields: [
       {
-        id: 'mobile-number',
-        label: 'Mobile Number (PayNow)',
+        id: 'bank-name',
+        label: 'Bank Name',
+        options: SG_BANKS,
+        value: SG_BANKS[0],
+      },
+      {
+        id: 'account-name',
+        label: 'Account Name',
+        value: '',
+      },
+      {
+        id: 'account-number',
+        label: 'Account Number',
         value: '',
       },
     ],

@@ -1,5 +1,7 @@
 import { Address } from 'wagmi';
 import { Transition } from '@headlessui/react';
+import { Dispatch, SetStateAction, useEffect } from 'react';
+import { getErrorMessage } from '@/utils/isError';
 
 import { classNames } from '@/utils';
 import useTransactions from '@/hooks/useTransactionList';
@@ -10,11 +12,18 @@ import Transaction from './Transation';
 
 interface Props {
   walletAddress: Address | undefined;
+  setHasError: Dispatch<SetStateAction<string | undefined>>;
 }
 
-function Transactions({ walletAddress }: Props) {
+function Transactions({ walletAddress, setHasError }: Props) {
   const { data, error, isError, isLoading, isFetching, isSuccess } =
     useTransactions({ walletAddress });
+
+  useEffect(() => {
+    if (isError && isError) {
+      setHasError(getErrorMessage(error));
+    }
+  }, [isError, error, setHasError]);
 
   if (isLoading) {
     return (
@@ -41,7 +50,7 @@ function Transactions({ walletAddress }: Props) {
 
   return (
     <>
-      <Transition
+      {/* <Transition
         show={isFetching}
         enter="transition-all duration-75"
         enterFrom="opacity-0 scale-90"
@@ -52,7 +61,7 @@ function Transactions({ walletAddress }: Props) {
         className="fixed bottom-2 left-1/2 z-10 -translate-x-1/2 rounded-xl bg-brand px-4 py-3"
       >
         <p className="text-sm text-white">Retrieving transactions...</p>
-      </Transition>
+      </Transition> */}
 
       <div className="rounded-xl bg-white">
         {isSuccess && !data.length && (
@@ -60,7 +69,7 @@ function Transactions({ walletAddress }: Props) {
         )}
 
         {data.length > 0 && (
-          <div className={classNames(isFetching ? 'animate-pulse' : '')}>
+          <div className={classNames(isFetching ? '' : '')}>
             {data.map((tx, idx) => (
               <Transaction
                 key={`${tx.created}-${idx}`}
