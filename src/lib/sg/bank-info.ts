@@ -1,4 +1,4 @@
-export const SG_BANKS = [
+const SG_BANKS_LIST = [
   'Development Bank of Singapore',
   'United Overseas Bank',
   'Maybank Singapore Limited',
@@ -41,3 +41,5 @@ export const SG_BANKS = [
   'ANEXT BANK PTE. LTD.',
   'NIUM PTE LTD',
 ];
+
+export const SG_BANKS = SG_BANKS_LIST.sort();

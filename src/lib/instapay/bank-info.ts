@@ -102,6 +102,6 @@ const otherPhBanks = [
   "Zybi Tech Inc.",
 ]
 
-export const toPhBankInfo = [...bankInfoToArray(), ...otherPhBanks]
+export const toPhBankInfo = [...bankInfoToArray(), ...otherPhBanks].sort();
 
 export default BANK_INFO;
