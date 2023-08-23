@@ -1,4 +1,4 @@
-import { bankInfoToArray } from '@/lib/instapay/bank-info';
+import { toPhBankInfo } from '@/lib/instapay/bank-info';
 import fiatCurrencies, { Currency } from './currency';
 import { SG_BANKS } from '@/lib/sg/bank-info';
 
@@ -25,8 +25,8 @@ export const paymentCountries: PaymentDetails[] = [
       {
         id: 'bank-name',
         label: 'Bank Name',
-        options: bankInfoToArray(),
-        value: bankInfoToArray()[0],
+        options: toPhBankInfo,
+        value: toPhBankInfo[0],
       },
       {
         id: 'account-name',
