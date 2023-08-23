@@ -10,7 +10,7 @@ const BNORPHMMXXX: BankInfo = ['Banco De Oro Unibank, Inc.', /^\d{1,12}$/];
 const PAPHPHM1XXX: BankInfo = ['PayMaya', /^\d{12}$/];
 const UBPHPHMMXXX: BankInfo = ['Union Bank of the Philippines (UBP)', /^\d{12}$/];
 const BOPIPHMMXXX: BankInfo = [
-  'BANK OF THE PHILIPPINE ISLANDS',
+  'Bank of the Philippine Islands (BPI)',
   /^(\d{10}|\d{14})$/,
 ];
 
@@ -36,7 +36,7 @@ const otherPhBanks = [
   // "Banco De Oro Unibank, Inc.",
   "Bangko Mabuhay (A Rural Bank), Inc.",
   "Bank of Commerce",
-  "Bank of the Philippine Islands (BPI)",
+  // "Bank of the Philippine Islands (BPI)",
   "Binangonan Rural Bank (BRBDigital)",
   "CARD Bank",
   "CARD SME Bank, Inc., A Thrift Bank",
