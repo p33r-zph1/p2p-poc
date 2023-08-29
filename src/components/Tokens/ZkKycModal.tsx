@@ -87,7 +87,7 @@ function StatusIndicator({ status }: StatusIndicatorProps) {
   );
 }
 
-function ZpkKycModal({
+function ZkKycModal({
   close,
   isOpen,
   saveBankInfo,
@@ -192,7 +192,7 @@ function ZpkKycModal({
               <StatusIndicator status={status} />
 
               <Dialog.Title className="mt-10 text-center font-sans text-xl font-semibold md:text-2xl">
-                ZPK Kyc
+                zkKYC
               </Dialog.Title>
               <Dialog.Description
                 className={classNames(
@@ -224,4 +224,4 @@ function ZpkKycModal({
   );
 }
 
-export default ZpkKycModal;
+export default ZkKycModal;

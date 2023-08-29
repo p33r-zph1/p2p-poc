@@ -8,7 +8,7 @@ import { BankInfo } from '@/hooks/useOnboarding';
 import { extractQrData, getErrors, parseQrData } from '@/lib/instapay';
 
 import { InlineErrorDisplay } from '../shared';
-import ZpkKycModal from './ZpkKycModal';
+import ZkKycModal from './ZkKycModal';
 import {
   paymentCountries,
   PaymentDetails,
@@ -172,7 +172,7 @@ function AddPaymentDetails({
         Provide your bank account details or upload a QR code below.
       </p>
 
-      <ZpkKycModal
+      <ZkKycModal
         isOpen={isOpen}
         close={() => {
           setIsOpen(false);
