@@ -36,7 +36,7 @@ const dateFormattingByTimewindow: Record<
   },
   [PairDataTimeWindowEnum.YEAR]: {
     month: 'short',
-    day: '2-digit',
+    year: 'numeric',
   },
 };
 
@@ -52,11 +52,25 @@ function MarketChart({ coinId, currency, days }: Props) {
   const chartData = useMemo(() => {
     if (!data || !data.prices.length) return [];
 
-    return data.prices.map(([time, price]) => ({
+    const subsampleFactor = Math.floor(data.prices.length / 24);
+    const subsampledData = data.prices.filter(
+      (_, index) => index % subsampleFactor === 0
+    );
+
+    return subsampledData.map(([time, price]) => ({
       time: new Date(time),
       price,
     }));
   }, [data]);
+
+  const minY = useMemo(
+    () => Math.min(...chartData.map(d => d.price)),
+    [chartData]
+  );
+  const maxY = useMemo(
+    () => Math.max(...chartData.map(d => d.price)),
+    [chartData]
+  );
 
   if (!chartData.length) return null;
 
@@ -80,9 +94,12 @@ function MarketChart({ coinId, currency, days }: Props) {
             time.toLocaleString('en', dateFormattingByTimewindow[days])
           }
         />
-        <YAxis tickFormatter={(price: number) => price.toFixed(5)} />
+        <YAxis
+          tickFormatter={(price: number) => price.toFixed(5)}
+          domain={[minY, maxY]}
+        />
         <Tooltip />
-        <Area type="monotone" dataKey="price" stroke="#8884d8" fill="#8884d8" />
+        <Area type="linear" dataKey="price" stroke="#8884d8" fill="#8884d8" />
       </AreaChart>
     </ResponsiveContainer>
   );
