@@ -126,8 +126,16 @@ function SellTokens({
       Boolean(tokenError) ||
       // Boolean(approvePreparation.error) ||
       Number(tokenAmount) <= 0 ||
-      tokenBalance?.value.lt(parseUnits(onlyNumbers(tokenAmount || '0'), selectedToken?.decimals)), // converts tokenAmount to Wei for it to be compared to tokenBalance(BigNumber)
-    [bankInfo, tokenError, tokenAmount, tokenBalance]
+      tokenBalance?.value.lt(
+        parseUnits(onlyNumbers(tokenAmount || '0'), selectedToken?.decimals)
+      ), // converts tokenAmount to Wei for it to be compared to tokenBalance(BigNumber)
+    [
+      bankInfo,
+      tokenError,
+      tokenAmount,
+      tokenBalance?.value,
+      selectedToken?.decimals,
+    ]
   );
 
   const approveFunds = useCallback(() => {
