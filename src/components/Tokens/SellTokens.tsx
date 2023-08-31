@@ -19,7 +19,7 @@ import { BankInfo } from '@/hooks/useOnboarding';
 import useSellTokens from '@/hooks/useSellTokens';
 import { useTokenApprove } from '@/hooks/useERC20Token';
 import { classNames, errorWithReason, onlyNumbers } from '@/utils';
-import { parseEther } from 'ethers/lib/utils.js';
+import { parseUnits } from 'ethers/lib/utils.js';
 import { getErrorMessage } from '@/utils/isError';
 import { Token } from '@/constants/tokens';
 import fiatCurrencies, { Currency } from '@/constants/currency';
@@ -116,6 +116,7 @@ function SellTokens({
   } = useTokenApprove({
     amount: debouncedTokenAmount ? debouncedTokenAmount : '0',
     tokenAddress: selectedToken?.contractAddress,
+    tokenDecimals: selectedToken?.decimals,
     spenderAddress: escrowData?.sell,
   });
 
@@ -125,8 +126,16 @@ function SellTokens({
       Boolean(tokenError) ||
       // Boolean(approvePreparation.error) ||
       Number(tokenAmount) <= 0 ||
-      tokenBalance?.value.lt(parseEther(onlyNumbers(tokenAmount || '0'))), // converts tokenAmount to Wei for it to be compared to tokenBalance(BigNumber)
-    [bankInfo, tokenError, tokenAmount, tokenBalance]
+      tokenBalance?.value.lt(
+        parseUnits(onlyNumbers(tokenAmount || '0'), selectedToken?.decimals)
+      ), // converts tokenAmount to Wei for it to be compared to tokenBalance(BigNumber)
+    [
+      bankInfo,
+      tokenError,
+      tokenAmount,
+      tokenBalance?.value,
+      selectedToken?.decimals,
+    ]
   );
 
   const approveFunds = useCallback(() => {
@@ -351,7 +360,7 @@ function SellTokens({
         </div>
 
         {tokenBalance?.value.lt(
-          parseEther(onlyNumbers(tokenAmount || '0'))
+          parseUnits(onlyNumbers(tokenAmount || '0'), selectedToken.decimals)
         ) && <InlineErrorDisplay show error="Insufficient funds" />}
 
         <InlineErrorDisplay show={Boolean(error)} error={error} />

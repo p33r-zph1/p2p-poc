@@ -10,12 +10,14 @@ import {
 
 interface TokenApproval {
   tokenAddress: Address | undefined;
+  tokenDecimals: number | undefined;
   spenderAddress: Address | undefined;
   amount: string;
 }
 
 export function useTokenApprove({
   tokenAddress,
+  tokenDecimals,
   spenderAddress,
   amount,
 }: TokenApproval) {
@@ -25,7 +27,7 @@ export function useTokenApprove({
     address: tokenAddress,
     abi: erc20ABI,
     functionName: 'approve',
-    args: [spenderAddress!, utils.parseEther(onlyNumbers(amount))],
+    args: [spenderAddress!, utils.parseUnits(onlyNumbers(amount), tokenDecimals)],
     chainId: chain?.id,
     enabled: Boolean(tokenAddress) && Boolean(spenderAddress) && Boolean(chain),
   });
