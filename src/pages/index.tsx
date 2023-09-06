@@ -30,7 +30,7 @@ function Home() {
     data: bankInfo,
     isLoading: isLoadingUser,
     refetch: refetchBankInfo,
-  } = useGetUser(isConnected, address);
+  } = useGetUser(address);
 
   const [pair, setPair] = useState<
     Partial<{

@@ -2,22 +2,25 @@ import { getOnboardingAPIRoute } from '@/lib/env';
 import { useQuery } from '@tanstack/react-query';
 import { Address } from 'wagmi';
 
-export interface PHBankDetails {
+export interface BankDetails {
   bankName: string;
   accountName: string;
   accountNumber: string;
+  countryCode: string;
 }
 
-type SGBankDetails = {
-  mobileNumber: string;
-};
-
 export interface BankInfo {
-  bankDetails: (PHBankDetails | SGBankDetails) & { countryCode: string };
+  bankDetails: BankDetails;
 }
 
 export interface OnboardingResponse {
   data: BankInfo;
+  message: string;
+  copyright: string;
+}
+
+interface Response {
+  data: null;
   message: string;
   copyright: string;
 }
@@ -76,21 +79,42 @@ export async function saveUser(
   return saveUserResponse.data;
 }
 
-export function useGetUser(
-  connected: boolean,
-  walletAddress: Address | undefined
-) {
+export async function deleteUser(walletAddress: Address | undefined) {
+  if (!walletAddress) {
+    throw new Error('Wallet address is required');
+  }
+
+  const url = `${getOnboardingAPIRoute()}/${walletAddress}`;
+  const response = await fetch(url, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${walletAddress}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  const deleteUserResponse = (await response.json()) as Response;
+
+  if (!response.ok) {
+    throw new Error(
+      deleteUserResponse?.message || `Failed to delete user bank details`
+    );
+  }
+
+  return deleteUserResponse.data;
+}
+
+export function useGetUser(walletAddress: Address | undefined) {
   return useQuery({
     queryKey: [walletAddress],
     queryFn: async () => getUser(walletAddress),
-    enabled: Boolean(walletAddress) && connected,
+    enabled: Boolean(walletAddress),
     retry: false,
     refetchOnWindowFocus: false,
   });
 }
 
 export function useSaveUser(
-  connected: boolean,
   walletAddress: Address | undefined,
   bankInfo: BankInfo | undefined
 ) {
@@ -100,5 +124,20 @@ export function useSaveUser(
     enabled: false,
     retry: false,
     refetchOnWindowFocus: false,
+  });
+}
+
+export function useDeleteUser(walletAddress: Address | undefined) {
+  const { refetch } = useGetUser(walletAddress);
+
+  return useQuery({
+    queryKey: [],
+    queryFn: async () => deleteUser(walletAddress),
+    enabled: false,
+    retry: false,
+    refetchOnWindowFocus: false,
+    onSuccess() {
+      refetch();
+    },
   });
 }
