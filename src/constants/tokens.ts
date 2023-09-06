@@ -54,18 +54,18 @@ export const goerliTokens: Tokens = {
   chainId: goerli.id,
   tokens: [
     {
-      contractAddress: '0x4C339e04F85DA4a4CE55Ce74e96AA3A4B49c7B62',
+      contractAddress: '0xE8e311CaFB3D86AdEd2f0DE6e53B6c6A97e16699',
       symbol: 'USDT',
       icon: '/images/usdt.svg',
       id: 'tether',
-      decimals: 18
+      decimals: 6
     },
     {
-      contractAddress: '0x99D572B6B04ae564A9a61239A6dc744A573FFb4D',
+      contractAddress: '0x5C89f88018e76EfCFbe5cAEb118880Fc1D7b4eCb',
       symbol: 'USDC',
       icon: '/images/usdc.svg',
       id: 'usd-coin',
-      decimals: 18
+      decimals: 6
     },
     {
       contractAddress: '0x75BB3ff44dd7bF8645fC1Ba9c5148e765055c319',
@@ -162,18 +162,18 @@ export const mumbaiTokens: Tokens = {
   chainId: polygonMumbai.id,
   tokens: [
     {
-      contractAddress: '0x61F21D573cF45Bfe701a4708D7Ac97516dcAf9c1',
+      contractAddress: '0xE8e311CaFB3D86AdEd2f0DE6e53B6c6A97e16699',
       symbol: 'USDT',
       icon: '/images/usdt.svg',
       id: 'tether',
-      decimals: 18
+      decimals: 6
     },
     {
-      contractAddress: '0x4C339e04F85DA4a4CE55Ce74e96AA3A4B49c7B62',
+      contractAddress: '0x7BD733a4B36d30e49368295C44f9BDB79d4c59aa',
       symbol: 'USDC',
       icon: '/images/usdc.svg',
       id: 'usd-coin',
-      decimals: 18
+      decimals: 6
     },
     {
       contractAddress: '0x99D572B6B04ae564A9a61239A6dc744A573FFb4D',

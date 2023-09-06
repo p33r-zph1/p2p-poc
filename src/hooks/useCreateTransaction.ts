@@ -101,6 +101,7 @@ function useCreateTransaction(props: Props) {
     enabled: false,
     retry: false,
     refetchOnWindowFocus: false,
+    cacheTime: 0,
     onSuccess() {
       refetch();
     },
