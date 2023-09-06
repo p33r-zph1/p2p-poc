@@ -30,6 +30,7 @@ function Home() {
     data: bankInfo,
     isLoading: isLoadingUser,
     refetch: refetchBankInfo,
+    isError: isBankInfoError,
   } = useGetUser(address);
 
   const [pair, setPair] = useState<
@@ -87,7 +88,7 @@ function Home() {
                     return <p>Please wait...</p>;
                   }
 
-                  if (!bankInfo) {
+                  if (!bankInfo || isBankInfoError) {
                     return (
                       <AddPaymentDetails
                         setCountryFallback={setCountryFallback}

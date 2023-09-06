@@ -2,8 +2,11 @@ import { Navigation } from '@/components/layout';
 import useIsMounted from '@/hooks/useIsMounted';
 import useAuth from '@/hooks/useAuth';
 import Accounts from '@/components/AccountDetails/Accounts';
+import { useRouter } from 'next/router';
 
 function AccountSettingsPage() {
+  const router = useRouter();
+
   const {
     connect,
     disconnect,
@@ -41,9 +44,9 @@ function AccountSettingsPage() {
                     <button
                       type="button"
                       className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
-                      onClick={() => disconnect()}
+                      onClick={() => router.push('/')}
                     >
-                      Disconnect Wallet
+                      Link an Account
                     </button>
                     <p className="mt-10 text-center text-sm">
                       When your active address in MetaMask <b>does not match</b>{' '}
