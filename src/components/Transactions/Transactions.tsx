@@ -8,14 +8,15 @@ import useTransactions from '@/hooks/useTransactionList';
 
 import { InlineErrorDisplay } from '../shared';
 import TransactionSkeleton from './TransactionSkeleton';
-import Transaction from './Transation';
+import Transaction from './Transaction';
 
 interface Props {
   walletAddress: Address | undefined;
   setHasError: Dispatch<SetStateAction<string | undefined>>;
+  refund: (referenceId: string) => void;
 }
 
-function Transactions({ walletAddress, setHasError }: Props) {
+function Transactions({ walletAddress, setHasError, refund }: Props) {
   const { data, error, isError, isLoading, isFetching, isSuccess } =
     useTransactions({ walletAddress });
 
@@ -74,6 +75,7 @@ function Transactions({ walletAddress, setHasError }: Props) {
               <Transaction
                 key={`${tx.created}-${idx}`}
                 transaction={tx}
+                refund={refund}
                 lastItem={idx === data.length - 1}
               />
             ))}

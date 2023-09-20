@@ -8,6 +8,7 @@ import SuccessfulTransactionModal from './SuccessfulTransactionModal';
 
 interface Props {
   transaction: ITransaction;
+  refund: (referenceId: string) => void;
   lastItem?: boolean;
 }
 
@@ -89,7 +90,7 @@ function StatusBadge({
   );
 }
 
-function Transation({ transaction, lastItem = true }: Props) {
+function Transaction({ transaction, refund, lastItem = true }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   const {
@@ -99,6 +100,8 @@ function Transation({ transaction, lastItem = true }: Props) {
     referenceId,
     offChainStatus,
     onChainStatus,
+    chain,
+    transactionHash,
     created,
     updated,
     confirmed,
@@ -170,6 +173,10 @@ function Transation({ transaction, lastItem = true }: Props) {
                 On chain status: {onChainStatus}
               </Disclosure.Panel>
 
+              <Disclosure.Panel className="p-1 text-gray-500">
+                Chain: {chain}
+              </Disclosure.Panel>
+
               {updated && (
                 <Disclosure.Panel className="p-1 text-gray-500">
                   Updated: {new Date(updated).toLocaleString('en')}
@@ -180,6 +187,26 @@ function Transation({ transaction, lastItem = true }: Props) {
                   Confirmed: {new Date(confirmed).toLocaleString('en')}
                 </Disclosure.Panel>
               )}
+
+              <Disclosure.Panel className="p-1">
+                {transactionHash?.deposit && (
+                  <button
+                    className="mr-2 rounded-4xl bg-success px-4 py-1 text-sm font-bold text-white hover:bg-success/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-success/80 disabled:bg-sleep disabled:text-sleep-300"
+                    onClick={() =>
+                      window.open(transactionHash.deposit?.url, '_blank')
+                    }
+                  >
+                    Block explorer
+                  </button>
+                )}
+
+                <button
+                  className="mr-2 rounded-4xl bg-notice px-4 py-1 text-sm font-bold text-white hover:bg-notice/90 focus:outline-none focus:ring focus:ring-notice/80 active:bg-notice/80 disabled:bg-sleep disabled:text-sleep-300"
+                  onClick={() => refund(referenceId)}
+                >
+                  refund
+                </button>
+              </Disclosure.Panel>
             </Transition>
           </div>
         )}
@@ -194,4 +221,4 @@ function Transation({ transaction, lastItem = true }: Props) {
   );
 }
 
-export default Transation;
+export default Transaction;
