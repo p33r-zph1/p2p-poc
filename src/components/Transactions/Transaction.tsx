@@ -83,6 +83,14 @@ function StatusBadge({
     );
   }
 
+  if (onChainStatus === 'refunded') {
+    return (
+      <div className="rounded-full bg-[#EBFAF0] px-4 py-2 font-bold">
+        <p className="text-sm text-[#4FA355]">Refunded</p>
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-full bg-[#FFF6E6] px-4 py-2 font-bold">
       <p className="text-sm text-[#FFAD0D]">Pending</p>
