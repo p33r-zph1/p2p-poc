@@ -199,12 +199,12 @@ function Transaction({ transaction, refund, lastItem = true }: Props) {
               <Disclosure.Panel className="p-1">
                 {transactionHash?.deposit && (
                   <button
-                    className="mr-2 rounded-4xl bg-success px-4 py-1 text-sm font-bold text-white hover:bg-success/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-success/80 disabled:bg-sleep disabled:text-sleep-300"
+                    className="mr-2 rounded-4xl bg-cool px-4 py-1 text-sm font-bold text-white hover:bg-cool/90 focus:outline-none focus:ring focus:ring-cool/80 active:bg-cool/80 disabled:bg-sleep disabled:text-sleep-300"
                     onClick={() =>
                       window.open(transactionHash.deposit?.url, '_blank')
                     }
                   >
-                    Block explorer
+                    View on Block Explorer
                   </button>
                 )}
 
@@ -212,7 +212,7 @@ function Transaction({ transaction, refund, lastItem = true }: Props) {
                   className="mr-2 rounded-4xl bg-notice px-4 py-1 text-sm font-bold text-white hover:bg-notice/90 focus:outline-none focus:ring focus:ring-notice/80 active:bg-notice/80 disabled:bg-sleep disabled:text-sleep-300"
                   onClick={() => refund(referenceId)}
                 >
-                  refund
+                  Refund
                 </button>
               </Disclosure.Panel>
             </Transition>

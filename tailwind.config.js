@@ -14,6 +14,7 @@ module.exports = {
         sleep: '#E0E0E0',
         notice: '#FFAD0D',
         success: '#4FA355',
+        cool: '#3085C3',
         'sleep-100': '#6B7280',
         'sleep-200': '#9CA3AF',
         'sleep-300': '#B3B3B3',
