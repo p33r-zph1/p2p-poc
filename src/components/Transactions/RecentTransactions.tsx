@@ -61,6 +61,7 @@ function RecentTransactions({ walletAddress, setHasError }: Props) {
           referenceId.current = refId;
           refundAfterExpiry?.();
         }}
+        maxLimit={10}
       />
     </div>
   );

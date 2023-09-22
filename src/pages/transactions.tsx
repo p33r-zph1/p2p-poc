@@ -99,6 +99,7 @@ function TransactionsPage() {
                         }}
                         walletAddress={address}
                         setHasError={setHasError}
+                        maxLimit="all"
                       />
                     </div>
                   </>
