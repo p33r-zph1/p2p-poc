@@ -414,7 +414,7 @@ function SellTokens({
             onClick={approveFunds}
             className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
           >
-            Send Crypto
+            Pay
           </button>
         )}
 
