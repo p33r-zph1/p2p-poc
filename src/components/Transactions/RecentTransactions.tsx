@@ -22,8 +22,10 @@ function RecentTransactions({ walletAddress, setHasError }: Props) {
   });
 
   useEffect(() => {
+    if (!walletAddress) return;
+
     fetchEscrow();
-  }, [fetchEscrow]);
+  }, [walletAddress, fetchEscrow]);
 
   return (
     <div className="mt-5">
