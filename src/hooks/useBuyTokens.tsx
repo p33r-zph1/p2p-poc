@@ -10,7 +10,7 @@ import useConfirmTransaction from '@/hooks/useConfirmTransaction';
 import { getCustomChainId } from '@/constants/chains';
 
 import { BankInfo } from './useOnboarding';
-import useEscrow from './useGetEscrow';
+import { useFindPair } from './useGetEscrow';
 
 interface Props {
   walletAddress: Address | undefined;
@@ -51,10 +51,10 @@ function useBuyTokens({ walletAddress, bankInfo }: Props) {
 
   const {
     data: escrowData,
-    refetch: fetchEscrow,
+    refetch: findPair,
     findingPairStatus,
     setFindingPairStatus,
-  } = useEscrow({
+  } = useFindPair({
     walletAddress,
     customChainId: getCustomChainId(chain),
   });
@@ -127,7 +127,7 @@ function useBuyTokens({ walletAddress, bankInfo }: Props) {
 
     // useEscrow
     escrowData,
-    fetchEscrow,
+    findPair,
     findingPairStatus,
     setFindingPairStatus,
 

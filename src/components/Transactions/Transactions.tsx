@@ -13,11 +13,16 @@ import Transaction from './Transaction';
 interface Props {
   walletAddress: Address | undefined;
   setHasError: Dispatch<SetStateAction<string | undefined>>;
-  refund: (referenceId: string) => void;
+  refundContractAddress: Address | undefined;
   maxLimit: 'all' | number;
 }
 
-function Transactions({ walletAddress, setHasError, refund, maxLimit }: Props) {
+function Transactions({
+  walletAddress,
+  setHasError,
+  refundContractAddress,
+  maxLimit,
+}: Props) {
   const { data, error, isError, isLoading, isFetching, isSuccess } =
     useTransactions({ walletAddress });
 
@@ -55,7 +60,7 @@ function Transactions({ walletAddress, setHasError, refund, maxLimit }: Props) {
       <Transaction
         key={`${tx.created}-${idx}`}
         transaction={tx}
-        refund={refund}
+        refundContractAddress={refundContractAddress}
         lastItem={idx === transactions.length - 1}
       />
     ));

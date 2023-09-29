@@ -83,6 +83,7 @@ function useTransactionList(props: Props) {
   return useQuery({
     queryKey: [props],
     queryFn: async () => getTransactions(props),
+    enabled: Boolean(props?.walletAddress),
     refetchInterval: 5000, // 5 seconds
   });
 }

@@ -4,8 +4,7 @@ import { Address, useNetwork } from 'wagmi';
 import Transactions from './Transactions';
 import useTransactions from '@/hooks/useTransactionList';
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
-import { useEscrowContract } from '@/hooks/useEscrowContract';
-import useEscrow from '@/hooks/useGetEscrow';
+import { useEscrow } from '@/hooks/useGetEscrow';
 import { getCustomChainId } from '@/constants/chains';
 
 interface Props {
@@ -17,16 +16,9 @@ function RecentTransactions({ walletAddress, setHasError }: Props) {
   const { data, isFetching } = useTransactions({ walletAddress });
   const { chain } = useNetwork();
 
-  const referenceId = useRef<string>('');
-
   const { data: escrowData, refetch: fetchEscrow } = useEscrow({
     walletAddress,
     customChainId: getCustomChainId(chain),
-  });
-
-  const { refundAfterExpiry } = useEscrowContract({
-    contractAddress: escrowData?.sell,
-    referenceId: referenceId.current,
   });
 
   useEffect(() => {
@@ -57,10 +49,7 @@ function RecentTransactions({ walletAddress, setHasError }: Props) {
       <Transactions
         walletAddress={walletAddress}
         setHasError={setHasError}
-        refund={refId => {
-          referenceId.current = refId;
-          refundAfterExpiry?.();
-        }}
+        refundContractAddress={escrowData?.sell}
         maxLimit={10}
       />
     </div>

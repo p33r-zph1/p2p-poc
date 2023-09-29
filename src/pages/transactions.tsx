@@ -1,13 +1,14 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Navigation } from '@/components/layout';
 import { Transactions } from '@/components/Transactions';
 import useIsMounted from '@/hooks/useIsMounted';
 import useTransactions from '@/hooks/useTransactionList';
 import useAuth from '@/hooks/useAuth';
-import useEscrow from '@/hooks/useGetEscrow';
+import { useEscrow } from '@/hooks/useGetEscrow';
 import { getCustomChainId } from '@/constants/chains';
 import { useNetwork } from 'wagmi';
 import { useEscrowContract } from '@/hooks/useEscrowContract';
+import { getErrorMessage } from '@/utils/isError';
 
 function TransactionsPage() {
   const {
@@ -24,21 +25,16 @@ function TransactionsPage() {
 
   const mounted = useIsMounted();
 
-  const referenceId = useRef<string>('');
-
   const { data: escrowData, refetch: fetchEscrow } = useEscrow({
     walletAddress: address,
     customChainId: getCustomChainId(chain),
   });
 
-  const { refundAfterExpiry } = useEscrowContract({
-    contractAddress: escrowData?.sell,
-    referenceId: referenceId.current,
-  });
-
   useEffect(() => {
+    if (!address) return;
+
     fetchEscrow();
-  }, [fetchEscrow]);
+  }, [address, fetchEscrow]);
 
   if (!mounted) return null; // TODO(dennis): display loading indicator while wagmi is hydrating
 
@@ -93,10 +89,7 @@ function TransactionsPage() {
 
                     <div className="my-5">
                       <Transactions
-                        refund={refId => {
-                          referenceId.current = refId;
-                          refundAfterExpiry?.();
-                        }}
+                        refundContractAddress={escrowData?.sell}
                         walletAddress={address}
                         setHasError={setHasError}
                         maxLimit="all"
