@@ -35,7 +35,7 @@ export const paymentCountries: PaymentDetails[] = [
       },
       {
         id: 'account-number',
-        label: 'Account/Mobile Number (InstaPay)',
+        label: 'Account Number or Mobile Number(for e-Wallets)',
         value: '',
       },
     ],
