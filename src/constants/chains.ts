@@ -1,6 +1,6 @@
 import {
   mainnet as ethereum,
-  goerli,
+  sepolia,
   bsc,
   bscTestnet,
   polygon,
@@ -11,14 +11,14 @@ import type { Chain } from 'wagmi';
 import { buildConfig } from './build';
 import { xrplSidechain } from './custom-chains';
 
-const ethChains = [ethereum, goerli];
+const ethChains = [ethereum, sepolia];
 const bnbChains = [bsc, bscTestnet];
 const maticChains = [polygon, polygonMumbai];
 const xrplChains = [xrplSidechain];
 
 const mainnetChains: Chain[] = [/* ethereum */ bsc /*polygon*/];
 const testnetChains: Chain[] = [
-  goerli,
+  sepolia,
   bscTestnet,
   polygonMumbai,
   xrplSidechain,
