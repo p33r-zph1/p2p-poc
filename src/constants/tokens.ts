@@ -191,21 +191,21 @@ export const arbitrumTokens: Tokens = {
     chainId: arbitrum.id,
     tokens: [
       {
-        contractAddress: '',
+        contractAddress: '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9',
         symbol: 'USDT',
         icon: '/images/usdt.svg',
         id: 'tether',
         decimals: 6,
       },
       {
-        contractAddress: '',
+        contractAddress: '0xaf88d065e77c8cc2239327c5edb3a432268e5831',
         symbol: 'USDC',
         icon: '/images/usdc.svg',
         id: 'usd-coin',
         decimals: 6
       },
       {
-        contractAddress: '',
+        contractAddress: '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',
         symbol: 'DAI',
         icon: '/images/dai.svg',
         id: 'dai',
