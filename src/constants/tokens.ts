@@ -2,11 +2,13 @@ import { Address, Chain } from 'wagmi';
 
 import {
   mainnet as ethereum,
-  goerli,
+  sepolia,
   bsc,
   bscTestnet,
   polygon,
   polygonMumbai,
+  arbitrum,
+  arbitrumGoerli
 } from 'wagmi/chains';
 import { xrplSidechain } from './custom-chains';
 
@@ -50,25 +52,25 @@ export const ethereumTokens: Tokens = {
   ],
 };
 
-export const goerliTokens: Tokens = {
-  chainId: goerli.id,
+export const sepoliaTokens: Tokens = {
+  chainId: sepolia.id,
   tokens: [
     {
-      contractAddress: '0xE8e311CaFB3D86AdEd2f0DE6e53B6c6A97e16699',
+      contractAddress: '0x61F21D573cF45Bfe701a4708D7Ac97516dcAf9c1',
       symbol: 'USDT',
       icon: '/images/usdt.svg',
       id: 'tether',
       decimals: 6
     },
     {
-      contractAddress: '0x5C89f88018e76EfCFbe5cAEb118880Fc1D7b4eCb',
+      contractAddress: '0x177f4a319881754B3B5c2d8346517830083Ad06B',
       symbol: 'USDC',
       icon: '/images/usdc.svg',
       id: 'usd-coin',
       decimals: 6
     },
     {
-      contractAddress: '0x75BB3ff44dd7bF8645fC1Ba9c5148e765055c319',
+      contractAddress: '0x61251F8dE99fd1C2738a68f98f631fB26375db36',
       symbol: 'DAI',
       icon: '/images/dai.svg',
       id: 'dai',
@@ -185,6 +187,60 @@ export const mumbaiTokens: Tokens = {
   ],
 };
 
+export const arbitrumTokens: Tokens = {
+    chainId: arbitrum.id,
+    tokens: [
+      {
+        contractAddress: '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9',
+        symbol: 'USDT',
+        icon: '/images/usdt.svg',
+        id: 'tether',
+        decimals: 6,
+      },
+      {
+        contractAddress: '0xaf88d065e77c8cc2239327c5edb3a432268e5831',
+        symbol: 'USDC',
+        icon: '/images/usdc.svg',
+        id: 'usd-coin',
+        decimals: 6
+      },
+      {
+        contractAddress: '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',
+        symbol: 'DAI',
+        icon: '/images/dai.svg',
+        id: 'dai',
+        decimals: 18
+      },
+    ],
+  };
+  
+  export const arbitrumGoerliTokens: Tokens = {
+    chainId: arbitrumGoerli.id,
+    tokens: [
+      {
+        contractAddress: '0x61F21D573cF45Bfe701a4708D7Ac97516dcAf9c1',
+        symbol: 'USDT',
+        icon: '/images/usdt.svg',
+        id: 'tether',
+        decimals: 6
+      },
+      {
+        contractAddress: '0x61251F8dE99fd1C2738a68f98f631fB26375db36',
+        symbol: 'USDC',
+        icon: '/images/usdc.svg',
+        id: 'usd-coin',
+        decimals: 6
+      },
+      {
+        contractAddress: '0xb248c0Bc1C0781A882bEc20Ef36757864119F4c1',
+        symbol: 'DAI',
+        icon: '/images/dai.svg',
+        id: 'dai',
+        decimals: 18
+      },
+    ],
+  };
+
 export const xrplSidechainTokens: Tokens = {
   chainId: xrplSidechain.id,
   tokens: [
@@ -251,11 +307,13 @@ export function fromChain(chain: Chain | undefined): Token[] {
   if (!chain) return fallbackTokens.tokens;
 
   if (chain.id === ethereumTokens.chainId) return ethereumTokens.tokens;
-  if (chain.id === goerliTokens.chainId) return goerliTokens.tokens;
+  if (chain.id === sepoliaTokens.chainId) return sepoliaTokens.tokens;
   if (chain.id === bscTokens.chainId) return bscTokens.tokens;
   if (chain.id === bscTestTokens.chainId) return bscTestTokens.tokens;
   if (chain.id === polygonTokens.chainId) return polygonTokens.tokens;
   if (chain.id === mumbaiTokens.chainId) return mumbaiTokens.tokens;
+  if (chain.id === arbitrumTokens.chainId) return arbitrumTokens.tokens;
+  if (chain.id === arbitrumGoerliTokens.chainId) return arbitrumGoerliTokens.tokens;
   if (chain.id === xrplSidechainTokens.chainId)
     return xrplSidechainTokens.tokens;
 
