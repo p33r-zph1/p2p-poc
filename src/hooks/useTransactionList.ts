@@ -12,6 +12,11 @@ interface Order {
   amount: number;
 }
 
+interface TransactionHash {
+  hash: string;
+  url: string;
+}
+
 export interface ITransaction {
   // status:
   //   | 'matching'
@@ -25,6 +30,13 @@ export interface ITransaction {
   //   | 'success'
   //   | 'failed';
   // transactionStatus: string;
+  chain: string;
+  transactionHash: {
+    withdraw?: TransactionHash;
+    deposit?: TransactionHash;
+    refund?: TransactionHash;
+  };
+  depositTransactionHash: string;
   onChainStatus: string;
   offChainStatus: string;
   referenceId: string;
@@ -71,7 +83,8 @@ function useTransactionList(props: Props) {
   return useQuery({
     queryKey: [props],
     queryFn: async () => getTransactions(props),
-    refetchInterval: 5000 // 5 seconds
+    enabled: Boolean(props?.walletAddress),
+    refetchInterval: 5000, // 5 seconds
   });
 }
 

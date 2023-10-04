@@ -70,9 +70,8 @@ function BuyTokens({
     tokens,
     tokenError,
 
-    // useEscrow
     escrowData, // TODO: is this needed?
-    fetchEscrow,
+    findPair,
     findingPairStatus,
     setFindingPairStatus,
 

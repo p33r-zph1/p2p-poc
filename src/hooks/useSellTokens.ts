@@ -10,7 +10,7 @@ import { getCustomChainId } from '@/constants/chains';
 
 import { BankInfo } from './useOnboarding';
 import useConfirmTransaction from './useConfirmTransaction';
-import useEscrow from './useGetEscrow';
+import { useFindPair } from './useGetEscrow';
 import useDisputeTransaction from './useDisputeTransaction';
 
 interface Props {
@@ -48,10 +48,10 @@ function useSellTokens({ walletAddress, bankInfo }: Props) {
 
   const {
     data: escrowData,
-    refetch: fetchEscrow,
+    refetch: findPair,
     findingPairStatus,
     setFindingPairStatus,
-  } = useEscrow({
+  } = useFindPair({
     walletAddress,
     customChainId: getCustomChainId(chain),
   });
@@ -110,7 +110,7 @@ function useSellTokens({ walletAddress, bankInfo }: Props) {
 
     // useEscrow
     escrowData,
-    fetchEscrow,
+    findPair,
     findingPairStatus,
     setFindingPairStatus,
 

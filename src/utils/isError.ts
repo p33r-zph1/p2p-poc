@@ -2,7 +2,7 @@ type ErrorWithMessage = {
   message: string;
 };
 
-function isErrorWithKey<TKey extends string>(
+export function isPropertyWithKey<TKey extends string>(
   error: unknown,
   key: TKey
 ): error is Record<TKey, string> {
@@ -17,8 +17,9 @@ function isErrorWithKey<TKey extends string>(
 function toErrorWithMessage(maybeError: unknown): ErrorWithMessage {
   // checking for reason key must come first because it has a
   // better error message on metamask than the message key
-  if (isErrorWithKey(maybeError, 'reason')) return new Error(maybeError.reason);
-  if (isErrorWithKey(maybeError, 'message')) return maybeError;
+  if (isPropertyWithKey(maybeError, 'reason'))
+    return new Error(maybeError.reason);
+  if (isPropertyWithKey(maybeError, 'message')) return maybeError;
 
   try {
     return new Error(JSON.stringify(maybeError));
@@ -31,4 +32,8 @@ function toErrorWithMessage(maybeError: unknown): ErrorWithMessage {
 
 export function getErrorMessage(error: unknown) {
   return toErrorWithMessage(error).message;
+}
+
+export function getFirstSentence(errorText: string) {
+  return errorText.split('.')[0];
 }

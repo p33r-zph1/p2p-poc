@@ -3,7 +3,7 @@ import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import { Play } from '@next/font/google';
 import { useMemo } from 'react';
-import { WagmiConfig, createClient, configureChains } from 'wagmi';
+import { WagmiConfig, createConfig, configureChains } from 'wagmi';
 import { publicProvider } from 'wagmi/providers/public';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -13,12 +13,13 @@ import chainList from '@/constants/chains';
 import { getPrintableEnvName } from '@/constants/build';
 
 /** @see https://wagmi.sh/examples/connect-wallet#step-1-configuring-connectors */
-const { chains, provider, webSocketProvider } = configureChains(chainList, [
-  publicProvider(),
-]);
+const { chains, publicClient, webSocketPublicClient } = configureChains(
+  chainList,
+  [publicProvider()]
+);
 
-// Set up client
-const wagmiClient = createClient({
+// Set up config
+const wagmiConfig = createConfig({
   autoConnect: true,
   connectors: [
     /** @see https://wagmi.sh/react/connectors/injected */
@@ -35,8 +36,8 @@ const wagmiClient = createClient({
       },
     }),
   ],
-  provider,
-  webSocketProvider,
+  publicClient,
+  webSocketPublicClient,
 });
 
 const queryClient = new QueryClient();
@@ -65,7 +66,7 @@ export default function App({ Component, pageProps }: AppProps) {
       `}</style>
 
       <QueryClientProvider client={queryClient}>
-        <WagmiConfig client={wagmiClient}>
+        <WagmiConfig config={wagmiConfig}>
           <Component {...pageProps} />
         </WagmiConfig>
       </QueryClientProvider>

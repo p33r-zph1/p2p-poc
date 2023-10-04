@@ -7,6 +7,7 @@ import { getAppDomainName } from '@/constants/build';
 import chains from '@/constants/chains';
 
 import useMountedAccount from './useMountedAccount';
+import { isPropertyWithKey } from '@/utils/isError';
 
 function useAuth() {
   const { connect, ...connectProps } = useConnect({
@@ -24,7 +25,7 @@ function useAuth() {
   const [hasError, setHasError] = useState<string | undefined>();
 
   const connectWallet = useCallback(() => {
-    if (typeof window.ethereum === 'undefined') {
+    if (typeof isPropertyWithKey(window, 'ethereum') === 'undefined') {
       const deepLink = `https://metamask.app.link/dapp/${getAppDomainName({
         localhostAllowed: false,
       })}`;

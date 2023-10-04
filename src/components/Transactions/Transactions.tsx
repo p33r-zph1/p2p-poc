@@ -4,18 +4,25 @@ import { Dispatch, SetStateAction, useEffect } from 'react';
 import { getErrorMessage } from '@/utils/isError';
 
 import { classNames } from '@/utils';
-import useTransactions from '@/hooks/useTransactionList';
+import useTransactions, { ITransaction } from '@/hooks/useTransactionList';
 
 import { InlineErrorDisplay } from '../shared';
 import TransactionSkeleton from './TransactionSkeleton';
-import Transaction from './Transation';
+import Transaction from './Transaction';
 
 interface Props {
   walletAddress: Address | undefined;
   setHasError: Dispatch<SetStateAction<string | undefined>>;
+  refundContractAddress: Address | undefined;
+  maxLimit: 'all' | number;
 }
 
-function Transactions({ walletAddress, setHasError }: Props) {
+function Transactions({
+  walletAddress,
+  setHasError,
+  refundContractAddress,
+  maxLimit,
+}: Props) {
   const { data, error, isError, isLoading, isFetching, isSuccess } =
     useTransactions({ walletAddress });
 
@@ -48,6 +55,20 @@ function Transactions({ walletAddress, setHasError }: Props) {
     );
   }
 
+  const renderTransactions = (transactions: ITransaction[]) => {
+    return transactions.map((tx, idx) => (
+      <Transaction
+        key={`${tx.created}-${idx}`}
+        transaction={tx}
+        refundContractAddress={refundContractAddress}
+        lastItem={idx === transactions.length - 1}
+      />
+    ));
+  };
+
+  const displayedTransactions =
+    typeof maxLimit === 'number' ? data.slice(0, maxLimit) : data;
+
   return (
     <>
       {/* <Transition
@@ -70,13 +91,7 @@ function Transactions({ walletAddress, setHasError }: Props) {
 
         {data.length > 0 && (
           <div className={classNames(isFetching ? '' : '')}>
-            {data.map((tx, idx) => (
-              <Transaction
-                key={`${tx.created}-${idx}`}
-                transaction={tx}
-                lastItem={idx === data.length - 1}
-              />
-            ))}
+            {renderTransactions(displayedTransactions)}
           </div>
         )}
       </div>
