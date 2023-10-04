@@ -1,5 +1,5 @@
 import { onlyNumbers } from '@/utils';
-import { utils } from 'ethers';
+import { parseUnits } from 'viem';
 import {
   usePrepareContractWrite,
   erc20ABI,
@@ -27,7 +27,10 @@ export function useTokenApprove({
     address: tokenAddress,
     abi: erc20ABI,
     functionName: 'approve',
-    args: [spenderAddress!, utils.parseUnits(onlyNumbers(amount), tokenDecimals)],
+    args: [
+      spenderAddress!,
+      parseUnits(onlyNumbers(amount), tokenDecimals || 0),
+    ],
     chainId: chain?.id,
     enabled: Boolean(tokenAddress) && Boolean(spenderAddress) && Boolean(chain),
   });

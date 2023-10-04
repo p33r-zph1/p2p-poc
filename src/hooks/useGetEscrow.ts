@@ -45,12 +45,12 @@ export async function getEscrow({ walletAddress, customChainId }: Props) {
   return escrow.data;
 }
 
-function useEscrow(props: Props) {
+export function useFindPair(props: Props) {
   const [findingPairStatus, setFindingPairStatus] =
     useState<FindingPairStatus>('idle');
 
   const { isFetching, ...rest } = useQuery({
-    queryKey: [],
+    queryKey: ['pair'],
     queryFn: async () => getEscrow(props),
     onSuccess() {
       // if (props.type === 'BUY') setFindingPairStatus('waitingForEscrow');
@@ -88,4 +88,11 @@ function useEscrow(props: Props) {
   };
 }
 
-export default useEscrow;
+export function useEscrow(props: Props) {
+  return useQuery({
+    queryKey: ['escrow'],
+    queryFn: async () => getEscrow(props),
+    enabled: false,
+    retry: false,
+  });
+}
