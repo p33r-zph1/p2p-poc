@@ -1,23 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import { isMobile } from 'react-device-detect';
 import { useConnect, useDisconnect } from 'wagmi';
-import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 
 import { getAppDomainName } from '@/constants/build';
-import chains from '@/constants/chains';
 
 import useMountedAccount from './useMountedAccount';
 import { isPropertyWithKey } from '@/utils/isError';
 
 function useAuth() {
-  const { connect, ...connectProps } = useConnect({
-    // Manually setting up the connector to only use MetaMask
-    // If we want to support other wallets, use the connectors prop from useConnect() hook and remove the connector below)
-    // https://wagmi.sh/examples/connect-wallet
-    connector: new MetaMaskConnector({
-      chains,
-    }),
-  });
+  const { connect, connectors, ...connectProps } = useConnect();
   const { disconnect, ...disconnectProps } = useDisconnect();
 
   const { isConnected, address } = useMountedAccount();
@@ -39,8 +30,12 @@ function useAuth() {
       return;
     }
 
-    connect();
-  }, [connect]);
+    // grab the first connector (defined in _app.tsx `wagmiConfig`)
+    const injectedConnector = connectors[0];
+
+    // connect using the injected connector
+    connect({ connector: injectedConnector });
+  }, [connect, connectors]);
 
   useEffect(() => {
     // clear the auth error state when address changes
