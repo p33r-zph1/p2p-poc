@@ -219,6 +219,18 @@ function SellTokens({
     tokenAmountHandler,
   ]);
 
+  useEffect(() => {
+    function refetchBalance() {
+      refetchTokenBalance();
+      // console.log('refetching balance...');
+    }
+
+    const intervalId = setInterval(refetchBalance, 5000);
+
+    // unmount interval
+    return () => clearInterval(intervalId);
+  }, [refetchTokenBalance]);
+
   // if (!bankInfo?.bankDetails) {
   //   return <InlineErrorDisplay show error="Payment details is required." />;
   // }
