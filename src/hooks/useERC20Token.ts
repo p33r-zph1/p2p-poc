@@ -4,6 +4,7 @@ import {
   usePrepareContractWrite,
   erc20ABI,
   useContractWrite,
+  useWaitForTransaction,
   useNetwork,
   Address,
 } from 'wagmi';
@@ -37,10 +38,15 @@ export function useTokenApprove({
 
   const { write, ...rest } = useContractWrite(config);
 
+  const { ...waitForTx } = useWaitForTransaction({
+    hash: rest.data?.hash,
+  })
+
   return {
     approve: write,
     approvePreparation,
     ...rest,
+    ...waitForTx
   };
 }
 
