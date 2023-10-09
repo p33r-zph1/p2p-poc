@@ -7,9 +7,10 @@ import { classNames } from '@/utils';
 import { useNetwork, useSwitchNetwork } from 'wagmi';
 
 const networksImages = [
-  // { ids: [1, 5], icon: '/images/ethereum.svg' },
+  { ids: [1, 11155111], icon: '/images/ethereum.svg' },
   { ids: [137, 80001], icon: '/images/polygon.svg' },
   { ids: [56, 97], icon: '/images/bnb.svg' },
+  { ids: [42161, 421613], icon: '/images/arbitrum.svg' },
   { ids: [1440002], icon: '/images/xrpl.svg' },
 ];
 
