@@ -1,8 +1,8 @@
 import { onlyNumbers } from '@/utils';
 import { parseUnits } from 'viem';
+import erc20ABI from '../abi/erc20.json'
 import {
   usePrepareContractWrite,
-  erc20ABI,
   useContractWrite,
   useWaitForTransaction,
   useNetwork,
