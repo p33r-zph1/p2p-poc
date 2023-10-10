@@ -38,7 +38,7 @@ export function useTokenApprove({
 
   const { write, ...rest } = useContractWrite(config);
 
-  const { ...waitForTx } = useWaitForTransaction({
+  const { isLoading } = useWaitForTransaction({
     hash: rest.data?.hash,
   })
 
@@ -46,7 +46,7 @@ export function useTokenApprove({
     approve: write,
     approvePreparation,
     ...rest,
-    ...waitForTx
+    isLoading
   };
 }
 
