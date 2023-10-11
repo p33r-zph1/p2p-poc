@@ -37,7 +37,15 @@ function RecentTransactions({ walletAddress, setHasError }: Props) {
           {/* {isFetching ? (
             <div className="h-2.5 w-12 animate-pulse rounded-full bg-gray-300"></div>
           ) : ( */}
-          <p className="text-sm text-sleep-100">{data?.length} results</p>
+          {/*
+            if length is less than 10, display length, 
+            if length is more than 10, display max recent transactions length "10" 
+           */}
+          <p className="text-sm text-sleep-100">{data?.length ? 
+            (data?.length <= 10 ? data?.length : '10') : 
+            '0'
+            } results
+          </p>
           {/* )} */}
           <Link
             href="/transactions"

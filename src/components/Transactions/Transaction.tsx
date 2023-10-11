@@ -81,18 +81,18 @@ function StatusBadge({
     );
   }
 
-  if (offChainStatus === 'failed' || onChainStatus === 'failed') {
-    return (
-      <div className="rounded-full bg-[#FAEBEB] px-4 py-2 font-bold">
-        <p className="text-sm text-[#D74E47]">Failed</p>
-      </div>
-    );
-  }
-
   if (onChainStatus === 'refunded') {
     return (
       <div className="rounded-full bg-[#EBFAF0] px-4 py-2 font-bold">
         <p className="text-sm text-[#4FA355]">Refunded</p>
+      </div>
+    );
+  }
+
+  if (offChainStatus === 'failed' || onChainStatus === 'failed') {
+    return (
+      <div className="rounded-full bg-[#FAEBEB] px-4 py-2 font-bold">
+        <p className="text-sm text-[#D74E47]">Failed</p>
       </div>
     );
   }

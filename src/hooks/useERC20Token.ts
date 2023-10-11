@@ -1,9 +1,11 @@
 import { onlyNumbers } from '@/utils';
 import { parseUnits } from 'viem';
+// import erc20ABI from '../abi/erc20.json'
 import {
   usePrepareContractWrite,
-  erc20ABI,
   useContractWrite,
+  // useWaitForTransaction,
+  erc20ABI,
   useNetwork,
   Address,
 } from 'wagmi';
@@ -37,10 +39,15 @@ export function useTokenApprove({
 
   const { write, ...rest } = useContractWrite(config);
 
+  // const { isLoading } = useWaitForTransaction({
+  //   hash: rest.data?.hash,
+  // })
+
   return {
     approve: write,
     approvePreparation,
     ...rest,
+    // isLoading
   };
 }
 
