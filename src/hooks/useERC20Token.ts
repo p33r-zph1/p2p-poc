@@ -1,10 +1,11 @@
 import { onlyNumbers } from '@/utils';
 import { parseUnits } from 'viem';
-import erc20ABI from '../abi/erc20.json'
+// import erc20ABI from '../abi/erc20.json'
 import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
+  erc20ABI,
   useNetwork,
   Address,
 } from 'wagmi';

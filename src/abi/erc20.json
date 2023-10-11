@@ -15,7 +15,7 @@
           { "name": "_value", "type": "uint256" }
         ],
         "name": "approve",
-        "outputs": [],
+        "outputs": [{ "name": "", "type": "bool" }],
         "payable": false,
         "stateMutability": "nonpayable",
         "type": "function"
