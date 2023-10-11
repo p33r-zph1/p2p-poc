@@ -167,10 +167,10 @@ function SellTokens({
 
   // can be refactored
   useEffect(() => {
-    if (isTransferTokenSuccess && !isTransferingToken) {
+    if (isTransferTokenSuccess) {
       createTransaction();
     }
-  }, [createTransaction, isTransferTokenSuccess, isTransferingToken]);
+  }, [createTransaction, isTransferTokenSuccess]);
 
   useEffect(() => {
     if (!connected) return;

@@ -19,7 +19,12 @@ const maticChains = [polygon, polygonMumbai];
 const arbitrumChains = [arbitrum, arbitrumGoerli];
 const xrplChains = [xrplSidechain];
 
-const mainnetChains: Chain[] = [ethereum, bsc, polygon, arbitrum];
+const mainnetChains: Chain[] = [
+  // ethereum,
+  bsc,
+  // polygon,
+  arbitrum
+];
 const testnetChains: Chain[] = [
   sepolia,
   bscTestnet,

@@ -4,7 +4,7 @@ import { parseUnits } from 'viem';
 import {
   usePrepareContractWrite,
   useContractWrite,
-  useWaitForTransaction,
+  // useWaitForTransaction,
   erc20ABI,
   useNetwork,
   Address,
@@ -39,15 +39,15 @@ export function useTokenApprove({
 
   const { write, ...rest } = useContractWrite(config);
 
-  const { isLoading } = useWaitForTransaction({
-    hash: rest.data?.hash,
-  })
+  // const { isLoading } = useWaitForTransaction({
+  //   hash: rest.data?.hash,
+  // })
 
   return {
     approve: write,
     approvePreparation,
     ...rest,
-    isLoading
+    // isLoading
   };
 }
 
