@@ -1,10 +1,9 @@
+import { erc20Mediator } from '@/abi/mediator';
 import { onlyNumbers } from '@/utils';
 import { parseUnits } from 'viem';
-// import erc20ABI from '../abi/erc20.json'
 import {
   usePrepareContractWrite,
   useContractWrite,
-  // useWaitForTransaction,
   erc20ABI,
   useNetwork,
   Address,
@@ -27,7 +26,7 @@ export function useTokenApprove({
 
   const { config, ...approvePreparation } = usePrepareContractWrite({
     address: tokenAddress,
-    abi: erc20ABI,
+    abi: erc20Mediator(chain),
     functionName: 'approve',
     args: [
       spenderAddress!,
@@ -39,15 +38,10 @@ export function useTokenApprove({
 
   const { write, ...rest } = useContractWrite(config);
 
-  // const { isLoading } = useWaitForTransaction({
-  //   hash: rest.data?.hash,
-  // })
-
   return {
     approve: write,
     approvePreparation,
     ...rest,
-    // isLoading
   };
 }
 

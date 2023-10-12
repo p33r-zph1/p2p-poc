@@ -44,16 +44,9 @@ function ConfirmationModal({
   } = transferDetails;
 
   const { isLoading, isSuccess: isConfirmed } = useWaitForTransaction({
-    confirmations: 6,
+    confirmations: 2,
     hash: txnhash,
     enabled: Boolean(txnhash) && isOpen && transferSuccessful,
-  });
-
-  console.log({
-    isLoading,
-    txnhash,
-    isOpen,
-    transferSuccessful,
   });
 
   useEffect(() => {

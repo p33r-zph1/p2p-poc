@@ -23,7 +23,7 @@ const mainnetChains: Chain[] = [
   // ethereum,
   bsc,
   // polygon,
-  arbitrum
+  arbitrum,
 ];
 const testnetChains: Chain[] = [
   sepolia,
@@ -43,6 +43,10 @@ export function getCustomChainId(chain: Chain | undefined) {
   if (xrplChains.some(c => c.id === chain.id)) return 'xrpl';
 
   return undefined;
+}
+
+export function isAnEthereumChain(chain: Chain | undefined) {
+  return ethChains.some(c => c.id === chain?.id);
 }
 
 export default buildConfig.isProdOrStaging ? mainnetChains : testnetChains;
