@@ -217,14 +217,14 @@ function Transaction({
                   Reference Id: {referenceId}
                 </Disclosure.Panel>
 
-                <Disclosure.Panel className="p-1 text-gray-500">
+                {/* <Disclosure.Panel className="p-1 text-gray-500">
                   Off chain status:{' '}
                   {onChainStatus === 'refunded' ? 'cancelled' : offChainStatus}
                 </Disclosure.Panel>
 
                 <Disclosure.Panel className="p-1 text-gray-500">
                   On chain status: {onChainStatus}
-                </Disclosure.Panel>
+                </Disclosure.Panel> */}
 
                 <Disclosure.Panel className="p-1 text-gray-500">
                   Chain: {chain}
