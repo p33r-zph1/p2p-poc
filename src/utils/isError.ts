@@ -34,6 +34,10 @@ export function getErrorMessage(error: unknown) {
   return toErrorWithMessage(error).message;
 }
 
-export function getFirstSentence(errorText: string) {
+export function getFirstSentence(errorText: string | null | undefined) {
+  if (!errorText) {
+    return 'There was an unknown error, please try again later...';
+  }
+
   return errorText.split('.')[0];
 }

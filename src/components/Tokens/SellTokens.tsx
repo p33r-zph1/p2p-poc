@@ -18,8 +18,8 @@ import { Address } from 'wagmi';
 import { BankInfo } from '@/hooks/useOnboarding';
 import useSellTokens from '@/hooks/useSellTokens';
 import { useTokenApprove } from '@/hooks/useERC20Token';
-import { classNames, errorWithReason, onlyNumbers } from '@/utils';
-import { getErrorMessage } from '@/utils/isError';
+import { classNames, onlyNumbers } from '@/utils';
+import { getErrorMessage, getFirstSentence } from '@/utils/isError';
 import { Token } from '@/constants/tokens';
 import fiatCurrencies, { Currency } from '@/constants/currency';
 
@@ -63,7 +63,7 @@ function SellTokens({
     setSelectedFiat,
     fiatAmount,
     tokenAmount,
-    fiatAmountHandler,
+    // fiatAmountHandler,
     tokenAmountHandler,
     pairPrice,
     isLoadingPairPrice,
@@ -165,13 +165,6 @@ function SellTokens({
     [bankInfo, findPair]
   );
 
-  // can be refactored
-  useEffect(() => {
-    if (isTransferTokenSuccess) {
-      createTransaction();
-    }
-  }, [createTransaction, isTransferTokenSuccess]);
-
   useEffect(() => {
     if (!connected) return;
 
@@ -200,24 +193,14 @@ function SellTokens({
     setPair({ token: selectedToken, fiat: selectedFiat });
   }, [selectedFiat, selectedToken, setPair]);
 
-  // remove this useEffect below if you want to show the confirm receipt modal
+  // close modal if mined
   useEffect(() => {
-    if (
-      createTransactionSuccess ||
-      createTransactionError ||
-      isTransferTokenError
-    ) {
+    if (createTransactionSuccess) {
       setFindingPairStatus('idle');
       tokenAmountHandler('');
       setIsConfirmModalOpen(false);
     }
-  }, [
-    createTransactionSuccess,
-    createTransactionError,
-    isTransferTokenError,
-    setFindingPairStatus,
-    tokenAmountHandler,
-  ]);
+  }, [createTransactionSuccess, setFindingPairStatus, tokenAmountHandler]);
 
   useEffect(() => {
     function refetchBalance() {
@@ -349,10 +332,10 @@ function SellTokens({
                 true
               }
               value={fiatAmount}
-              onChange={e => {
-                fiatAmountHandler(e.target.value);
-                setFindingPairStatus('idle');
-              }}
+              // onChange={e => {
+              //   fiatAmountHandler(e.target.value);
+              //   setFindingPairStatus('idle');
+              // }}
             />
             <div className="absolute inset-y-0 right-0 flex items-center border-l">
               <CurrencySelector<Currency>
@@ -477,15 +460,14 @@ function SellTokens({
       <SellConfirmationModal
         isOpen={isConfirmModalOpen}
         onClose={() => {
-          if (!isCreatingTransaction) {
-            setFindingPairStatus('idle');
-            tokenAmountHandler('');
-            setIsConfirmModalOpen(false);
-          }
+          setFindingPairStatus('idle');
+          tokenAmountHandler('');
+          setIsConfirmModalOpen(false);
         }}
         // closeable={isTransferTokenError || createTransactionSuccess}
         closeable={isTransferTokenError}
         transferDetails={{
+          txnhash: transferTokenData?.hash,
           payAmount: tokenAmount,
           payCurrency: selectedToken.symbol,
           receiveAmount: createTransactionSuccess
@@ -496,34 +478,9 @@ function SellTokens({
             : undefined,
         }}
         isError={isTransferTokenError}
-        error={
-          errorWithReason(transferTokenError)
-            ? transferTokenError.reason
-            : 'Transaction failed with unknown error'
-        }
-        isTransfering={isCreatingTransaction}
-        // transferSuccessful={createTransactionSuccess}
-        transferSuccessful={false} // don't show confirm receipt modal step
-        confirmReceipt={async () => {
-          // always happy path - needs refactor
-          // ignore below for now
-          // await confirmTransaction();
-          // setFindingPairStatus('idle');
-          // tokenAmountHandler('');
-          // setIsConfirmModalOpen(false);
-        }}
-        disputeTransaction={async () => {
-          // ignore for now
-          // always happy path - needs refactor
-          // await disputeTransaction();
-          // setFindingPairStatus('idle');
-          // tokenAmountHandler('');
-          // setIsConfirmModalOpen(false);
-        }}
-        isConfirmingOrDisputing={
-          // isConfirmingTransaction || isDisputingTransaction
-          false
-        }
+        error={getFirstSentence(transferTokenError?.message)}
+        transferSuccessful={isTransferTokenSuccess}
+        successCallback={createTransaction}
       />
     </>
   );

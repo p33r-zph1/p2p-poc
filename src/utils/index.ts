@@ -32,6 +32,7 @@ export function onlyNumbers(value: string): string {
   return value.replace(/[^0-9.]|\.(?=.*\.)/g, '');
 }
 
+/** @deprecated No longer maintained */
 export function errorWithReason(
   error: unknown
 ): error is Error & { reason: string } {

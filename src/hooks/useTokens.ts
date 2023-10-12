@@ -62,27 +62,28 @@ function useTokens({ type }: Props) {
 
       const fiatConversion = Number(tokenNumberValue) * pairPrice;
       const withFees = fiatConversion * platformFee.reversePercentage;
+
       setFiatAmount(withFees <= 0 ? '' : format(withFees.toString()));
     },
     [format, pairPrice]
   );
 
-  const fiatAmountHandler = useCallback(
-    (value: string) => {
-      const fiatNumberValue = onlyNumbers(value);
+  // const fiatAmountHandler = useCallback(
+  //   (value: string) => {
+  //     const fiatNumberValue = onlyNumbers(value);
 
-      setEditingField('Fiat');
-      setFiatAmount(format(fiatNumberValue));
+  //     setEditingField('Fiat');
+  //     setFiatAmount(format(fiatNumberValue));
 
-      if (!pairPrice) return;
+  //     if (!pairPrice) return;
 
-      const tokenConversion = Number(fiatNumberValue) / pairPrice;
-      setTokenAmount(
-        tokenConversion <= 0 ? '' : format(tokenConversion.toString())
-      );
-    },
-    [format, pairPrice]
-  );
+  //     const tokenConversion = Number(fiatNumberValue) / pairPrice;
+  //     setTokenAmount(
+  //       tokenConversion <= 0 ? '' : format(tokenConversion.toString())
+  //     );
+  //   },
+  //   [format, pairPrice]
+  // );
 
   const tokens = useMemo(() => fromChain(chain), [chain]);
 
@@ -175,13 +176,13 @@ function useTokens({ type }: Props) {
     if (editingField === 'Token') {
       tokenAmountHandler(onlyNumbers(tokenAmount));
     }
-    if (editingField === 'Fiat') {
-      fiatAmountHandler(onlyNumbers(fiatAmount));
-    }
+    // if (editingField === 'Fiat') {
+    //   fiatAmountHandler(onlyNumbers(fiatAmount));
+    // }
   }, [
     editingField,
     fiatAmount,
-    fiatAmountHandler,
+    // fiatAmountHandler,
     formattedPairPrice,
     tokenAmount,
     tokenAmountHandler,
@@ -194,7 +195,7 @@ function useTokens({ type }: Props) {
     setSelectedFiat,
     fiatAmount,
     tokenAmount,
-    fiatAmountHandler,
+    // fiatAmountHandler,
     tokenAmountHandler,
     pairPrice: formattedPairPrice,
     pairPriceError,
