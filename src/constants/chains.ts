@@ -20,9 +20,9 @@ const arbitrumChains = [arbitrum, arbitrumGoerli];
 const xrplChains = [xrplSidechain];
 
 const mainnetChains: Chain[] = [
-  // ethereum,
+  ethereum,
   bsc,
-  // polygon,
+  polygon,
   arbitrum,
 ];
 const testnetChains: Chain[] = [
