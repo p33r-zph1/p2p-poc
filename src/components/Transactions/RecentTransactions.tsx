@@ -1,9 +1,11 @@
 import Link from 'next/link';
-import { Address } from 'wagmi';
+import { Address, useNetwork } from 'wagmi';
 
 import Transactions from './Transactions';
 import useTransactions from '@/hooks/useTransactionList';
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import { useEscrow } from '@/hooks/useGetEscrow';
+import { getCustomChainId } from '@/constants/chains';
 
 interface Props {
   walletAddress: Address | undefined;
@@ -12,6 +14,18 @@ interface Props {
 
 function RecentTransactions({ walletAddress, setHasError }: Props) {
   const { data, isFetching } = useTransactions({ walletAddress });
+  const { chain } = useNetwork();
+
+  const { data: escrowData, refetch: fetchEscrow } = useEscrow({
+    walletAddress,
+    customChainId: getCustomChainId(chain),
+  });
+
+  useEffect(() => {
+    if (!walletAddress) return;
+
+    fetchEscrow();
+  }, [walletAddress, fetchEscrow]);
 
   return (
     <div className="mt-5">
@@ -23,7 +37,15 @@ function RecentTransactions({ walletAddress, setHasError }: Props) {
           {/* {isFetching ? (
             <div className="h-2.5 w-12 animate-pulse rounded-full bg-gray-300"></div>
           ) : ( */}
-            <p className="text-sm text-sleep-100">{data?.length} results</p>
+          {/*
+            if length is less than 10, display length, 
+            if length is more than 10, display max recent transactions length "10" 
+           */}
+          <p className="text-sm text-sleep-100">{data?.length ? 
+            (data?.length <= 10 ? data?.length : '10') : 
+            '0'
+            } results
+          </p>
           {/* )} */}
           <Link
             href="/transactions"
@@ -34,7 +56,12 @@ function RecentTransactions({ walletAddress, setHasError }: Props) {
         </div>
       </div>
 
-      <Transactions walletAddress={walletAddress} setHasError={setHasError} />
+      <Transactions
+        walletAddress={walletAddress}
+        setHasError={setHasError}
+        refundContractAddress={escrowData?.sell}
+        maxLimit={10}
+      />
     </div>
   );
 }

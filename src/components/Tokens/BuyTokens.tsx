@@ -61,7 +61,7 @@ function BuyTokens({
     setSelectedFiat,
     fiatAmount,
     tokenAmount,
-    fiatAmountHandler,
+    // fiatAmountHandler,
     tokenAmountHandler,
     pairPrice,
     isLoadingPairPrice,
@@ -70,9 +70,8 @@ function BuyTokens({
     tokens,
     tokenError,
 
-    // useEscrow
     escrowData, // TODO: is this needed?
-    fetchEscrow,
+    findPair,
     findingPairStatus,
     setFindingPairStatus,
 
@@ -186,10 +185,10 @@ function BuyTokens({
                 findingPairStatus === 'waitingForEscrow'
               }
               value={fiatAmount}
-              onChange={e => {
-                fiatAmountHandler(e.target.value);
-                setFindingPairStatus('idle');
-              }}
+              // onChange={e => {
+              //   fiatAmountHandler(e.target.value);
+              //   setFindingPairStatus('idle');
+              // }}
             />
             <div className="absolute inset-y-0 right-0 flex items-center border-l">
               <CurrencySelector<Currency>
@@ -422,7 +421,7 @@ function BuyTokens({
         onClose={() => {
           if (!isConfirmingTransaction) {
             setFindingPairStatus('idle');
-            fiatAmountHandler('');
+            // fiatAmountHandler('');
             setPaymentImage(undefined);
             setIsConfirmModalOpen(false);
           }

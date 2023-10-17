@@ -1,9 +1,10 @@
+import { erc20Mediator } from '@/abi/mediator';
 import { onlyNumbers } from '@/utils';
-import { utils } from 'ethers';
+import { parseUnits } from 'viem';
 import {
   usePrepareContractWrite,
-  erc20ABI,
   useContractWrite,
+  erc20ABI,
   useNetwork,
   Address,
 } from 'wagmi';
@@ -25,9 +26,12 @@ export function useTokenApprove({
 
   const { config, ...approvePreparation } = usePrepareContractWrite({
     address: tokenAddress,
-    abi: erc20ABI,
+    abi: erc20Mediator(chain),
     functionName: 'approve',
-    args: [spenderAddress!, utils.parseUnits(onlyNumbers(amount), tokenDecimals)],
+    args: [
+      spenderAddress!,
+      parseUnits(onlyNumbers(amount), tokenDecimals || 0),
+    ],
     chainId: chain?.id,
     enabled: Boolean(tokenAddress) && Boolean(spenderAddress) && Boolean(chain),
   });

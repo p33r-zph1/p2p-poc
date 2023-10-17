@@ -18,9 +18,8 @@ import { Address } from 'wagmi';
 import { BankInfo } from '@/hooks/useOnboarding';
 import useSellTokens from '@/hooks/useSellTokens';
 import { useTokenApprove } from '@/hooks/useERC20Token';
-import { classNames, errorWithReason, onlyNumbers } from '@/utils';
-import { parseUnits } from 'ethers/lib/utils.js';
-import { getErrorMessage } from '@/utils/isError';
+import { classNames, onlyNumbers } from '@/utils';
+import { getErrorMessage, getFirstSentence } from '@/utils/isError';
 import { Token } from '@/constants/tokens';
 import fiatCurrencies, { Currency } from '@/constants/currency';
 
@@ -28,7 +27,7 @@ import CurrencySelector from './CurrencySelector';
 import { InlineErrorDisplay } from '../shared';
 import { MatchedIcon, MatchingIcon } from '../icons';
 import SellConfirmationModal from './SellConfirmationModal';
-import useEscrow from '@/hooks/useGetEscrow';
+import { parseUnits } from 'viem';
 
 interface Props {
   bankInfo: BankInfo | undefined;
@@ -64,7 +63,7 @@ function SellTokens({
     setSelectedFiat,
     fiatAmount,
     tokenAmount,
-    fiatAmountHandler,
+    // fiatAmountHandler,
     tokenAmountHandler,
     pairPrice,
     isLoadingPairPrice,
@@ -75,9 +74,8 @@ function SellTokens({
     tokens,
     tokenError,
 
-    // useEscrow
     escrowData,
-    fetchEscrow,
+    findPair,
     findingPairStatus,
     setFindingPairStatus,
 
@@ -120,23 +118,27 @@ function SellTokens({
     spenderAddress: escrowData?.sell,
   });
 
-  const isTransferError = useMemo(
-    () =>
+  const isTransferError = useMemo(() => {
+    const parsedTokenAmount = parseUnits(
+      onlyNumbers(tokenAmount || '0'),
+      selectedToken?.decimals || 0
+    );
+
+    return (
       !Boolean(bankInfo) ||
       Boolean(tokenError) ||
       // Boolean(approvePreparation.error) ||
       Number(tokenAmount) <= 0 ||
-      tokenBalance?.value.lt(
-        parseUnits(onlyNumbers(tokenAmount || '0'), selectedToken?.decimals)
-      ), // converts tokenAmount to Wei for it to be compared to tokenBalance(BigNumber)
-    [
-      bankInfo,
-      tokenError,
-      tokenAmount,
-      tokenBalance?.value,
-      selectedToken?.decimals,
-    ]
-  );
+      (tokenBalance?.value !== undefined &&
+        tokenBalance.value < parsedTokenAmount)
+    );
+  }, [
+    bankInfo,
+    tokenError,
+    tokenAmount,
+    tokenBalance?.value,
+    selectedToken?.decimals,
+  ]);
 
   const approveFunds = useCallback(() => {
     if (!approve) return;
@@ -158,17 +160,10 @@ function SellTokens({
         return;
       }
 
-      fetchEscrow();
+      findPair();
     },
-    [bankInfo, fetchEscrow]
+    [bankInfo, findPair]
   );
-
-  // can be refactored
-  useEffect(() => {
-    if (isTransferTokenSuccess) {
-      createTransaction();
-    }
-  }, [createTransaction, isTransferTokenSuccess]);
 
   useEffect(() => {
     if (!connected) return;
@@ -198,24 +193,26 @@ function SellTokens({
     setPair({ token: selectedToken, fiat: selectedFiat });
   }, [selectedFiat, selectedToken, setPair]);
 
-  // remove this useEffect below if you want to show the confirm receipt modal
+  // close modal if mined
   useEffect(() => {
-    if (
-      createTransactionSuccess ||
-      createTransactionError ||
-      isTransferTokenError
-    ) {
+    if (createTransactionSuccess) {
       setFindingPairStatus('idle');
       tokenAmountHandler('');
       setIsConfirmModalOpen(false);
     }
-  }, [
-    createTransactionSuccess,
-    createTransactionError,
-    isTransferTokenError,
-    setFindingPairStatus,
-    tokenAmountHandler,
-  ]);
+  }, [createTransactionSuccess, setFindingPairStatus, tokenAmountHandler]);
+
+  useEffect(() => {
+    function refetchBalance() {
+      refetchTokenBalance();
+      // console.log('refetching balance...');
+    }
+
+    const intervalId = setInterval(refetchBalance, 5000);
+
+    // unmount interval
+    return () => clearInterval(intervalId);
+  }, [refetchTokenBalance]);
 
   // if (!bankInfo?.bankDetails) {
   //   return <InlineErrorDisplay show error="Payment details is required." />;
@@ -335,10 +332,10 @@ function SellTokens({
                 true
               }
               value={fiatAmount}
-              onChange={e => {
-                fiatAmountHandler(e.target.value);
-                setFindingPairStatus('idle');
-              }}
+              // onChange={e => {
+              //   fiatAmountHandler(e.target.value);
+              //   setFindingPairStatus('idle');
+              // }}
             />
             <div className="absolute inset-y-0 right-0 flex items-center border-l">
               <CurrencySelector<Currency>
@@ -359,9 +356,12 @@ function SellTokens({
           </div>
         </div>
 
-        {tokenBalance?.value.lt(
-          parseUnits(onlyNumbers(tokenAmount || '0'), selectedToken.decimals)
-        ) && <InlineErrorDisplay show error="Insufficient funds" />}
+        {tokenBalance?.value !== undefined &&
+          tokenBalance.value <
+            parseUnits(
+              onlyNumbers(tokenAmount || '0'),
+              selectedToken.decimals
+            ) && <InlineErrorDisplay show error="Insufficient funds" />}
 
         <InlineErrorDisplay show={Boolean(error)} error={error} />
         <InlineErrorDisplay show={Boolean(tokenError)} error={tokenError} />
@@ -414,7 +414,7 @@ function SellTokens({
             onClick={approveFunds}
             className="w-full rounded-4xl bg-brand px-4 py-3 text-sm font-bold text-white hover:bg-brand/90 focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80 disabled:bg-sleep disabled:text-sleep-300"
           >
-            Send Crypto
+            Pay
           </button>
         )}
 
@@ -460,15 +460,14 @@ function SellTokens({
       <SellConfirmationModal
         isOpen={isConfirmModalOpen}
         onClose={() => {
-          if (!isCreatingTransaction) {
-            setFindingPairStatus('idle');
-            tokenAmountHandler('');
-            setIsConfirmModalOpen(false);
-          }
+          setFindingPairStatus('idle');
+          tokenAmountHandler('');
+          setIsConfirmModalOpen(false);
         }}
         // closeable={isTransferTokenError || createTransactionSuccess}
         closeable={isTransferTokenError}
         transferDetails={{
+          txnhash: transferTokenData?.hash,
           payAmount: tokenAmount,
           payCurrency: selectedToken.symbol,
           receiveAmount: createTransactionSuccess
@@ -479,34 +478,9 @@ function SellTokens({
             : undefined,
         }}
         isError={isTransferTokenError}
-        error={
-          errorWithReason(transferTokenError)
-            ? transferTokenError.reason
-            : 'Transaction failed with unknown error'
-        }
-        isTransfering={isCreatingTransaction}
-        // transferSuccessful={createTransactionSuccess}
-        transferSuccessful={false} // don't show confirm receipt modal step
-        confirmReceipt={async () => {
-          // always happy path - needs refactor
-          // ignore below for now
-          // await confirmTransaction();
-          // setFindingPairStatus('idle');
-          // tokenAmountHandler('');
-          // setIsConfirmModalOpen(false);
-        }}
-        disputeTransaction={async () => {
-          // ignore for now
-          // always happy path - needs refactor
-          // await disputeTransaction();
-          // setFindingPairStatus('idle');
-          // tokenAmountHandler('');
-          // setIsConfirmModalOpen(false);
-        }}
-        isConfirmingOrDisputing={
-          // isConfirmingTransaction || isDisputingTransaction
-          false
-        }
+        error={getFirstSentence(transferTokenError?.message)}
+        transferSuccessful={isTransferTokenSuccess}
+        successCallback={createTransaction}
       />
     </>
   );

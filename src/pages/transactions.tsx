@@ -1,8 +1,14 @@
+import { useEffect, useRef, useState } from 'react';
 import { Navigation } from '@/components/layout';
 import { Transactions } from '@/components/Transactions';
 import useIsMounted from '@/hooks/useIsMounted';
 import useTransactions from '@/hooks/useTransactionList';
 import useAuth from '@/hooks/useAuth';
+import { useEscrow } from '@/hooks/useGetEscrow';
+import { getCustomChainId } from '@/constants/chains';
+import { useNetwork } from 'wagmi';
+import { useEscrowContract } from '@/hooks/useEscrowContract';
+import { getErrorMessage } from '@/utils/isError';
 
 function TransactionsPage() {
   const {
@@ -14,9 +20,21 @@ function TransactionsPage() {
     hasError,
     setHasError,
   } = useAuth();
+  const { chain } = useNetwork();
   const { data, isFetching } = useTransactions({ walletAddress: address });
 
   const mounted = useIsMounted();
+
+  const { data: escrowData, refetch: fetchEscrow } = useEscrow({
+    walletAddress: address,
+    customChainId: getCustomChainId(chain),
+  });
+
+  useEffect(() => {
+    if (!address) return;
+
+    fetchEscrow();
+  }, [address, fetchEscrow]);
 
   if (!mounted) return null; // TODO(dennis): display loading indicator while wagmi is hydrating
 
@@ -63,16 +81,18 @@ function TransactionsPage() {
                       {/* {isFetching ? (
                         <div className="h-2.5 w-12 animate-pulse rounded-full bg-gray-300"></div>
                       ) : ( */}
-                        <p className="text-sm text-sleep-100">
-                          {data?.length} results
-                        </p>
+                      <p className="text-sm text-sleep-100">
+                        {data?.length} results
+                      </p>
                       {/* )} */}
                     </div>
 
                     <div className="my-5">
                       <Transactions
+                        refundContractAddress={escrowData?.sell}
                         walletAddress={address}
                         setHasError={setHasError}
+                        maxLimit="all"
                       />
                     </div>
                   </>
