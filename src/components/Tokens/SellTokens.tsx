@@ -105,10 +105,10 @@ function SellTokens({
 
   const {
     approve,
-    isLoading: isTransferingToken,
-    error: transferTokenError,
-    isError: isTransferTokenError,
-    isSuccess: isTransferTokenSuccess,
+    isLoading: isApprovingToken,
+    error: approveTokenError,
+    isError: isApproveTokenError,
+    isSuccess: isApproveTokenSuccess,
     data: transferTokenData,
     // approvePreparation,
   } = useTokenApprove({
@@ -465,7 +465,7 @@ function SellTokens({
           setIsConfirmModalOpen(false);
         }}
         // closeable={isTransferTokenError || createTransactionSuccess}
-        closeable={isTransferTokenError}
+        closeable={isApproveTokenError}
         transferDetails={{
           txnhash: transferTokenData?.hash,
           payAmount: tokenAmount,
@@ -477,9 +477,9 @@ function SellTokens({
             ? createTransactionData?.order?.currency.toString() || 'N/A'
             : undefined,
         }}
-        isError={isTransferTokenError}
-        error={getFirstSentence(transferTokenError?.message)}
-        transferSuccessful={isTransferTokenSuccess}
+        isError={isApproveTokenError}
+        error={getFirstSentence(approveTokenError?.message)}
+        transferSuccessful={isApproveTokenSuccess}
         successCallback={createTransaction}
       />
     </>
