@@ -28,7 +28,7 @@ function Navigation({
         aria-label="navigate to home page"
         className="focus:outline-none focus:ring focus:ring-brand/80 active:bg-brand/80"
       >
-        <Logo className="hidden sm:block" />
+        <Logo className="ml-2 hidden sm:block" />
         <LogoIcon className="rounded text-white sm:hidden" />
       </Link>
 
