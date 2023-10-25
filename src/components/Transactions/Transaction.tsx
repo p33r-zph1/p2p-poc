@@ -17,6 +17,7 @@ interface Props {
 }
 
 interface StatusBadgeProps {
+  chain: string;
   offChainStatus: ITransaction['offChainStatus'];
   onChainStatus: ITransaction['onChainStatus'];
   onConfirmReciept: MouseEventHandler<HTMLButtonElement>;
@@ -24,6 +25,7 @@ interface StatusBadgeProps {
 }
 
 function StatusBadge({
+  chain,
   offChainStatus,
   onChainStatus,
   onConfirmReciept,
@@ -97,14 +99,17 @@ function StatusBadge({
     );
   }
 
+  if (refundable) {
+    return (
+      <div className="rounded-full bg-[#FFF6E6] px-4 py-2 font-bold">
+        <p className="text-sm text-[#FFAD0D]">Refundable ({chain})</p>
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-full bg-[#FFF6E6] px-4 py-2 font-bold">
-      <p className="text-sm text-[#FFAD0D]">
-        Pending{' '}
-        {refundable && (
-          <span className="text-xs text-[#FFAD0D]">(refundable)</span>
-        )}
-      </p>
+      <p className="text-sm text-[#FFAD0D]">Pending</p>
     </div>
   );
 }
@@ -201,6 +206,7 @@ function Transaction({
 
                 <div className="flex items-center space-x-4">
                   <StatusBadge
+                    chain={chain}
                     offChainStatus={offChainStatus}
                     onChainStatus={onChainStatus}
                     onConfirmReciept={confirmReceipt}
@@ -253,11 +259,6 @@ function Transaction({
                     Confirmed: {new Date(confirmed).toLocaleString('en')}
                   </Disclosure.Panel>
                 )}
-                {refundable && !isOnSameChain && (
-                  <Disclosure.Panel className="p-1 text-gray-500">
-                    Please switch to <b>{chain}</b> chain to enable refund.
-                  </Disclosure.Panel>
-                )}
 
                 <Disclosure.Panel className="p-1">
                   {transactionHash?.deposit && (
@@ -292,6 +293,12 @@ function Transaction({
                     </button>
                   )}
                 </Disclosure.Panel>
+
+                {refundable && !isOnSameChain && (
+                  <Disclosure.Panel className="p-1 text-sm text-gray-500">
+                    Please switch to <b>{chain}</b> chain to enable refund.
+                  </Disclosure.Panel>
+                )}
 
                 {refundError?.message && (
                   <Disclosure.Panel className="text-xm p-1 font-bold text-mad">
