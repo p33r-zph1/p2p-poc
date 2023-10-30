@@ -118,7 +118,7 @@ function ConfirmationModal({
                 </Dialog.Description>
               )}
 
-              {transferSuccessful && isLoading && (
+              {transferSuccessful && (
                 <>
                   <Dialog.Description
                     className={

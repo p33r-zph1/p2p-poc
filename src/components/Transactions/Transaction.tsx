@@ -7,7 +7,7 @@ import { classNames } from '@/utils';
 import SuccessfulTransactionModal from './SuccessfulTransactionModal';
 import { isDateGreaterThanOrEqualOneDay } from '@/utils/date';
 import { useEscrowContract } from '@/hooks/useEscrowContract';
-import { Address } from 'wagmi';
+import { Address, useNetwork } from 'wagmi';
 import { getFirstSentence } from '@/utils/isError';
 
 interface Props {
@@ -17,6 +17,7 @@ interface Props {
 }
 
 interface StatusBadgeProps {
+  chain: string;
   offChainStatus: ITransaction['offChainStatus'];
   onChainStatus: ITransaction['onChainStatus'];
   onConfirmReciept: MouseEventHandler<HTMLButtonElement>;
@@ -24,6 +25,7 @@ interface StatusBadgeProps {
 }
 
 function StatusBadge({
+  chain,
   offChainStatus,
   onChainStatus,
   onConfirmReciept,
@@ -97,14 +99,17 @@ function StatusBadge({
     );
   }
 
+  if (refundable) {
+    return (
+      <div className="rounded-full bg-[#FFF6E6] px-4 py-2 font-bold">
+        <p className="text-sm text-[#FFAD0D]">Refundable ({chain})</p>
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-full bg-[#FFF6E6] px-4 py-2 font-bold">
-      <p className="text-sm text-[#FFAD0D]">
-        Pending{' '}
-        {refundable && (
-          <span className="text-xs text-[#FFAD0D]">(refundable)</span>
-        )}
-      </p>
+      <p className="text-sm text-[#FFAD0D]">Pending</p>
     </div>
   );
 }
@@ -114,6 +119,8 @@ function Transaction({
   refundContractAddress,
   lastItem = true,
 }: Props) {
+  const { chain: currentChain } = useNetwork();
+
   const [isOpen, setIsOpen] = useState(false);
   const [isDisclosureOpen, setIsDisclosureOpen] = useState(false);
 
@@ -163,6 +170,17 @@ function Transaction({
     setIsOpen(true);
   };
 
+  const isOnSameChain = useMemo(
+    () => chain === currentChain?.nativeCurrency.name,
+    [chain, currentChain?.nativeCurrency.name]
+  );
+
+  // console.log({
+  //   chainFromBe: chain,
+  //   currentChainName: currentChain?.nativeCurrency.name,
+  //   isOnSameChain,
+  // });
+
   return (
     <div className={classNames(lastItem ? '' : 'border-b')}>
       <Disclosure>
@@ -188,6 +206,7 @@ function Transaction({
 
                 <div className="flex items-center space-x-4">
                   <StatusBadge
+                    chain={chain}
                     offChainStatus={offChainStatus}
                     onChainStatus={onChainStatus}
                     onConfirmReciept={confirmReceipt}
@@ -257,6 +276,7 @@ function Transaction({
                     <button
                       className="mr-2 rounded-4xl bg-notice px-4 py-1 text-sm font-bold text-white hover:bg-notice/90 focus:outline-none focus:ring focus:ring-notice/80 active:bg-notice/80 disabled:bg-sleep disabled:text-sleep-300"
                       onClick={refundAfterExpiry}
+                      disabled={!isOnSameChain}
                     >
                       Refund
                     </button>
@@ -273,6 +293,12 @@ function Transaction({
                     </button>
                   )}
                 </Disclosure.Panel>
+
+                {refundable && !isOnSameChain && (
+                  <Disclosure.Panel className="p-1 text-sm text-gray-500">
+                    Please switch to <b>{chain}</b> chain to enable refund.
+                  </Disclosure.Panel>
+                )}
 
                 {refundError?.message && (
                   <Disclosure.Panel className="text-xm p-1 font-bold text-mad">
