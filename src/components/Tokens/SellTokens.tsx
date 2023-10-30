@@ -365,10 +365,10 @@ function SellTokens({
 
         <InlineErrorDisplay show={Boolean(error)} error={error} />
         <InlineErrorDisplay show={Boolean(tokenError)} error={tokenError} />
-        <InlineErrorDisplay
+        {/* <InlineErrorDisplay
           show={Boolean(createTransactionError)}
           error={getErrorMessage(createTransactionError)}
-        />
+        /> */}
         {/* <InlineErrorDisplay
           show={Boolean(confirmTransactionError)}
           error={getErrorMessage(confirmTransactionError)}
@@ -464,8 +464,7 @@ function SellTokens({
           tokenAmountHandler('');
           setIsConfirmModalOpen(false);
         }}
-        // closeable={isTransferTokenError || createTransactionSuccess}
-        closeable={isApproveTokenError}
+        closeable={isApproveTokenError || Boolean(createTransactionError)}
         transferDetails={{
           txnhash: transferTokenData?.hash,
           payAmount: tokenAmount,
@@ -477,8 +476,14 @@ function SellTokens({
             ? createTransactionData?.order?.currency.toString() || 'N/A'
             : undefined,
         }}
-        isError={isApproveTokenError}
-        error={getFirstSentence(approveTokenError?.message)}
+        isError={isApproveTokenError || Boolean(createTransactionError)}
+        error={
+          isApproveTokenError
+            ? getFirstSentence(approveTokenError?.message)
+            : Boolean(createTransactionError)
+            ? getErrorMessage(createTransactionError)
+            : 'Unknown error'
+        }
         transferSuccessful={isApproveTokenSuccess}
         successCallback={createTransaction}
       />
