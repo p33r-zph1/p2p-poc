@@ -49,12 +49,12 @@ const play = Play({
 });
 
 export default function App({ Component, pageProps }: AppProps) {
-  const appTitle = useMemo(() => `P33R POC ${getPrintableEnvName()}`, []);
+  // const appTitle = useMemo(() => `P33R POC ${getPrintableEnvName()}`, []);
 
   return (
     <div className={classNames(play.variable, 'bg-paper font-sans text-body')}>
       <Head>
-        <title>{appTitle}</title>
+        <title>RAILS by P33R | Easily sell your stablecoins to fiat</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
         <link rel="shortcut icon" href="/favicon.ico" />
       </Head>
