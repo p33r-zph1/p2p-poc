@@ -23,10 +23,10 @@ const customBsc: Chain = {
   ...bsc,
   rpcUrls: {
     default: {
-      http: ['https://binance.llamarpc.com'],
+      http: ['https://bsc-dataseed1.binance.org/'],
     },
     public: {
-      http: ['https://binance.llamarpc.com'],
+      http: ['https://bsc-dataseed1.binance.org/'],
     },
   },
 };
