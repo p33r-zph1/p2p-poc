@@ -19,12 +19,19 @@ const maticChains = [polygon, polygonMumbai];
 const arbitrumChains = [arbitrum, arbitrumGoerli];
 const xrplChains = [xrplSidechain];
 
-const mainnetChains: Chain[] = [
-  ethereum,
-  bsc,
-  polygon,
-  arbitrum,
-];
+const customBsc: Chain = {
+  ...bsc,
+  rpcUrls: {
+    default: {
+      http: ['https://binance.llamarpc.com'],
+    },
+    public: {
+      http: ['https://binance.llamarpc.com'],
+    },
+  },
+};
+
+const mainnetChains: Chain[] = [ethereum, customBsc, polygon, arbitrum];
 const testnetChains: Chain[] = [
   sepolia,
   bscTestnet,
