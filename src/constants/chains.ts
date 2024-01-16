@@ -31,7 +31,7 @@ const customBsc: Chain = {
   },
 };
 
-const mainnetChains: Chain[] = [ethereum, customBsc, polygon, arbitrum];
+const mainnetChains: Chain[] = [/*ethereum,*/ customBsc, polygon, arbitrum];
 const testnetChains: Chain[] = [
   sepolia,
   bscTestnet,
